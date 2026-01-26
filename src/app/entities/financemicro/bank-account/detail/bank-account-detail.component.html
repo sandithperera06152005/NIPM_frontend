@@ -1,0 +1,86 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (bankAccount(); as bankAccountRef) {
+      <div>
+        <h2 data-cy="bankAccountDetailsHeading"><span>Bank Account</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>ID</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.id }}</span>
+          </dd>
+          <dt><span>Company Id</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.companyId }}</span>
+          </dd>
+          <dt><span>Account Number</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.accountNumber }}</span>
+          </dd>
+          <dt><span>Account Name</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.accountName }}</span>
+          </dd>
+          <dt><span>Bank Name</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.bankName }}</span>
+          </dd>
+          <dt><span>Bank Id</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.bankId }}</span>
+          </dd>
+          <dt><span>Branch Name</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.branchName }}</span>
+          </dd>
+          <dt><span>Branch Id</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.branchId }}</span>
+          </dd>
+          <dt><span>Amount</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.amount }}</span>
+          </dd>
+          <dt><span>Account Code</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.accountCode }}</span>
+          </dd>
+          <dt><span>Account Id</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.accountId }}</span>
+          </dd>
+          <dt><span>Lmd</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.lmd | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span>Lmu</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.lmu }}</span>
+          </dd>
+          <dt><span>Is Active</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.isActive }}</span>
+          </dd>
+          <dt><span>Account Type Id</span></dt>
+          <dd>
+            <span>{{ bankAccountRef.accountTypeId }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/bank-account', bankAccountRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

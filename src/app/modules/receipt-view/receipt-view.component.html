@@ -1,0 +1,123 @@
+<div class="stepper-wrapper">
+  <mat-horizontal-stepper linear>
+    <!-- Step 1: Receipt Details -->
+<mat-step label="Receipt Details">
+  <mat-card class="receipt-card">
+    <mat-card-title>Receipt Information</mat-card-title><br>
+    <mat-card-content *ngIf="receipt">
+      <div class="receipt-grid">
+        <div class="receipt-item">
+          <span class="label">Receipt No:</span>
+          <span class="value">{{ receipt.code }}</span>
+        </div>
+        <div class="receipt-item">
+          <span class="label">Date:</span>
+          <span class="value">{{ receipt.date | date }}</span>
+        </div>
+        <div class="receipt-item">
+          <span class="label">Total Amount:</span>
+          <span class="value">{{ receipt.totalAmount | number:'1.2-2'}}</span>
+        </div>
+        <div class="receipt-item">
+          <span class="label">Payment Method:</span>
+          <span class="value">{{ receipt.term }}</span>
+        </div>
+
+        <ng-container *ngIf="receipt.term === 'Cheque'">
+          <div class="receipt-item">
+            <span class="label">Cheque Date:</span>
+            <span class="value">{{ receipt.checkDate | date }}</span>
+          </div>
+          <div class="receipt-item">
+            <span class="label">Cheque No:</span>
+            <span class="value">{{ receipt.checkNo }}</span>
+          </div>
+          <div class="receipt-item">
+            <span class="label">Bank:</span>
+            <span class="value">{{ receipt.bank }}</span>
+          </div>
+          <div class="receipt-item">
+            <span class="label">Branch:</span>
+            <span class="value">{{ receipt.branch }}</span>
+          </div>
+          <div class="receipt-item">
+            <span class="label">Amount:</span>
+            <span class="value">{{ receipt.amountNo | number:'1.2-2'}}</span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="receipt.term === 'Credit Card'">
+          <div class="receipt-item">
+            <span class="label">Reference Number:</span>
+            <span class="value">{{ receipt.refNo }}</span>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="receipt.term === 'Bank Deposits'">
+          <div class="receipt-item">
+            <span class="label">Bank:</span>
+            <span class="value">{{ receipt.bank }}</span>
+          </div>
+          <div class="receipt-item">
+            <span class="label">Amount:</span>
+            <span class="value">{{ receipt.depAmount | number:'1.2-2'}}</span>
+          </div>
+        </ng-container>
+      </div>
+    </mat-card-content>
+  </mat-card><br>
+  <button mat-button matStepperNext>Next</button>
+</mat-step>
+
+
+<!-- Step 2: Invoice Lines -->
+<mat-step label="Invoice Lines"><br>
+  <mat-card>
+    <mat-card-title>Invoice Lines</mat-card-title><br>
+    <mat-card-content>
+      <div>
+        Amount Paying : {{ receipt.totalAmount | number:'1.2-2'}}
+      </div> 
+        
+      <div class="table-wrapper"><br>
+        <table class="invoice-table">
+          <thead>
+            <tr>
+              <!-- Show Serial No for payment receipts, Parent/Sub Account for regular receipts -->
+              <th *ngIf="paymentLines.length > 0">Serial No</th>
+              <th *ngIf="paymentLines.length === 0">Parent Account</th>
+              <th *ngIf="paymentLines.length === 0">Sub Account</th>
+              <th>Description</th>
+              <th class="text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- For payment receipts -->
+            <tr *ngFor="let payment of paymentLines">
+              <td>{{ payment.serial }}</td>
+              <td>{{ payment.description }}</td>
+              <td class="text-right">{{ payment.amount | number:'1.2-2' }}</td>
+            </tr>
+            
+            <!-- For regular receipts (no payment lines) -->
+             <ng-container *ngIf="paymentLines.length === 0">
+              <tr *ngFor="let line of invoiceLines">
+                <td>{{ getFirstSegment(line.parentAccount) }}</td>
+                <td>{{ getLastSegment(line.subAccount) }}</td>
+                <td>{{ line.comments }}</td>
+                <td class="text-right">{{ line.amount | number:'1.2-2' }}</td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div style="margin-top: 1rem;">
+    <button mat-button matStepperPrevious>Back</button>
+    <button mat-raised-button color="primary" (click)="dialogRef.close()">Close</button>
+  </div>
+</mat-step>
+  </mat-horizontal-stepper>
+</div>

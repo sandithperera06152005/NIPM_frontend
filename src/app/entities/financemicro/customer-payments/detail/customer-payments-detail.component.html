@@ -1,0 +1,94 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (customerPayments(); as customerPaymentsRef) {
+      <div>
+        <h2 data-cy="customerPaymentsDetailsHeading"><span>Customer Payments</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>ID</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.id }}</span>
+          </dd>
+          <dt><span>Ops Unit ID</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.opsUnitID }}</span>
+          </dd>
+          <dt><span>Payment Id</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.paymentId }}</span>
+          </dd>
+          <dt><span>Payment Code</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.paymentCode }}</span>
+          </dd>
+          <dt><span>Date</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.date | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span>Address</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.address }}</span>
+          </dd>
+          <dt><span>Email</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.email }}</span>
+          </dd>
+          <dt><span>Contact No</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.contactNo }}</span>
+          </dd>
+          <dt><span>Invoice Code</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.invoiceCode }}</span>
+          </dd>
+          <dt><span>Sub Total</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.subTotal }}</span>
+          </dd>
+          <dt><span>Owing</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.owing }}</span>
+          </dd>
+          <dt><span>Discount</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.discount }}</span>
+          </dd>
+          <dt><span>Serial No</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.serialNo }}</span>
+          </dd>
+          <dt><span>Description</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.description }}</span>
+          </dd>
+          <dt><span>Account Inv</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.accountInv }}</span>
+          </dd>
+          <dt><span>Lmu</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.lmu }}</span>
+          </dd>
+          <dt><span>Lmd</span></dt>
+          <dd>
+            <span>{{ customerPaymentsRef.lmd | formatMediumDatetime }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/customer-payments', customerPaymentsRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

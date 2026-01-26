@@ -1,0 +1,273 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-receipt-heading" data-cy="ReceiptCreateUpdateHeading">Create or edit a Receipt</h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let codeRef = editForm.get('code')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_code">Code</label>
+          <input type="text" class="form-control" name="code" id="field_code" data-cy="code" formControlName="code" />
+          @if (codeRef.invalid && (codeRef.dirty || codeRef.touched)) {
+            <div>
+              @if (editForm.get('code')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 50 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_receiptDate">Receipt Date</label>
+          <div class="d-flex">
+            <input
+              id="field_receiptDate"
+              data-cy="receiptDate"
+              type="datetime-local"
+              class="form-control"
+              name="receiptDate"
+              formControlName="receiptDate"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        @let customerNameRef = editForm.get('customerName')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_customerName">Customer Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="customerName"
+            id="field_customerName"
+            data-cy="customerName"
+            formControlName="customerName"
+          />
+          @if (customerNameRef.invalid && (customerNameRef.dirty || customerNameRef.touched)) {
+            <div>
+              @if (editForm.get('customerName')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 128 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let customerAddressRef = editForm.get('customerAddress')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_customerAddress">Customer Address</label>
+          <input
+            type="text"
+            class="form-control"
+            name="customerAddress"
+            id="field_customerAddress"
+            data-cy="customerAddress"
+            formControlName="customerAddress"
+          />
+          @if (customerAddressRef.invalid && (customerAddressRef.dirty || customerAddressRef.touched)) {
+            <div>
+              @if (editForm.get('customerAddress')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 512 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_totalAmount">Total Amount</label>
+          <input
+            type="number"
+            class="form-control"
+            name="totalAmount"
+            id="field_totalAmount"
+            data-cy="totalAmount"
+            formControlName="totalAmount"
+          />
+        </div>
+
+        @let totalAmountInWordRef = editForm.get('totalAmountInWord')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_totalAmountInWord">Total Amount In Word</label>
+          <input
+            type="text"
+            class="form-control"
+            name="totalAmountInWord"
+            id="field_totalAmountInWord"
+            data-cy="totalAmountInWord"
+            formControlName="totalAmountInWord"
+          />
+          @if (totalAmountInWordRef.invalid && (totalAmountInWordRef.dirty || totalAmountInWordRef.touched)) {
+            <div>
+              @if (editForm.get('totalAmountInWord')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 500 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let commentsRef = editForm.get('comments')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_comments">Comments</label>
+          <input type="text" class="form-control" name="comments" id="field_comments" data-cy="comments" formControlName="comments" />
+          @if (commentsRef.invalid && (commentsRef.dirty || commentsRef.touched)) {
+            <div>
+              @if (editForm.get('comments')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 100 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_lmu">Lmu</label>
+          <input type="number" class="form-control" name="lmu" id="field_lmu" data-cy="lmu" formControlName="lmu" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_lmd">Lmd</label>
+          <div class="d-flex">
+            <input
+              id="field_lmd"
+              data-cy="lmd"
+              type="datetime-local"
+              class="form-control"
+              name="lmd"
+              formControlName="lmd"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_termId">Term Id</label>
+          <input type="number" class="form-control" name="termId" id="field_termId" data-cy="termId" formControlName="termId" />
+        </div>
+
+        @let termRef = editForm.get('term')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_term">Term</label>
+          <input type="text" class="form-control" name="term" id="field_term" data-cy="term" formControlName="term" />
+          @if (termRef.invalid && (termRef.dirty || termRef.touched)) {
+            <div>
+              @if (editForm.get('term')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 100 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_date">Date</label>
+          <div class="d-flex">
+            <input
+              id="field_date"
+              data-cy="date"
+              type="datetime-local"
+              class="form-control"
+              name="date"
+              formControlName="date"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_amount">Amount</label>
+          <input type="number" class="form-control" name="amount" id="field_amount" data-cy="amount" formControlName="amount" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_checkDate">Check Date</label>
+          <div class="d-flex">
+            <input
+              id="field_checkDate"
+              data-cy="checkDate"
+              type="datetime-local"
+              class="form-control"
+              name="checkDate"
+              formControlName="checkDate"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        @let checkNoRef = editForm.get('checkNo')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_checkNo">Check No</label>
+          <input type="text" class="form-control" name="checkNo" id="field_checkNo" data-cy="checkNo" formControlName="checkNo" />
+          @if (checkNoRef.invalid && (checkNoRef.dirty || checkNoRef.touched)) {
+            <div>
+              @if (editForm.get('checkNo')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 100 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let bankRef = editForm.get('bank')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_bank">Bank</label>
+          <input type="text" class="form-control" name="bank" id="field_bank" data-cy="bank" formControlName="bank" />
+          @if (bankRef.invalid && (bankRef.dirty || bankRef.touched)) {
+            <div>
+              @if (editForm.get('bank')?.errors?.maxlength) {
+                <small class="form-text text-danger">This field cannot be longer than 100 characters.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_customerId">Customer Id</label>
+          <input
+            type="number"
+            class="form-control"
+            name="customerId"
+            id="field_customerId"
+            data-cy="customerId"
+            formControlName="customerId"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_isActive">Is Active</label>
+          <input type="checkbox" class="form-check" name="isActive" id="field_isActive" data-cy="isActive" formControlName="isActive" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_deposited">Deposited</label>
+          <input type="checkbox" class="form-check" name="deposited" id="field_deposited" data-cy="deposited" formControlName="deposited" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_createdBy">Created By</label>
+          <input type="number" class="form-control" name="createdBy" id="field_createdBy" data-cy="createdBy" formControlName="createdBy" />
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

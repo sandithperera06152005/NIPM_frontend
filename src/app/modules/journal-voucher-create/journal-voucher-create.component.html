@@ -1,0 +1,292 @@
+<div class="stepper-container p-4">
+  <mat-horizontal-stepper [(selectedIndex)]="activeTabIndex" linear>
+
+    <!-- STEP 1 – JOURNAL ENTRIES -->
+    <mat-step>
+      <form [formGroup]="voucherForm">
+        <ng-template matStepLabel>Add Journal Entries</ng-template>
+        <br />
+
+        <div class="voucher-header mb-6 p-4 bg-gray-50 rounded-lg">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm font-medium text-gray-600">Voucher Code</label>
+              <p class="text-lg font-bold text-blue-600">{{ voucherCode }}</p>
+            </div>
+            <div>
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="date" required>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="voucherForm.get('date')?.hasError('required')">
+                  Date is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry Form -->
+        <div class="entry-form mb-6 p-4 border rounded-lg">
+          <h3 class="text-lg font-semibold mb-4">Add New Entry</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Account Selection -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Account</mat-label>
+              <input
+                type="text"
+                matInput
+                [formControl]="accountTypeControl"
+                [matAutocomplete]="autoAccount"
+                placeholder="Select Account"
+                
+              />
+              <mat-autocomplete
+                #autoAccount="matAutocomplete"
+                [displayWith]="displayAccountType"
+                (optionSelected)="onAccountTypeSelected($event.option.value)"
+              >
+                <mat-option *ngFor="let account of filteredAccountTypes | async" [value]="account">
+                  {{ account.code }} - {{ account.lmu?.split('/').pop() }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Transaction Type -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Type</mat-label>
+              <mat-select formControlName="transactionType">
+                <mat-option value="debit">Debit</mat-option>
+                <mat-option value="credit">Credit</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- Amount -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Amount</mat-label>
+              <input 
+                matInput 
+                type="number" 
+                formControlName="amount" 
+                placeholder="Enter Amount" 
+                min="0.01"
+                step="0.01"
+                required
+              />
+            </mat-form-field>
+
+            <!-- Comments -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Comments</mat-label>
+              <input matInput formControlName="lineComments" placeholder="Enter comments for this entry">
+            </mat-form-field>
+          </div>
+
+          <div class="mt-4 flex justify-end">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="addJournalEntry()"
+              
+            >
+              <mat-icon>add</mat-icon>
+              Add Line
+            </button>
+          </div>
+        </div>
+
+        <!-- Entries Table -->
+        <div class="entries-table mb-6" *ngIf="journalEntries.length > 0">
+          <h3 class="text-lg font-semibold mb-4">Journal Entries</h3>
+          
+          <table mat-table [dataSource]="tableData" class="w-full">
+            <!-- Serial No -->
+            <ng-container matColumnDef="serialNo">
+              <th mat-header-cell *matHeaderCellDef class="text-center">Serial No.</th>
+              <td mat-cell *matCellDef="let entry" class="text-center">{{ entry.serialNo }}</td>
+            </ng-container>
+
+            <!-- Account Code -->
+            <ng-container matColumnDef="accountCode">
+              <th mat-header-cell *matHeaderCellDef>Account Code</th>
+              <td mat-cell *matCellDef="let entry">{{ entry.accountCode }}</td>
+            </ng-container>
+
+            <!-- Debit -->
+            <ng-container matColumnDef="debit">
+              <th mat-header-cell *matHeaderCellDef class="text-right">Debit</th>
+              <td mat-cell *matCellDef="let entry" class="text-right">
+                <span *ngIf="entry.debit > 0" class="text-red-600 font-semibold">
+                  {{ entry.debit | currency:'LKR ':'symbol':'1.2-2' }}
+                </span>
+                <span *ngIf="entry.debit === 0">-</span>
+              </td>
+            </ng-container>
+
+            <!-- Credit -->
+            <ng-container matColumnDef="credit">
+              <th mat-header-cell *matHeaderCellDef class="text-right">Credit</th>
+              <td mat-cell *matCellDef="let entry" class="text-right">
+                <span *ngIf="entry.credit > 0" class="text-green-600 font-semibold">
+                  {{ entry.credit | currency:'LKR ':'symbol':'1.2-2' }}
+                </span>
+                <span *ngIf="entry.credit === 0">-</span>
+              </td>
+            </ng-container>
+
+            <!-- Comments -->
+            <ng-container matColumnDef="comments">
+              <th mat-header-cell *matHeaderCellDef>Comments</th>
+              <td mat-cell *matCellDef="let entry" class="truncate max-w-xs">{{ entry.comments }}</td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="text-center">Actions</th>
+              <td mat-cell *matCellDef="let entry; let i = index" class="text-center">
+                <button mat-icon-button color="warn" (click)="removeJournalEntry(i)" title="Remove Entry">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <!-- Totals -->
+          <div class="totals-section mt-4 p-4 bg-gray-50 rounded-lg">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-right">
+                <label class="text-sm font-medium text-gray-600">Total Debit:</label>
+                <p class="text-xl font-bold text-red-600">
+                  {{ totalDebit | currency:'LKR ':'symbol':'1.2-2' }}
+                </p>
+              </div>
+              <div class="text-right">
+                <label class="text-sm font-medium text-gray-600">Total Credit:</label>
+                <p class="text-xl font-bold text-green-600">
+                  {{ totalCredit | currency:'LKR ':'symbol':'1.2-2' }}
+                </p>
+              </div>
+            </div>
+            
+
+          </div>
+        </div>
+
+        <!-- <div *ngIf="journalEntries.length === 0" class="text-center p-8 border-2 border-dashed rounded-lg">
+          <mat-icon class="text-6xl text-gray-400 mb-4">receipt_long</mat-icon>
+          <h3 class="text-lg font-semibold text-gray-600 mb-2">No Journal Entries Added</h3>
+          <p class="text-gray-500">Add journal entries using the form above</p>
+        </div> -->
+
+        <!-- Voucher Comments -->
+        <div class="comments-section mt-6">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Voucher Comments (Optional)</mat-label>
+            <textarea matInput formControlName="comments" rows="3" placeholder="Enter overall comments for this voucher"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="button-row mt-6 flex justify-between">
+          <button mat-button (click)="close()">Cancel</button>
+          <div>
+            <button mat-button matStepperNext [disabled]="journalEntries.length === 0">
+              Review & Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- STEP 2 – REVIEW & SAVE -->
+    <mat-step>
+      <ng-template matStepLabel>Review & Save</ng-template>
+      <br>
+
+      <div class="review-section mb-6">
+        <h3 class="text-xl font-bold mb-4">Journal Voucher Summary</h3>
+        
+        <div class="summary-grid bg-gray-50 p-6 rounded-lg">
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="text-sm font-medium text-gray-600">Voucher Code:</label>
+              <p class="text-lg font-bold">{{ voucherCode }}</p>
+            </div>
+            <div>
+              <label class="text-sm font-medium text-gray-600">Date:</label>
+              <p class="text-lg">{{ voucherForm.get('date')?.value | date:'dd/MM/yyyy' }}</p>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="text-sm font-medium text-gray-600">Comments:</label>
+            <p class="mt-1">{{ voucherForm.get('comments')?.value || 'No comments' }}</p>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="text-lg font-semibold mb-2">Entries Summary</h4>
+            <div class="space-y-2">
+              <div *ngFor="let entry of tableData" class="flex justify-between items-center border-b pb-2">
+                <div>
+                  <span class="font-medium">{{ entry.accountCode }}</span>
+                  <span class="text-sm text-gray-600 ml-2">(Serial: {{ entry.serialNo }})</span>
+                </div>
+                <div class="text-right">
+                  <span *ngIf="entry.debit > 0" class="text-red-600 font-semibold">
+                    Debit: {{ entry.debit | currency:'LKR ':'symbol':'1.2-2' }}
+                  </span>
+                  <span *ngIf="entry.credit > 0" class="text-green-600 font-semibold">
+                    Credit: {{ entry.credit | currency:'LKR ':'symbol':'1.2-2' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Totals -->
+          <div class="totals-grid bg-white p-4 rounded border">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-right">
+                <label class="text-sm font-medium text-gray-600">Total Debit:</label>
+                <p class="text-xl font-bold text-red-600">
+                  {{ totalDebit | currency:'LKR ':'symbol':'1.2-2' }}
+                </p>
+              </div>
+              <div class="text-right">
+                <label class="text-sm font-medium text-gray-600">Total Credit:</label>
+                <p class="text-xl font-bold text-green-600">
+                  {{ totalCredit | currency:'LKR ':'symbol':'1.2-2' }}
+                </p>
+              </div>
+            </div>
+            
+            <div *ngIf="totalDebit === totalCredit" class="mt-4 text-center">
+              <div class="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full">
+                <mat-icon class="mr-2">check_circle</mat-icon>
+                <span class="font-semibold">Debit and Credit totals match ✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-row flex justify-between">
+        <button mat-button matStepperPrevious>Back</button>
+        <div class="space-x-2">
+          <button mat-button (click)="close()">Cancel</button>
+          <button mat-raised-button color="primary" (click)="saveJournalVoucher()">
+            <mat-icon>save</mat-icon>
+            Save Journal Voucher
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+  </mat-horizontal-stepper>
+</div>

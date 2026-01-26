@@ -1,0 +1,61 @@
+<form [formGroup]="subAccountForm">
+  <!-- Full Path Preview -->
+  <div class="text-lg text-gray-600 mt-2">
+    <strong>Full Path:</strong> {{ fullPathPreview || 'N/A' }}
+  </div>
+
+  <br />
+
+<mat-form-field appearance="outline" class="w-full">
+  <mat-label>Account type</mat-label>
+  <input
+    type="text"
+    matInput
+    [formControl]="subAccountForm.controls.parentAccount"
+    [matAutocomplete]="autoParent"
+    placeholder="Category"
+  />
+  <mat-autocomplete #autoParent="matAutocomplete" [displayWith]="displayCategory">
+    <mat-option *ngFor="let cat of filteredParentOptions | async" [value]="cat">
+      {{ cat.lmu }}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+
+  <!-- Parent Account Dropdown -->
+  <!--<mat-form-field appearance="outline" class="w-full">
+    <mat-label>Parent Account *</mat-label>
+    <mat-select
+      [formControl]="subAccountForm.controls.parentAccount"
+      placeholder="Select parent account"
+      required
+      (selectionChange)="onParentChange($event.value)"
+    >
+      <mat-option *ngFor="let cat of categories" [value]="cat">
+        {{ cat.lmu }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>-->
+
+  <!-- Sub Account Name -->
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Sub Account Name</mat-label>
+    <input matInput formControlName="name" placeholder="Enter sub account name" />
+  </mat-form-field>
+
+    <!-- Category Name Input -->
+<mat-form-field appearance="outline" class="w-full">
+  <mat-label> Sub Account Code</mat-label>
+  <span matPrefix>{{ prefixMap[subAccountForm.get('parentAccount')?.value?.lmu] || '' }}</span>
+  <input matInput formControlName="subcode" placeholder="Sub Account Code*" />
+</mat-form-field>
+
+
+  <!-- Save Button -->
+  <div class="flex justify-end mt-4">
+    <button mat-raised-button color="primary" (click)="onSave()">
+      <mat-icon>save</mat-icon>
+      Save Sub Account
+    </button>
+  </div>
+</form>

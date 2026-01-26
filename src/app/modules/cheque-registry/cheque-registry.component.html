@@ -1,0 +1,397 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+  <!-- Header -->
+  <div class="bg-default flex flex-0 flex-col p-6 pb-22 dark:bg-transparent
+         sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-12 sm:pt-12">
+
+    <!-- Title -->
+    <div class="min-w-0 flex-1">
+      <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl pb-5">
+        Cheque Registry
+      </h2>
+    </div>
+
+    <!-- Toggle Buttons (Search Mode) -->
+    <div class="flex gap-2 mr-4">
+
+      <!-- Receipt Code -->
+      <button (click)="setSearchMode('receiptCode')" [class.bg-amber-400]="searchMode === 'receiptCode'"
+        [class.bg-gray-300]="searchMode !== 'receiptCode'"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400"
+        title="Search by Receipt Voucher Code">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg
+               bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" svgIcon="mat_outline:receipt"></mat-icon>
+        </div>
+      </button>
+
+      <!-- Cheque No -->
+      <button (click)="setSearchMode('chequeNo')" [class.bg-amber-400]="searchMode === 'chequeNo'"
+        [class.bg-gray-300]="searchMode !== 'chequeNo'"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400" title="Search by Cheque No">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg
+               bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" svgIcon="mat_outline:confirmation_number"></mat-icon>
+        </div>
+      </button>
+
+      <!-- Customer -->
+      <button (click)="setSearchMode('customerName')" [class.bg-amber-400]="searchMode === 'customerName'"
+        [class.bg-gray-300]="searchMode !== 'customerName'"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400" title="Search by Customer">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg
+               bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" svgIcon="heroicons_outline:user-circle"></mat-icon>
+        </div>
+      </button>
+
+      <!-- Refresh -->
+      <button (click)="refreshFilters()"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400 bg-gray-300" title="Clear filters">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg
+               bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" svgIcon="mat_outline:refresh"></mat-icon>
+        </div>
+      </button>
+    </div>
+
+    <!-- Search Input -->
+    <div class="mt-6 flex shrink-0 items-center sm:ml-7 sm:mt-0">
+      <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-64 mt-4 self-end">
+        <mat-icon matPrefix svgIcon="heroicons_solid:magnifying-glass"></mat-icon>
+        <input matInput [formControl]="searchInputControl" [placeholder]="searchPlaceholder" autocomplete="off" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <mat-tab-group class="flex-1 min-h-0" (selectedIndexChange)="onTabChange($event)">
+
+    <mat-tab label="Customer Cheque Registry">
+      <!-- Table -->
+      <div class="example-table-container bg-card -mt-6 flex-1 overflow-auto rounded-t-2xl shadow overflow-hidden">
+        <div class="flex flex-col flex-auto h-full">
+          <div class="overflow-auto">
+            <div class="table-wrapper">
+
+              <table mat-table [dataSource]="customerDataSource" matSort
+                class="w-full table-fixed border-separate border-spacing-y-2 px-6">
+
+                <!-- Receipt Code -->
+                <ng-container matColumnDef="receiptCode">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 120px;">
+                    Receipt Code
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.receiptCode }}</td>
+                </ng-container>
+
+                <!-- Customer -->
+                <ng-container matColumnDef="customerName">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 200px;">
+                    Customer
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.customerName }}</td>
+                </ng-container>
+
+                <!-- Bank -->
+                <ng-container matColumnDef="bankName">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 200px;">
+                    Bank Name
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.bankName }}</td>
+                </ng-container>
+
+                <!-- Cheque No -->
+                <ng-container matColumnDef="chequeNo">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 100px;">
+                    Cheque No
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.chequeNo }}</td>
+                </ng-container>
+
+                <!-- Amount -->
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 120px;">
+                    Amount
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    {{ r.amount | number:'1.2-2' }}
+                  </td>
+                </ng-container>
+
+                <!-- Cheque Date -->
+                <ng-container matColumnDef="chequeDate">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 120px;">
+                    Cheque Date
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    {{ r.chequeDate | date:'mediumDate' }}
+                  </td>
+                </ng-container>
+
+                <!-- Deposited Date -->
+                <ng-container matColumnDef="depositedDate">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 160px;">
+                    Deposited Date
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    {{ r.depositedDate | date:'mediumDate' }}
+                  </td>
+                </ng-container>
+
+                <!-- Bank Account -->
+                <ng-container matColumnDef="bankAccount">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 180px;">
+                    Bank Account
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-select [(ngModel)]="r.bankAccount" panelClass="bank-account-panel">
+                        <mat-option *ngFor="let account of bankAccounts" [value]="account.accountName"
+                          [matTooltip]="account.accountName">
+                          {{ account.accountName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Status -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 150px;">
+                    Status
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-select [(ngModel)]="r.status">
+                        <mat-option value="Pending">Pending</mat-option>
+                        <mat-option value="Deposited">Deposited</mat-option>
+                        <mat-option value="Realized">Realized</mat-option>
+                        <mat-option value="Returned">Returned</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Is Changed -->
+                <ng-container matColumnDef="isChanged">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10 checkbox-col">
+                    Chg
+                  </th>
+                  <td mat-cell *matCellDef="let r" class="checkbox-col text-center">
+                    <mat-checkbox [(ngModel)]="r.isChanged"></mat-checkbox>
+                  </td>
+                </ng-container>
+
+
+                <!-- CHR From Customer -->
+                <ng-container matColumnDef="chrFrmCus">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10 checkbox-col">
+                    CHR
+                  </th>
+                  <td mat-cell *matCellDef="let r" class="checkbox-col text-center">
+                    <mat-checkbox [(ngModel)]="r.chrFrmCus"></mat-checkbox>
+                  </td>
+                </ng-container>
+
+
+                <!-- Return Fee -->
+                <ng-container matColumnDef="returnFee">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 110px;">
+                    Return Fee
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <input matInput type="number" [(ngModel)]="r.returnFee">
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Action -->
+                <ng-container matColumnDef="action">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 70px;">
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <button mat-icon-button color="primary" (click)="saveRegistry(r)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <!-- Rows -->
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="sticky top-0 z-20"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </mat-tab>
+    <mat-tab label="Company Cheque Registry">
+      <!-- Table -->
+      <div class="example-table-container bg-card -mt-6 flex-1 overflow-auto rounded-t-2xl shadow overflow-hidden">
+        <div class="flex flex-col flex-auto h-full">
+          <div class="overflow-auto">
+            <div class="table-wrapper">
+              <table mat-table [dataSource]="companyDataSource" matSort
+                class="w-full table-fixed border-separate border-spacing-y-2 px-6">
+
+                <!-- Receipt Code -->
+                <ng-container matColumnDef="receiptCode">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 120px;">
+                    Voucher Code
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.receiptCode }}</td>
+                </ng-container>
+
+                <!-- Customer -->
+                <ng-container matColumnDef="customerName">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 200px;">
+                    Customer
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.customerName }}</td>
+                </ng-container>
+
+                <!-- Bank -->
+                <ng-container matColumnDef="bankName">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 200px;">
+                    Bank Name
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.bankName }}</td>
+                </ng-container>
+
+                <!-- Cheque No -->
+                <ng-container matColumnDef="chequeNo">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 100px;">
+                    Cheque No
+                  </th>
+                  <td mat-cell *matCellDef="let r">{{ r.chequeNo }}</td>
+                </ng-container>
+
+                <!-- Amount -->
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 120px;">
+                    Amount
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    {{ r.amount | number:'1.2-2' }}
+                  </td>
+                </ng-container>
+
+                <!-- Cheque Date -->
+                <ng-container matColumnDef="chequeDate">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 120px;">
+                    Cheque Date
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    {{ r.chequeDate | date:'mediumDate' }}
+                  </td>
+                </ng-container>
+
+                <!-- Deposited Date -->
+                <ng-container matColumnDef="depositedDate">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 160px;">
+                    Deposited Date
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    {{ r.depositedDate | date:'mediumDate' }}
+                  </td>
+                </ng-container>
+
+                <!-- Bank Account -->
+                <ng-container matColumnDef="bankAccount">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 180px;">
+                    Bank Account
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-select [(ngModel)]="r.bankAccount" panelClass="bank-account-panel">
+                        <mat-option *ngFor="let account of bankAccounts" [value]="account.accountName"
+                          [matTooltip]="account.accountName">
+                          {{ account.accountName }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Status -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 150px;">
+                    Status
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <mat-select [(ngModel)]="r.status">
+                        <mat-option value="Pending">Pending</mat-option>
+                        <mat-option value="Deposited">Deposited</mat-option>
+                        <mat-option value="Realized">Realized</mat-option>
+                        <mat-option value="Returned">Returned</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Is Changed -->
+                <ng-container matColumnDef="isChanged">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10 checkbox-col">
+                    Chg
+                  </th>
+                  <td mat-cell *matCellDef="let r" class="checkbox-col text-center">
+                    <mat-checkbox [(ngModel)]="r.isChanged"></mat-checkbox>
+                  </td>
+                </ng-container>
+
+
+                <!-- CHR From Customer -->
+                <ng-container matColumnDef="chrFrmCus">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10 checkbox-col">
+                    CHR
+                  </th>
+                  <td mat-cell *matCellDef="let r" class="checkbox-col text-center">
+                    <mat-checkbox [(ngModel)]="r.chrFrmCus"></mat-checkbox>
+                  </td>
+                </ng-container>
+
+
+                <!-- Return Fee -->
+                <ng-container matColumnDef="returnFee">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 110px;">
+                    Return Fee
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <mat-form-field appearance="outline" class="w-full">
+                      <input matInput type="number" [(ngModel)]="r.returnFee">
+                    </mat-form-field>
+                  </td>
+                </ng-container>
+
+                <!-- Action -->
+                <ng-container matColumnDef="action">
+                  <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10" style="width: 70px;">
+                  </th>
+                  <td mat-cell *matCellDef="let r">
+                    <button mat-icon-button color="primary" (click)="saveRegistry(r)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <!-- Rows -->
+                <tr mat-header-row *matHeaderRowDef="displayedColumns" class="sticky top-0 z-20"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </mat-tab>
+
+  </mat-tab-group>
+
+  <!-- Paginator -->
+  <mat-paginator class="mt-auto" [length]="totalItems" [pageSize]="itemsPerPage" [pageSizeOptions]="[5,10,20]"
+    showFirstLastButtons>
+  </mat-paginator>
+</div>

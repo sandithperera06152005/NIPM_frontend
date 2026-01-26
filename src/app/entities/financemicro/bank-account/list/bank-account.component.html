@@ -1,0 +1,188 @@
+<div>
+  <h2 id="page-heading" data-cy="BankAccountHeading">
+    <span>Bank Accounts</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span>Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-bank-account"
+        [routerLink]="['/bank-account/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span>Create a new Bank Account</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  @if (bankAccounts().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span>No Bank Accounts found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span>ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="companyId">
+              <div class="d-flex">
+                <span>Company Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="accountNumber">
+              <div class="d-flex">
+                <span>Account Number</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="accountName">
+              <div class="d-flex">
+                <span>Account Name</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="bankName">
+              <div class="d-flex">
+                <span>Bank Name</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="bankId">
+              <div class="d-flex">
+                <span>Bank Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="branchName">
+              <div class="d-flex">
+                <span>Branch Name</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="branchId">
+              <div class="d-flex">
+                <span>Branch Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="amount">
+              <div class="d-flex">
+                <span>Amount</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="accountCode">
+              <div class="d-flex">
+                <span>Account Code</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="accountId">
+              <div class="d-flex">
+                <span>Account Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lmd">
+              <div class="d-flex">
+                <span>Lmd</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lmu">
+              <div class="d-flex">
+                <span>Lmu</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="isActive">
+              <div class="d-flex">
+                <span>Is Active</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="accountTypeId">
+              <div class="d-flex">
+                <span>Account Type Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (bankAccount of bankAccounts(); track trackId(bankAccount)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/bank-account', bankAccount.id, 'view']">{{ bankAccount.id }}</a>
+              </td>
+              <td>{{ bankAccount.companyId }}</td>
+              <td>{{ bankAccount.accountNumber }}</td>
+              <td>{{ bankAccount.accountName }}</td>
+              <td>{{ bankAccount.bankName }}</td>
+              <td>{{ bankAccount.bankId }}</td>
+              <td>{{ bankAccount.branchName }}</td>
+              <td>{{ bankAccount.branchId }}</td>
+              <td>{{ bankAccount.amount }}</td>
+              <td>{{ bankAccount.accountCode }}</td>
+              <td>{{ bankAccount.accountId }}</td>
+              <td>{{ bankAccount.lmd | formatMediumDatetime }}</td>
+              <td>{{ bankAccount.lmu }}</td>
+              <td>{{ bankAccount.isActive }}</td>
+              <td>{{ bankAccount.accountTypeId }}</td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a [routerLink]="['/bank-account', bankAccount.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline">View</span>
+                  </a>
+
+                  <a [routerLink]="['/bank-account', bankAccount.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline">Edit</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(bankAccount)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

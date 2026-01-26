@@ -1,0 +1,191 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+  <!-- Header -->
+  <div
+    class="bg-default flex flex-0 flex-col p-6 pb-22 dark:bg-transparent sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-12 sm:pt-12">
+    <div class="min-w-0 flex-1">
+      <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl pb-5">
+        Customer Payments
+      </h2>
+    </div>
+
+    <!-- Toggle Buttons for Search Mode -->
+    <div class="flex gap-2 mr-4">
+      <!-- Invoice Number Button -->
+      <button (click)="setSearchMode('invoiceNumber')" [class.bg-amber-400]="searchMode === 'invoiceNumber'"
+        [class.bg-gray-300]="searchMode !== 'invoiceNumber'"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400" aria-label="Search by Invoice Number"
+        title="Search by Invoice Number">
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" [svgIcon]="'mat_outline:receipt_long'"></mat-icon>
+        </div>
+      </button>
+
+      <!-- Vehicle License Number Button -->
+      <button (click)="setSearchMode('vehicleLicenseNumber')"
+        [class.bg-amber-400]="searchMode === 'vehicleLicenseNumber'"
+        [class.bg-gray-300]="searchMode !== 'vehicleLicenseNumber'"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400" aria-label="Search by Vehicle Number"
+        title="Search by Vehicle License Number">
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" [svgIcon]="'mat_outline:directions_car'"></mat-icon>
+        </div>
+      </button>
+
+      <!-- Owner Name Button -->
+      <button (click)="setSearchMode('vehicleOwnerName')" [class.bg-amber-400]="searchMode === 'vehicleOwnerName'"
+        [class.bg-gray-300]="searchMode !== 'vehicleOwnerName'"
+        class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400" aria-label="Search by Owner Name"
+        title="Search by Owner Name">
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+          <mat-icon class="text-2xl" [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
+        </div>
+      </button>
+      <button
+  (click)="refreshFilters()"
+  class="px-2 py-2 text-white rounded-xl transition-all hover:bg-amber-400 bg-gray-300"
+  aria-label="Refresh Filters"
+  title="Clear filters and reload"
+>
+  <div
+    class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50"
+  >
+    <mat-icon class="text-2xl" svgIcon="mat_outline:refresh"></mat-icon>
+  </div>
+</button>
+
+    </div>
+
+    <div class="mt-6 flex shrink-0 items-center sm:ml-7 sm:mt-0">
+      <!-- Search -->
+      <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-64 mt-4 self-end">
+        <mat-icon matPrefix svgIcon="heroicons_solid:magnifying-glass"></mat-icon>
+        <input matInput [formControl]="searchInputControl" [autocomplete]="'off'" [placeholder]="searchPlaceholder"
+          (keyup)="searchInvoices()" />
+      </mat-form-field>
+    </div>
+
+  </div>
+
+  <!-- Table -->
+<div class="example-table-container bg-card -mt-6 h-full rounded-t-2xl shadow overflow-hidden">
+  <div class="flex flex-col flex-auto h-full">
+    <div class="overflow-auto">
+      <table mat-table [dataSource]="dataSource" matSort
+        class="w-full table-fixed border-separate border-spacing-y-2 px-6">
+        
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">ID</th>
+          <td mat-cell *matCellDef="let invoice">{{ invoice.id }}</td>
+        </ng-container>
+
+        <!-- Invoice Number -->
+        <ng-container matColumnDef="invoiceNumber">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">Invoice No</th>
+          <td mat-cell *matCellDef="let invoice">{{ invoice.invoiceNumber }}</td>
+        </ng-container>
+
+        <!-- Vehicle License -->
+        <ng-container matColumnDef="vehicleLicenseNumber">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">Vehicle License</th>
+          <td mat-cell *matCellDef="let invoice">
+            {{ invoice.vehicleLicenseNumber }}
+          </td>
+        </ng-container>
+
+        <!-- Owner -->
+        <ng-container matColumnDef="vehicleOwnerName">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">Owner</th>
+          <td mat-cell *matCellDef="let invoice">
+            {{ invoice.vehicleOwnerName }}
+          </td>
+        </ng-container>
+
+        <!-- Due Amount -->
+        <ng-container matColumnDef="totalNetAmount">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">Due Amount</th>
+          <td mat-cell *matCellDef="let invoice">
+            {{ invoice.totalNetAmount | currency: " " }}
+          </td>
+        </ng-container>
+
+        <!-- Date -->
+        <ng-container matColumnDef="invoiceDate">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">Date</th>
+          <td mat-cell *matCellDef="let invoice">
+            {{ invoice.invoiceDate | date: "mediumDate" }}
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="invoiceStatus">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">Status</th>
+          <td mat-cell *matCellDef="let invoice" class="text-red-600 font-bold">
+            {{ invoice.invoiceStatus }}
+          </td>
+        </ng-container>
+
+        <!-- Payment Input -->
+        <ng-container matColumnDef="paymentAmount">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10">
+            <div class="flex items-center justify-between">
+              <button
+                mat-flat-button
+                color="primary"
+                class="ml-4"
+                (click)="onAddAmountClick()"
+              >
+                Add Amount
+              </button>
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let invoice">
+            <mat-form-field appearance="outline" class="w-40">
+              <input
+                matInput
+                type="number"
+                placeholder="Enter amount"
+                [(ngModel)]="invoice.enteredAmount"
+              />
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- View Invoice -->
+        <ng-container matColumnDef="action1">
+          <th mat-header-cell *matHeaderCellDef class="sticky top-0 bg-white z-10"></th>
+          <td mat-cell *matCellDef="let invoice">
+            <button mat-flat-button color="accent" (click)="viewInvoice(invoice)">
+              View
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Render -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="sticky top-0 z-20"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Paginator -->
+  <mat-paginator #paginator [length]="totalItems" [pageSize]="itemsPerPage" [pageSizeOptions]="[5, 10, 20]"
+    showFirstLastButtons>
+  </mat-paginator>
+</div>
+
+        <!--<ng-container matColumnDef="action2">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let invoice">
+            <div class="flex space-x-2">
+              <button mat-flat-button color="primary" (click)="addAmount(invoice.id)">
+                Add Amount
+              </button>
+            </div>
+          </td>
+        </ng-container>-->

@@ -1,0 +1,207 @@
+<!-- Reusable form component template -->
+<form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="flex items-center justify-between border-b pb-4">
+    <h2 class="text-2xl font-bold">
+      {{ heading || (isEditMode ? 'Edit CourseAdmission' : 'New CourseAdmission') }}
+    </h2>
+    <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
+  </div>
+
+  <div class="flex-auto space-y-4 overflow-y-auto pt-6">
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>FullName</mat-label>
+      <input matInput formControlName="fullName" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>NameWithInitials</mat-label>
+      <input matInput formControlName="nameWithInitials" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>PermanentAddress</mat-label>
+      <input matInput formControlName="permanentAddress" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>TeleNo</mat-label>
+      <input matInput formControlName="teleNo" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>MobileNo</mat-label>
+      <input matInput formControlName="mobileNo" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>WhatsAppNo</mat-label>
+      <input matInput formControlName="whatsAppNo" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Nic</mat-label>
+      <input matInput formControlName="nic" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>DateOfBirth</mat-label>
+      <input matInput [matDatepicker]="pickerdateOfBirth" formControlName="dateOfBirth">
+      <mat-datepicker-toggle matSuffix [for]="pickerdateOfBirth"></mat-datepicker-toggle>
+      <mat-datepicker #pickerdateOfBirth></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Employer</mat-label>
+      <input matInput formControlName="employer" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>EmployerDesignation</mat-label>
+      <input matInput formControlName="employerDesignation" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>EmployerOfficialAddress</mat-label>
+      <input matInput formControlName="employerOfficialAddress" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>EmployerTeleNo</mat-label>
+      <input matInput formControlName="employerTeleNo" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>EmployerFaxNo</mat-label>
+      <input matInput formControlName="employerFaxNo" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>SponsorByWhom</mat-label>
+      <input matInput formControlName="sponsorByWhom" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>AdvertisementTypeOther</mat-label>
+      <input matInput formControlName="advertisementTypeOther" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option *ngFor="let option of applicationStatusOptions" [value]="option">
+          {{ option }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>AppliedDateTime</mat-label>
+      <input matInput [matDatepicker]="pickerappliedDateTime" formControlName="appliedDateTime">
+      <mat-datepicker-toggle matSuffix [for]="pickerappliedDateTime"></mat-datepicker-toggle>
+      <mat-datepicker #pickerappliedDateTime></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-checkbox class="w-full" formControlName="approval1Status">
+      Approval1Status
+    </mat-checkbox>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Approval1DateTime</mat-label>
+      <input matInput [matDatepicker]="pickerapproval1DateTime" formControlName="approval1DateTime">
+      <mat-datepicker-toggle matSuffix [for]="pickerapproval1DateTime"></mat-datepicker-toggle>
+      <mat-datepicker #pickerapproval1DateTime></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-checkbox class="w-full" formControlName="approval2Status">
+      Approval2Status
+    </mat-checkbox>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Approval2DateTime</mat-label>
+      <input matInput [matDatepicker]="pickerapproval2DateTime" formControlName="approval2DateTime">
+      <mat-datepicker-toggle matSuffix [for]="pickerapproval2DateTime"></mat-datepicker-toggle>
+      <mat-datepicker #pickerapproval2DateTime></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-checkbox class="w-full" formControlName="approval3Status">
+      Approval3Status
+    </mat-checkbox>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Approval3DateTime</mat-label>
+      <input matInput [matDatepicker]="pickerapproval3DateTime" formControlName="approval3DateTime">
+      <mat-datepicker-toggle matSuffix [for]="pickerapproval3DateTime"></mat-datepicker-toggle>
+      <mat-datepicker #pickerapproval3DateTime></mat-datepicker>
+    </mat-form-field>
+      
+    
+
+    
+    
+  </div>
+
+  <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">
+    {{ errorMessage }}
+  </div>
+
+  <div class="mt-6 flex items-center justify-end border-t pt-6">
+    <button type="button" mat-button (click)="onCancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" class="ml-3" [disabled]="form.invalid || isSaving">
+      <span *ngIf="!isSaving">Save</span>
+      <span *ngIf="isSaving">Saving…</span>
+    </button>
+  </div>
+</form>

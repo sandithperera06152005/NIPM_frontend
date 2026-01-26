@@ -1,0 +1,220 @@
+<div>
+  <h2 id="page-heading" data-cy="VendorPaymentsHeading">
+    <span>Vendor Payments</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span>Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-vendor-payments"
+        [routerLink]="['/vendor-payments/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span>Create a new Vendor Payments</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  @if (vendorPayments().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span>No Vendor Payments found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span>ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="opsUnitID">
+              <div class="d-flex">
+                <span>Ops Unit ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="paymentId">
+              <div class="d-flex">
+                <span>Payment Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="paymentCode">
+              <div class="d-flex">
+                <span>Payment Code</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="date">
+              <div class="d-flex">
+                <span>Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="address">
+              <div class="d-flex">
+                <span>Address</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="email">
+              <div class="d-flex">
+                <span>Email</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="contactNo">
+              <div class="d-flex">
+                <span>Contact No</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="grnCode">
+              <div class="d-flex">
+                <span>Grn Code</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="subTotal">
+              <div class="d-flex">
+                <span>Sub Total</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="owing">
+              <div class="d-flex">
+                <span>Owing</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="discount">
+              <div class="d-flex">
+                <span>Discount</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="serialNo">
+              <div class="d-flex">
+                <span>Serial No</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="description">
+              <div class="d-flex">
+                <span>Description</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="accountInv">
+              <div class="d-flex">
+                <span>Account Inv</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lmu">
+              <div class="d-flex">
+                <span>Lmu</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lmd">
+              <div class="d-flex">
+                <span>Lmd</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="amount">
+              <div class="d-flex">
+                <span>Amount</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (vendorPayments of vendorPayments(); track trackId(vendorPayments)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/vendor-payments', vendorPayments.id, 'view']">{{ vendorPayments.id }}</a>
+              </td>
+              <td>{{ vendorPayments.opsUnitID }}</td>
+              <td>{{ vendorPayments.paymentId }}</td>
+              <td>{{ vendorPayments.paymentCode }}</td>
+              <td>{{ vendorPayments.date | formatMediumDatetime }}</td>
+              <td>{{ vendorPayments.address }}</td>
+              <td>{{ vendorPayments.email }}</td>
+              <td>{{ vendorPayments.contactNo }}</td>
+              <td>{{ vendorPayments.grnCode }}</td>
+              <td>{{ vendorPayments.subTotal }}</td>
+              <td>{{ vendorPayments.owing }}</td>
+              <td>{{ vendorPayments.discount }}</td>
+              <td>{{ vendorPayments.serialNo }}</td>
+              <td>{{ vendorPayments.description }}</td>
+              <td>{{ vendorPayments.accountInv }}</td>
+              <td>{{ vendorPayments.lmu }}</td>
+              <td>{{ vendorPayments.lmd | formatMediumDatetime }}</td>
+              <td>{{ vendorPayments.amount }}</td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a
+                    [routerLink]="['/vendor-payments', vendorPayments.id, 'view']"
+                    class="btn btn-info btn-sm"
+                    data-cy="entityDetailsButton"
+                  >
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline">View</span>
+                  </a>
+
+                  <a
+                    [routerLink]="['/vendor-payments', vendorPayments.id, 'edit']"
+                    class="btn btn-primary btn-sm"
+                    data-cy="entityEditButton"
+                  >
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline">Edit</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(vendorPayments)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

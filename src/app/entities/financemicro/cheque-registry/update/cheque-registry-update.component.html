@@ -1,0 +1,163 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-cheque-registry-heading" data-cy="ChequeRegistryCreateUpdateHeading">Create or edit a Cheque Registry</h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let receiptCodeRef = editForm.get('receiptCode')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_receiptCode">Receipt Code</label>
+          <input
+            type="text"
+            class="form-control"
+            name="receiptCode"
+            id="field_receiptCode"
+            data-cy="receiptCode"
+            formControlName="receiptCode"
+          />
+          @if (receiptCodeRef.invalid && (receiptCodeRef.dirty || receiptCodeRef.touched)) {
+            <div>
+              @if (editForm.get('receiptCode')?.errors?.required) {
+                <small class="form-text text-danger">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_customerName">Customer Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="customerName"
+            id="field_customerName"
+            data-cy="customerName"
+            formControlName="customerName"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_bankName">Bank Name</label>
+          <input type="text" class="form-control" name="bankName" id="field_bankName" data-cy="bankName" formControlName="bankName" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_chequeNo">Cheque No</label>
+          <input type="text" class="form-control" name="chequeNo" id="field_chequeNo" data-cy="chequeNo" formControlName="chequeNo" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_amount">Amount</label>
+          <input type="number" class="form-control" name="amount" id="field_amount" data-cy="amount" formControlName="amount" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_chequeDate">Cheque Date</label>
+          <div class="d-flex">
+            <input
+              id="field_chequeDate"
+              data-cy="chequeDate"
+              type="datetime-local"
+              class="form-control"
+              name="chequeDate"
+              formControlName="chequeDate"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_depositedDate">Deposited Date</label>
+          <div class="d-flex">
+            <input
+              id="field_depositedDate"
+              data-cy="depositedDate"
+              type="datetime-local"
+              class="form-control"
+              name="depositedDate"
+              formControlName="depositedDate"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_bankAccount">Bank Account</label>
+          <input
+            type="text"
+            class="form-control"
+            name="bankAccount"
+            id="field_bankAccount"
+            data-cy="bankAccount"
+            formControlName="bankAccount"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_status">Status</label>
+          <input type="text" class="form-control" name="status" id="field_status" data-cy="status" formControlName="status" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_isChanged">Is Changed</label>
+          <input type="checkbox" class="form-check" name="isChanged" id="field_isChanged" data-cy="isChanged" formControlName="isChanged" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_chrFrmCus">Chr Frm Cus</label>
+          <input type="checkbox" class="form-check" name="chrFrmCus" id="field_chrFrmCus" data-cy="chrFrmCus" formControlName="chrFrmCus" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_returnFee">Return Fee</label>
+          <input type="number" class="form-control" name="returnFee" id="field_returnFee" data-cy="returnFee" formControlName="returnFee" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_lmd">Lmd</label>
+          <div class="d-flex">
+            <input
+              id="field_lmd"
+              data-cy="lmd"
+              type="datetime-local"
+              class="form-control"
+              name="lmd"
+              formControlName="lmd"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_lmu">Lmu</label>
+          <input type="text" class="form-control" name="lmu" id="field_lmu" data-cy="lmu" formControlName="lmu" />
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,130 @@
+<div class="stepper-wrapper">
+  <mat-horizontal-stepper linear>
+    <!-- Step 1: Voucher Details -->
+    <mat-step label="Voucher Details">
+      <mat-card class="receipt-card">
+        <mat-card-title>Voucher Information</mat-card-title><br>
+        <mat-card-content *ngIf="voucher">
+          <div class="receipt-grid">
+            <div class="receipt-item">
+              <span class="label">Voucher No:</span>
+              <span class="value">{{ voucher.code || 'N/A' }}</span>
+            </div>
+            <div class="receipt-item">
+              <span class="label">Date:</span>
+              <span class="value">{{ voucher.receiptDate | date }}</span>
+            </div>
+            <div class="receipt-item">
+              <span class="label">Total Amount:</span>
+              <span class="value">{{ voucher.totalAmount | number:'1.2-2'}}</span>
+            </div>
+            <div class="receipt-item">
+              <span class="label">Payment Method:</span>
+              <span class="value">{{ voucher.term || 'N/A' }}</span>
+            </div>
+
+            <ng-container *ngIf="voucher.term === 'Cheque'">
+              <div class="receipt-item">
+                <span class="label">Cheque Date:</span>
+                <span class="value">{{ voucher.checkDate | date }}</span>
+              </div>
+              <div class="receipt-item">
+                <span class="label">Cheque No:</span>
+                <span class="value">{{ voucher.checkNo || 'N/A' }}</span>
+              </div>
+              <div class="receipt-item">
+                <span class="label">Bank:</span>
+                <span class="value">{{ voucher.bank || 'N/A' }}</span>
+              </div>
+              <div class="receipt-item">
+                <span class="label">Branch:</span>
+                <span class="value">{{ voucher.branch || 'N/A' }}</span>
+              </div>
+              <div class="receipt-item">
+                <span class="label">Amount:</span>
+                <span class="value">{{ voucher.amountNo | number:'1.2-2'}}</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="voucher.term === 'Credit Card'">
+              <div class="receipt-item">
+                <span class="label">Reference Number:</span>
+                <span class="value">{{ voucher.refNo || 'N/A' }}</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="voucher.term === 'Deposit'">
+              <div class="receipt-item">
+                <span class="label">Bank:</span>
+                <span class="value">{{ voucher.bank || voucher.depBank || 'N/A' }}</span>
+              </div>
+              <div class="receipt-item">
+                <span class="label">Amount:</span>
+                <span class="value">{{ voucher.amount | number:'1.2-2'}}</span>
+              </div>
+            </ng-container>
+          </div>
+        </mat-card-content>
+      </mat-card><br>
+      <button mat-button matStepperNext>Next</button>
+    </mat-step>
+
+    <!-- Step 2: Voucher Lines -->
+    <mat-step label="Voucher Lines"><br>
+      <mat-card>
+        <mat-card-title>Voucher Lines</mat-card-title><br>
+        <mat-card-content>
+          <div>
+            Amount Paying : {{ voucher?.totalAmount | number:'1.2-2' }}
+          </div> 
+            
+          <div class="table-wrapper"><br>
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <!-- Show Serial No for payment receipts, Parent/Sub Account for regular receipts -->
+                  <th *ngIf="paymentLines.length > 0">Serial No</th>
+                  <th *ngIf="paymentLines.length === 0">Parent Account</th>
+                  <th *ngIf="paymentLines.length === 0">Sub Account</th>
+                  <th>Description</th>
+                  <th class="text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- For payment receipts -->
+                <tr *ngFor="let payment of paymentLines">
+                  <td *ngIf="paymentLines.length > 0">{{ payment.serial }}</td>
+                  <td>{{ payment.description || 'No description' }}</td>
+                  <td class="text-right">{{ payment.amount | number:'1.2-2' }}</td>
+                </tr>
+                
+                <!-- For regular receipts (no payment lines) -->
+                <ng-container *ngIf="paymentLines.length === 0">
+                  <tr *ngFor="let line of invoiceLines; let i = index">
+                    <td>{{ line.parentAccount?.lmu || line.parentAccount?.code || 'N/A' }}</td>
+                    <td>{{ line.subAccount?.lmu || line.subAccount?.code || 'N/A' }}</td>
+                    <td>{{ line.comments || 'No comments' }}</td>
+                    <td class="text-right">{{ line.amount | number:'1.2-2' }}</td>
+                  </tr>
+
+                </ng-container>
+
+                <!-- Show message if no lines found -->
+                <tr *ngIf="paymentLines.length === 0 && invoiceLines.length === 0">
+                  <td [attr.colspan]="paymentLines.length > 0 ? 3 : 4" class="text-center">
+                    No voucher lines found
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <div style="margin-top: 1rem;">
+        <button mat-button matStepperPrevious>Back</button>
+        <button mat-raised-button color="primary" (click)="dialogRef.close()">Close</button>
+      </div>
+    </mat-step>
+  </mat-horizontal-stepper>
+</div>

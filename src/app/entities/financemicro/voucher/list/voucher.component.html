@@ -1,0 +1,284 @@
+<div>
+  <h2 id="page-heading" data-cy="VoucherHeading">
+    <span>Vouchers</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span>Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-voucher"
+        [routerLink]="['/voucher/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span>Create a new Voucher</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  @if (vouchers().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span>No Vouchers found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span>ID</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="code">
+              <div class="d-flex">
+                <span>Code</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="receiptDate">
+              <div class="d-flex">
+                <span>Receipt Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="customerName">
+              <div class="d-flex">
+                <span>Customer Name</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="customerAddress">
+              <div class="d-flex">
+                <span>Customer Address</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="totalAmount">
+              <div class="d-flex">
+                <span>Total Amount</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="totalAmountInWord">
+              <div class="d-flex">
+                <span>Total Amount In Word</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="comments">
+              <div class="d-flex">
+                <span>Comments</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lmu">
+              <div class="d-flex">
+                <span>Lmu</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="lmd">
+              <div class="d-flex">
+                <span>Lmd</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="termId">
+              <div class="d-flex">
+                <span>Term Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="term">
+              <div class="d-flex">
+                <span>Term</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="date">
+              <div class="d-flex">
+                <span>Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="amount">
+              <div class="d-flex">
+                <span>Amount</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="checkDate">
+              <div class="d-flex">
+                <span>Check Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="checkNo">
+              <div class="d-flex">
+                <span>Check No</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="bank">
+              <div class="d-flex">
+                <span>Bank</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="depBank">
+              <div class="d-flex">
+                <span>Dep Bank</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="bankId">
+              <div class="d-flex">
+                <span>Bank Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="branch">
+              <div class="d-flex">
+                <span>Branch</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="customerId">
+              <div class="d-flex">
+                <span>Customer Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="isActive">
+              <div class="d-flex">
+                <span>Is Active</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="deposited">
+              <div class="d-flex">
+                <span>Deposited</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="createdBy">
+              <div class="d-flex">
+                <span>Created By</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="amountNo">
+              <div class="d-flex">
+                <span>Amount No</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="refNo">
+              <div class="d-flex">
+                <span>Ref No</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="depAmount">
+              <div class="d-flex">
+                <span>Dep Amount</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (voucher of vouchers(); track trackId(voucher)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/voucher', voucher.id, 'view']">{{ voucher.id }}</a>
+              </td>
+              <td>{{ voucher.code }}</td>
+              <td>{{ voucher.receiptDate | formatMediumDatetime }}</td>
+              <td>{{ voucher.customerName }}</td>
+              <td>{{ voucher.customerAddress }}</td>
+              <td>{{ voucher.totalAmount }}</td>
+              <td>{{ voucher.totalAmountInWord }}</td>
+              <td>{{ voucher.comments }}</td>
+              <td>{{ voucher.lmu }}</td>
+              <td>{{ voucher.lmd | formatMediumDatetime }}</td>
+              <td>{{ voucher.termId }}</td>
+              <td>{{ voucher.term }}</td>
+              <td>{{ voucher.date | formatMediumDatetime }}</td>
+              <td>{{ voucher.amount }}</td>
+              <td>{{ voucher.checkDate | formatMediumDatetime }}</td>
+              <td>{{ voucher.checkNo }}</td>
+              <td>{{ voucher.bank }}</td>
+              <td>{{ voucher.depBank }}</td>
+              <td>{{ voucher.bankId }}</td>
+              <td>{{ voucher.branch }}</td>
+              <td>{{ voucher.customerId }}</td>
+              <td>{{ voucher.isActive }}</td>
+              <td>{{ voucher.deposited }}</td>
+              <td>{{ voucher.createdBy }}</td>
+              <td>{{ voucher.amountNo }}</td>
+              <td>{{ voucher.refNo }}</td>
+              <td>{{ voucher.depAmount }}</td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a [routerLink]="['/voucher', voucher.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline">View</span>
+                  </a>
+
+                  <a [routerLink]="['/voucher', voucher.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline">Edit</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(voucher)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

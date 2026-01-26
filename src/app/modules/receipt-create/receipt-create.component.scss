@@ -1,0 +1,22 @@
+:host {
+  display: block;
+  max-height: 80vh; // Limit maximum height
+}
+
+.stepper-container {
+  max-height: 70vh;
+  overflow-y: auto; // Enable scrolling
+}
+
+mat-horizontal-stepper {
+  min-height: 400px; // Ensure minimum height
+}
+
+.form-section {
+  max-height: none; // Remove any height restrictions
+}
+
+// Ensure form fields don't overflow
+mat-form-field {
+  width: 100%;
+}

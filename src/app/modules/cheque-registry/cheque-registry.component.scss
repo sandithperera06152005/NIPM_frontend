@@ -1,0 +1,74 @@
+:host {
+    font-size: 0.875rem;
+}
+
+.mat-mdc-form-field {
+    font-size: inherit;
+}
+
+table {
+    font-size: inherit;
+}
+
+.mat-mdc-select-panel {
+    min-width: 350px !important;
+}
+
+.bank-account-panel {
+    min-width: 500px !important;
+    /* 👈 wider dropdown */
+    max-width: 700px !important;
+}
+
+.bank-account-panel .mat-mdc-option {
+    white-space: normal;
+    /* 👈 allow wrapping */
+    line-height: 1.4;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.bank-account-panel .mat-mdc-option-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Ultra-narrow checkbox columns */
+.checkbox-col {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    text-align: center;
+}
+
+/* Shrink mat-checkbox itself */
+.checkbox-col .mat-checkbox {
+    margin: 0 auto;
+}
+
+table {
+    border-collapse: separate;
+}
+
+.mat-header-row {
+    background: white;
+    z-index: 10;
+}
+
+.mat-header-cell {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: white;
+    /* Make sure the background covers cells under scroll */
+}
+
+.example-table-container {
+    flex: 1;
+    /* Fill remaining vertical space */
+    overflow-y: auto;
+    /* Scroll only table body */
+    min-height: 0;
+}

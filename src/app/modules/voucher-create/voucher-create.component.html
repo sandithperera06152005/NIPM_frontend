@@ -1,0 +1,222 @@
+<mat-dialog-content style="max-height: 80vh; overflow-y: auto;">
+<mat-horizontal-stepper [(selectedIndex)]="activeTabIndex" linear>
+
+  <!-- STEP 1: Voucher Details -->
+  <mat-step [stepControl]="categoryForm">
+    <form [formGroup]="categoryForm">
+      <ng-template matStepLabel>Voucher Details</ng-template><br>
+
+      <div class="form-section flex flex-col">
+
+        <!-- Payment Method -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Payment Method</mat-label>
+          <mat-select formControlName="paymentMethod" required>
+            <mat-option value="Cash">Cash</mat-option>
+            <mat-option value="Cheque">Cheque</mat-option>
+            <mat-option value="Deposit">Deposit</mat-option>
+            <mat-option value="Credit Card">Credit Card</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- CHEQUE FIELDS -->
+        <div *ngIf="categoryForm.get('paymentMethod')?.value === 'Cheque'" class="flex flex-col ">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Cheque No</mat-label>
+            <input matInput formControlName="checkNo" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Cheque Date</mat-label>
+            <input matInput [matDatepicker]="chequeDate" formControlName="checkDate" />
+            <mat-datepicker-toggle matIconSuffix [for]="chequeDate"></mat-datepicker-toggle>
+            <mat-datepicker #chequeDate></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Amount: </mat-label>
+            <input matInput formControlName="amountNo" placeholder="Enter Amount No" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Select Bank Account</mat-label>
+    <input type="text" matInput 
+           [matAutocomplete]="bankAccountAuto" 
+           [formControl]="bankAccountControl" 
+           placeholder="Search by account name, number, or bank name" />
+    <mat-autocomplete #bankAccountAuto="matAutocomplete" 
+                      [displayWith]="displayBankAccount">
+      <mat-option *ngFor="let account of filteredBankAccounts | async" [value]="account">
+        <div class="bank-account-option">
+          <div><strong>{{ account.accountName }}</strong></div>
+          <div class="text-sm text-gray-600">
+            {{ account.accountNumber }} | {{ account.bankName }} | {{ account.branchName }}
+          </div>
+        </div>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+          
+          </div>
+
+        <!-- DEPOSIT FIELDS -->
+        <div *ngIf="categoryForm.get('paymentMethod')?.value === 'Deposit'" class="flex flex-col ">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Deposit Bank</mat-label>
+            <input type="text" matInput [matAutocomplete]="depAuto" [formControl]="depositBankControl" />
+            <mat-autocomplete #depAuto="matAutocomplete" [displayWith]="displayBank">
+              <mat-option *ngFor="let bank of filteredDepositBanks | async" [value]="bank">
+                {{ bank.bankName }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Branch</mat-label>
+            <mat-select formControlName="branch">
+              <mat-option *ngFor="let branch of branchList" [value]="branch">{{ branch }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Deposit Amount</mat-label>
+            <input matInput type="number" formControlName="depAmount" />
+          </mat-form-field>
+        </div>
+
+        <!-- CREDIT CARD FIELDS -->
+        <div *ngIf="categoryForm.get('paymentMethod')?.value === 'Credit Card'" class="flex flex-col ">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Reference Number</mat-label>
+            <input matInput formControlName="refNo" placeholder="Enter Reference Number" />
+          </mat-form-field>
+        </div>
+
+        <!-- Voucher Number -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Voucher Number</mat-label>
+          <input matInput formControlName="voucherNumber" readonly />
+        </mat-form-field>
+
+        <!-- Voucher Date -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Voucher Date</mat-label>
+          <input matInput [matDatepicker]="voucherDate" formControlName="voucherDate" />
+          <mat-datepicker-toggle matIconSuffix [for]="voucherDate"></mat-datepicker-toggle>
+          <mat-datepicker #voucherDate></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Amount -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Amount</mat-label>
+          <input matInput type="number" formControlName="amount" />
+        </mat-form-field>
+
+        <!-- Amount Paying -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Amount Paying</mat-label>
+          <input matInput type="number" formControlName="amountPaying" />
+          <mat-error *ngIf="categoryForm.get('amountPaying')?.hasError('amountMismatch')">
+            Amount paying must match line total
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Amount in Words -->
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Amount in Words</mat-label>
+          <textarea matInput rows="2" formControlName="amountPayingWords" readonly></textarea>
+        </mat-form-field>
+
+      </div>
+
+      <div class="button-right">
+            <button
+              mat-raised-button
+              color="primary"
+              matStepperNext
+              [disabled]="categoryForm.invalid">
+              Continue
+            </button>
+      </div>
+    </form>
+  </mat-step>
+
+  <!-- STEP 2: Voucher Lines -->
+  <mat-step [stepControl]="invoiceForm">
+    <form [formGroup]="invoiceForm">
+      <ng-template matStepLabel>Voucher Lines</ng-template><br>
+
+      <div class="total-display">
+      <strong>Amount Paying: {{ amountPaying }}</strong>
+    </div><br>
+    
+      <div class="invoice-section flex flex-col ">
+        <div formArrayName="lines">
+          <div *ngFor="let line of invoiceLines.controls; let i = index" [formGroupName]="i" class="invoice-line flex flex-col ">
+
+            <!-- Sub Account -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Sub Account</mat-label>
+              <input type="text"
+                  matInput
+                  [formControl]="invoiceLines.at(i).get('subAccount')"
+                  [matAutocomplete]="subAccountAuto">
+              <mat-autocomplete #subAccountAuto="matAutocomplete"
+                  [displayWith]="displaySubAccount"
+                  (optionSelected)="onSubAccountSelected($event.option.value, i)">
+                <mat-option *ngFor="let cat of setupFilteringForLine(i) | async" [value]="cat">
+                  {{ cat.lmu?.split('/').pop() }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Parent Account -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Parent Account</mat-label>
+              <input matInput [formControl]="invoiceLines.at(i).get('parentAccount')" 
+                     [value]="displayParentAccount(invoiceLines.at(i).get('parentAccount')?.value)" 
+                     readonly>
+            </mat-form-field>
+
+            <!-- Comments -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Comments</mat-label>
+              <input matInput formControlName="comments" />
+            </mat-form-field>
+
+            <!-- Amount -->
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Amount</mat-label>
+              <input matInput type="number" formControlName="lineAmount" />
+            </mat-form-field>
+
+            <!-- Remove Line Button -->
+            <div class="text-right">
+              <button mat-stroked-button color="warn" (click)="removeLine(i)" *ngIf="invoiceLines.length > 1">
+                <mat-icon>delete</mat-icon> Remove Line
+              </button>
+            </div><br>
+
+            <mat-divider></mat-divider>
+          </div>
+        </div>
+
+        <!-- Add Line Button -->
+        <div class="text-left">
+          <button mat-stroked-button color="primary" type="button" (click)="invoiceLines.push(createInvoiceLine())">
+            <mat-icon>add</mat-icon> Add Line
+          </button>
+        </div>
+
+      </div>
+
+      <div class="step-buttons">
+        <button mat-button matStepperPrevious color="accent" (click)="onStepBack()">Back</button>
+        <button mat-flat-button color="primary" (click)="onSave()">Save Voucher</button>
+      </div>
+    </form>
+  </mat-step>
+
+</mat-horizontal-stepper>
+</mat-dialog-content>

@@ -1,0 +1,108 @@
+<!-- Reusable form component template -->
+<form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="flex items-center justify-between border-b pb-4">
+    <h2 class="text-2xl font-bold">
+      {{ heading || (isEditMode ? 'Edit AppUser' : 'New AppUser') }}
+    </h2>
+    <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
+  </div>
+
+  <div class="flex-auto space-y-4 overflow-y-auto pt-6">
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" required>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" required>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>PasswordHash</mat-label>
+      <input matInput formControlName="passwordHash" required>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>FirstName</mat-label>
+      <input matInput formControlName="firstName" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>LastName</mat-label>
+      <input matInput formControlName="lastName" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phone" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option *ngFor="let option of userStatusOptions" [value]="option">
+          {{ option }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>CreatedAt</mat-label>
+      <input matInput [matDatepicker]="pickercreatedAt" formControlName="createdAt">
+      <mat-datepicker-toggle matSuffix [for]="pickercreatedAt"></mat-datepicker-toggle>
+      <mat-datepicker #pickercreatedAt></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>UpdatedAt</mat-label>
+      <input matInput [matDatepicker]="pickerupdatedAt" formControlName="updatedAt">
+      <mat-datepicker-toggle matSuffix [for]="pickerupdatedAt"></mat-datepicker-toggle>
+      <mat-datepicker #pickerupdatedAt></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>LastLoginAt</mat-label>
+      <input matInput [matDatepicker]="pickerlastLoginAt" formControlName="lastLoginAt">
+      <mat-datepicker-toggle matSuffix [for]="pickerlastLoginAt"></mat-datepicker-toggle>
+      <mat-datepicker #pickerlastLoginAt></mat-datepicker>
+    </mat-form-field>
+      
+    
+
+    
+    
+  </div>
+
+  <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">
+    {{ errorMessage }}
+  </div>
+
+  <div class="mt-6 flex items-center justify-end border-t pt-6">
+    <button type="button" mat-button (click)="onCancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" class="ml-3" [disabled]="form.invalid || isSaving">
+      <span *ngIf="!isSaving">Save</span>
+      <span *ngIf="isSaving">Saving…</span>
+    </button>
+  </div>
+</form>

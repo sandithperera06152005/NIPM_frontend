@@ -1,0 +1,65 @@
+<!-- Reusable form component template -->
+<form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="flex items-center justify-between border-b pb-4">
+    <h2 class="text-2xl font-bold">
+      {{ heading || (isEditMode ? 'Edit AuditLog' : 'New AuditLog') }}
+    </h2>
+    <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
+  </div>
+
+  <div class="flex-auto space-y-4 overflow-y-auto pt-6">
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Action</mat-label>
+      <input matInput formControlName="action" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>EntityName</mat-label>
+      <input matInput formControlName="entityName" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>EntityId</mat-label>
+      <input matInput formControlName="entityId" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>PerformedAt</mat-label>
+      <input matInput [matDatepicker]="pickerperformedAt" formControlName="performedAt">
+      <mat-datepicker-toggle matSuffix [for]="pickerperformedAt"></mat-datepicker-toggle>
+      <mat-datepicker #pickerperformedAt></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>IpAddress</mat-label>
+      <input matInput formControlName="ipAddress" >
+    </mat-form-field>
+      
+    
+
+    
+    
+  </div>
+
+  <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">
+    {{ errorMessage }}
+  </div>
+
+  <div class="mt-6 flex items-center justify-end border-t pt-6">
+    <button type="button" mat-button (click)="onCancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" class="ml-3" [disabled]="form.invalid || isSaving">
+      <span *ngIf="!isSaving">Save</span>
+      <span *ngIf="isSaving">Saving…</span>
+    </button>
+  </div>
+</form>

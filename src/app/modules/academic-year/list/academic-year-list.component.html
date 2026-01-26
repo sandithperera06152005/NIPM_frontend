@@ -1,0 +1,186 @@
+<!-- This is an EJS template. It generates the HTML for the list component. -->
+
+<mat-drawer-container class="absolute h-full w-full bg-transparent">
+
+  <!-- Filter Drawer -->
+  <mat-drawer #filterDrawer mode="over" position="start" class="w-full max-w-md">
+    <form class="flex h-full flex-col bg-card" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
+      <div class="flex items-center justify-between border-b px-6 py-4">
+        <h2 class="text-xl font-semibold">Advanced Filters</h2>
+        <button mat-icon-button type="button" (click)="closeFilterDrawer()">
+          <mat-icon [svgIcon]="'heroicons_mini:x-mark'"></mat-icon>
+        </button>
+      </div>
+
+      <div class="flex-auto space-y-6 overflow-y-auto px-6 py-6">
+        <ng-container *ngFor="let field of filterFields">
+          <div class="rounded-lg border border-outline px-4 py-4" [formGroup]="fieldGroup(field.key)">
+            <div class="mb-3 flex items-center justify-between">
+              <h3 class="text-base font-medium">{{ field.label }}</h3>
+              <button mat-button type="button" (click)="clearField(field.key)">Clear</button>
+            </div>
+
+            <mat-form-field class="w-full">
+              <mat-label>Operator</mat-label>
+              <mat-select formControlName="operator">
+                <mat-option value="">None</mat-option>
+                <mat-option *ngFor="let operator of field.operators" [value]="operator.key">
+                  {{ operator.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <ng-container *ngIf="operatorRequiresInput(field)">
+              <ng-container [ngSwitch]="currentOperatorValueType(field)">
+                <mat-form-field class="w-full" *ngSwitchCase="'string'">
+                  <mat-label>Value</mat-label>
+                  <input matInput formControlName="value" />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" *ngSwitchCase="'number'">
+                  <mat-label>Value</mat-label>
+                  <input matInput type="number" formControlName="value" />
+                </mat-form-field>
+
+                <mat-form-field class="w-full" *ngSwitchCase="'date'">
+                  <mat-label>Value</mat-label>
+                  <input matInput [matDatepicker]="datePicker" formControlName="value" />
+                  <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #datePicker></mat-datepicker>
+                </mat-form-field>
+
+                <mat-form-field class="w-full" *ngSwitchCase="'boolean'">
+                  <mat-label>Value</mat-label>
+                  <mat-select formControlName="value">
+                    <mat-option [value]="true">True</mat-option>
+                    <mat-option [value]="false">False</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="w-full" *ngSwitchCase="'enum'">
+                  <mat-label>Value</mat-label>
+                  <mat-select formControlName="value">
+                    <mat-option *ngFor="let option of getEnumOptions(field)" [value]="option">
+                      {{ option }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </ng-container>
+            </ng-container>
+          </div>
+        </ng-container>
+
+        <div *ngIf="!filterFields.length" class="rounded border border-dashed border-outline px-4 py-6 text-center text-sm text-disabled">
+          No filterable fields are available for this entity.
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end border-t px-6 py-4">
+        <button mat-button type="button" (click)="clearFilters()">Clear All</button>
+        <button mat-flat-button color="primary" class="ml-3" type="submit">Apply Filters</button>
+      </div>
+    </form>
+  </mat-drawer>
+
+  <!-- Main Content (The Table) -->
+  <mat-drawer-content class="flex flex-col">
+    <div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+
+      <!-- Header -->
+      <div class="bg-default dark:bg-transparent flex flex-0 flex-col p-6 pb-22 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-28 sm:pt-12">
+        <div class="min-w-0 flex-1">
+          <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
+            Academic Year Management
+          </h2>
+        </div>
+        <!-- Actions -->
+        <div class="mt-6 flex shrink-0 items-center gap-3 sm:ml-4 sm:mt-0">
+          <button *ngIf="filterFields.length" mat-stroked-button type="button" (click)="openFilterDrawer()">
+            <mat-icon [svgIcon]="'heroicons_outline:funnel'"></mat-icon>
+            <span class="ml-2">Filters</span>
+          </button>
+          <button mat-flat-button color="primary" type="button" (click)="openFormDrawer()">
+            <mat-icon [svgIcon]="'heroicons_mini:plus'"></mat-icon>
+            <span class="ml-2">New AcademicYear</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="example-table-container bg-card -mt-16 h-full rounded-t-2xl" style="overflow-x: auto; white-space: nowrap; width: 100%">
+        <div *ngIf="isLoading" class="flex items-center justify-center p-8">
+          <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
+        </div>
+
+        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="loadData()" *ngIf="!isLoading">
+
+          <!-- Dynamically generate columns for entity fields -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+          </ng-container>
+          
+          <ng-container matColumnDef="yearLabel">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>YearLabel</th>
+            
+            <td mat-cell *matCellDef="let element">{{ element.yearLabel }}</td>
+            
+          </ng-container>
+          
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>StartDate</th>
+            
+            <td mat-cell *matCellDef="let element">{{ element.startDate | date: 'medium' }}</td>
+            
+          </ng-container>
+          
+          <ng-container matColumnDef="endDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>EndDate</th>
+            
+            <td mat-cell *matCellDef="let element">{{ element.endDate | date: 'medium' }}</td>
+            
+          </ng-container>
+          
+
+          <!-- Generate columns for "Show Children" buttons -->
+          
+
+          <!-- General Actions Column (Edit/Delete) -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button (click)="openFormDrawer(element.id)" matTooltip="Edit AcademicYear">
+                <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
+              </button>
+              <button mat-icon-button (click)="delete(element.id)" matTooltip="Delete AcademicYear">
+                <mat-icon class="text-warn" [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">No data found.</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator [length]="totalItems" [pageSize]="itemsPerPage" [pageSizeOptions]="[10, 25, 50, 100]" (page)="loadData()"></mat-paginator>
+    </div>
+  </mat-drawer-content>
+
+  <!-- Side Drawer for Form -->
+  <mat-drawer #formDrawer mode="over" position="end" class="w-1/3 min-w-96">
+    <div class="flex h-full flex-col bg-card p-6">
+      <app-academic-year-form
+        [entity]="selectedAcademicYear"
+        [heading]="drawerMode === 'new' ? 'New AcademicYear' : 'Edit AcademicYear'"
+        (saved)="handleFormSaved()"
+        (cancelled)="closeFormDrawer()">
+      </app-academic-year-form>
+    </div>
+  </mat-drawer>
+</mat-drawer-container>

@@ -1,0 +1,18 @@
+.summary-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;   /* 3×2 format: 3 rows × 2 columns */
+  gap: 10px 20px;
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.grid-label {
+  font-weight: bold;
+  color: #444;
+}
+
+.grid-value {
+  color: #222;
+}

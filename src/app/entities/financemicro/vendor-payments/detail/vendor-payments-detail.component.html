@@ -1,0 +1,98 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (vendorPayments(); as vendorPaymentsRef) {
+      <div>
+        <h2 data-cy="vendorPaymentsDetailsHeading"><span>Vendor Payments</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>ID</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.id }}</span>
+          </dd>
+          <dt><span>Ops Unit ID</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.opsUnitID }}</span>
+          </dd>
+          <dt><span>Payment Id</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.paymentId }}</span>
+          </dd>
+          <dt><span>Payment Code</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.paymentCode }}</span>
+          </dd>
+          <dt><span>Date</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.date | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span>Address</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.address }}</span>
+          </dd>
+          <dt><span>Email</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.email }}</span>
+          </dd>
+          <dt><span>Contact No</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.contactNo }}</span>
+          </dd>
+          <dt><span>Grn Code</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.grnCode }}</span>
+          </dd>
+          <dt><span>Sub Total</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.subTotal }}</span>
+          </dd>
+          <dt><span>Owing</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.owing }}</span>
+          </dd>
+          <dt><span>Discount</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.discount }}</span>
+          </dd>
+          <dt><span>Serial No</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.serialNo }}</span>
+          </dd>
+          <dt><span>Description</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.description }}</span>
+          </dd>
+          <dt><span>Account Inv</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.accountInv }}</span>
+          </dd>
+          <dt><span>Lmu</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.lmu }}</span>
+          </dd>
+          <dt><span>Lmd</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.lmd | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span>Amount</span></dt>
+          <dd>
+            <span>{{ vendorPaymentsRef.amount }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/vendor-payments', vendorPaymentsRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
