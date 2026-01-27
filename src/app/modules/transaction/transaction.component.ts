@@ -53,12 +53,7 @@ export class TransactionComponent implements OnInit {
     totalItems = 0;
     totalPages = 0;
   searchByCode = false;
-<<<<<<< HEAD
    
-=======
-    // 👇 new filter model to bind to form
-     // 👇 new filter model to bind to form
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   filter = {
     name: '',
     code: '',
@@ -97,7 +92,6 @@ onAddMore() {
 
 
 refreshFilters(): void {
-<<<<<<< HEAD
   this.searchByCode = true;
   this.showDateRange = false;
   this.filter = {
@@ -108,20 +102,6 @@ refreshFilters(): void {
   this.onFilterChange();
 }
 
-=======
-  // Clear all filter inputs
-  this.filter.code = '';
-  this.filter.name = '';
-  this.filter.dateRange = { start: null, end: null };
-
-  // Reset toggles if needed
-  this.searchByCode = true;   // or false, depending on your default
-  this.showDateRange = false;
-
-  // Call your existing loadSuppliers() method to reload data
-  this.loadSuppliers();
-}
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
    
   
   // Or, move this logic into a method:
@@ -209,7 +189,6 @@ refreshFilters(): void {
   get displayedColumns(): string[] {
     const cols = [
       // columns that always show
-<<<<<<< HEAD
       'id',
       'code',
       'vehicleModel',
@@ -217,14 +196,6 @@ refreshFilters(): void {
       'source',
       'vehicleOwnerName',
       'vehicleBrand',
-=======
-      'code',
-      'vehicleOwnerName',
-      'vehicleBrand',
-      'vehicleModel',
-      'subid',
-      'source'
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     ];
   
     if (this.showId) {
@@ -284,7 +255,6 @@ refreshFilters(): void {
 
   
 
-<<<<<<< HEAD
   // CODE search
   if (!this.showDateRange && this.searchByCode && this.filter.code.trim()) {
     params['accountCode.contains'] = this.filter.code.trim();
@@ -305,18 +275,6 @@ refreshFilters(): void {
       params['date.lessThanOrEqual'] =
         this.formatDate(this.filter.dateRange.end, 'end');
     }
-=======
-  if (this.filter.code.trim()) {
-    params['accountCode.contains'] = this.filter.code.trim();
-  }
-
-  if (this.filter.dateRange?.start) {
-    params['date.greaterThanOrEqual'] = this.formatDate(this.filter.dateRange.start, 'start');
-  }
-
-  if (this.filter.dateRange?.end) {
-    params['date.lessThanOrEqual'] = this.formatDate(this.filter.dateRange.end, 'end');
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   }
 
   this.supservice.query(params).subscribe({
@@ -372,7 +330,6 @@ refreshFilters(): void {
       // Navigate or show modal — customize as needed
       console.log('Viewing supplier:', supplier);
     }
-<<<<<<< HEAD
     setSearchByCode(): void {
   this.searchByCode = true;
   this.showDateRange = false;
@@ -403,7 +360,5 @@ private clearAllFiltersExcept(type: 'code' | 'name' | 'date'): void {
   }
 }
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 }

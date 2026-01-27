@@ -55,11 +55,8 @@ export class SupplierCreateComponent {
   AccountsService = inject(AccountsService);
 lmuControl = new FormControl('');
 filteredLmuOptions: string[] = [];
-<<<<<<< HEAD
 // Add this near the top of your class
 private readonly TARGET_LMU_PATH = 'Liability/Supplier';
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
  
 
@@ -74,7 +71,6 @@ catfetch() {
     }
   });
 }
-<<<<<<< HEAD
 //start point
 
 updateLmuOptions() {
@@ -126,21 +122,6 @@ autoSelectTargetLmu(liabilityCategories: any[]): void {
     // ✅ Show alert to user
     alert('❌ "Liability/Supplier" account type not found. Please create this account type first before creating a supplier.');
   }
-=======
- 
-
-updateLmuOptions() {
-  const allCategories = this.categories.filter(
-    (cat, index, self) => cat.lmu && self.findIndex(c => c.lmu === cat.lmu) === index
-  ); // remove duplicates by lmu
-
-  this.lmuControl.valueChanges.pipe(
-    startWith(''),
-    map(value => this.filterLmu(value, allCategories))
-  ).subscribe(filtered => {
-    this.filteredLmuOptions = filtered;
-  });
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 }
 
 filterLmu(value: string, options: any[]): any[] {

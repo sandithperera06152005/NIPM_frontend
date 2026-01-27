@@ -175,7 +175,6 @@ export const defaultNavigation: FuseNavigationItem[] = [
 //   ],
 // },
 
-<<<<<<< HEAD
 // {
 //   id: "inventory1",
 //   title: "Finance",
@@ -201,69 +200,6 @@ export const defaultNavigation: FuseNavigationItem[] = [
 //     }
 //   ]
 // }
-=======
-{
-  id: "inventory1",
-  title: "Finance",
-  subtitle: "Frequent actions for managing finance",
-  type: "collapsable",
-  icon: "inventory",
-  children: [
-    {
-      id: "stock-management1",
-      title: "finance Management",
-      subtitle: "Manage finance",
-      type: "group",
-      icon: "heroicons_outline:archive-box",
-      children: [
-        {
-          id: "supplier1",
-          title: "Transaction",
-          type: "basic",
-          icon: "heroicons_outline:user-group",
-          link: "/transaction"
-        },
-
-        {
-          id: "supplier2",
-          title: "Accounttypes",
-          type: "basic",
-          icon: "heroicons_outline:user-group",
-          link: "/accounttree"
-        },
-               {
-          id: "supplier3",
-          title: "Accounts",
-          type: "basic",
-          icon: "heroicons_outline:user-group",
-          link: "/accounts"
-        },
-           {
-          id: "supplier4",
-          title: "AccountsStatement",
-          type: "basic",
-          icon: "heroicons_outline:user-group",
-          link: "/accountstatement"
-        },
-        {
-          id: "supplier5",
-          title: "TrailBalance",
-          type: "basic",  
-          icon: "heroicons_outline:user-group",
-          link: "/trailbalance"}
-     //   {
-        //  id: "supplier5",
-       //   title: "AgingReport",
-       //   type: "basic",
-       //   icon: "heroicons_outline:user-group",
-       //   link: "/agingreport"
-      //  }
-      ]
-    }
-  ]
-}
-
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 ];
 export const compactNavigation: FuseNavigationItem[] = [

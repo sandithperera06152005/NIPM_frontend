@@ -22,11 +22,8 @@ import { AccountService } from 'app/core/auth/account.service';
 import { AccountsService } from 'app/entities/financemicro/accounts/service/accounts.service';
 import { IAccounts } from 'app/entities/financemicro/accounts/accounts.model';
 import { AccountsCreateComponent } from '../admin/accounts-create/accounts-create.component';
-<<<<<<< HEAD
 import { AccountTypeService } from 'app/entities/financemicro/account-type/service/account-type.service';
 import { TransactionService } from 'app/entities/financemicro/transaction/service/transaction.service';
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 @Component({
   selector: 'app-accounts',
@@ -55,11 +52,8 @@ export class AccountsComponent implements OnInit{
  supservice = inject(AccountsService);
  supplierbank=inject(SupplierBankAccountsService);
  supplierbankacc=inject(SupplierBankService);
-<<<<<<< HEAD
  acctTypeService = inject(AccountTypeService);
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
    supplier: any[] = [];
    currentPage = 1;
    pageSize = 10;
@@ -71,12 +65,9 @@ export class AccountsComponent implements OnInit{
      name: '',
      code: ''
    };
-<<<<<<< HEAD
   paths: string[] = [];
   filteredPaths: { [id: string]: string[] } = {};
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
  // Example: define supplierId before using it, or move this code into a method and use a parameter
  // let supplierId = 1; // Replace with actual supplier ID
  // this._dialogService.open(SupplierviewComponent, {
@@ -123,36 +114,24 @@ export class AccountsComponent implements OnInit{
    this.loadSuppliers();
  }
  deleteSupplier(id: number): void {
-<<<<<<< HEAD
 
   const confirmation = confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`);
 
   if (confirmation) {
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
    this.supplierbankacc.delete(id).subscribe({
      next: () => {
        this.supplierbank.delete(id).subscribe({
          next: () => {
            this.supservice.delete(id).subscribe({
              next: () => {
-<<<<<<< HEAD
                this._snackBarService.open("Account deleted successfully!", "Close", {
-=======
-               this._snackBarService.open("Supplier deleted successfully!", "Close", {
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
                  duration: 3000,
                });
                this.loadSuppliers();
              },
              error: err => {
-<<<<<<< HEAD
                console.error('Account delete failed', err);
                this._snackBarService.open("Account delete failed", "Close", {
-=======
-               console.error('Supplier delete failed', err);
-               this._snackBarService.open("Supplier delete failed", "Close", {
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
                  duration: 3000,
                });
              }
@@ -173,24 +152,18 @@ export class AccountsComponent implements OnInit{
        });
      }
    });
-<<<<<<< HEAD
   }
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
  }
  
  
  itemsPerPage: number = 10;
    ngOnInit(): void {
     this.loadSuppliers();
-<<<<<<< HEAD
 
     this.acctTypeService.query({size:1000}).subscribe(res => {
   this.paths = res.body?.map(c => c.lmu) || [];
 });
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
    }
    showId = false;  // or true, depending on when you want to show the id column
  
@@ -200,7 +173,6 @@ export class AccountsComponent implements OnInit{
      'code',
      'vehicleOwnerName',
      'vehicleBrand',
-<<<<<<< HEAD
      'vehicleBrand1',
      'vehicleBrand2',
      'vehicleModel',
@@ -209,14 +181,6 @@ export class AccountsComponent implements OnInit{
         'vehicleBrand5',
       'actions',
      
-=======
-    
-     'vehicleBrand2',
-      'vehicleBrand3',
-       'vehicleBrand4',
-        'vehicleBrand5',
-     'vehicleModel'
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
    ];
  
    if (this.showId) {
@@ -229,13 +193,9 @@ export class AccountsComponent implements OnInit{
    constructor(
      
      private _dialogService: MatDialog,
-<<<<<<< HEAD
      private _snackBarService: MatSnackBar,
      private transactionService: TransactionService 
 
-=======
-     private _snackBarService: MatSnackBar
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
    ) {
      
    }
@@ -273,7 +233,6 @@ export class AccountsComponent implements OnInit{
  }
  
    loadSuppliers(): void {
-<<<<<<< HEAD
   const params: any = {
     page: this.currentPage - 1,
     size: this.pageSize,
@@ -308,34 +267,6 @@ export class AccountsComponent implements OnInit{
     },
   });
 }
-=======
-     const params: any = {
-       page: this.currentPage - 1,
-       size: this.pageSize,
-       sort:'id,desc'
-     };
- 
-     if (this.filter.name.trim()) {
-       params['name.contains'] = this.filter.name.trim();
-     }
- 
-     if (this.filter.code.trim()) {
-       params['code.contains'] = this.filter.code.trim();
-     }
- 
-     this.supservice.query(params).subscribe({
-       next: response => {
-         this.supplier = response.body || [];
-         const total = response.headers.get('X-Total-Count');
-         this.totalItems = total ? +total : 0;
-         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-       },
-       error: err => {
-         console.error('Error fetching supplier data:', err);
-       },
-     });
-   }
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
  
    goToPage(page: number): void {
      if (page >= 1 && page <= this.totalPages) {
@@ -368,7 +299,6 @@ export class AccountsComponent implements OnInit{
      // Navigate or show modal — customize as needed
      console.log('Viewing supplier:', supplier);
    }
-<<<<<<< HEAD
 
    updatePath(row: any) {
   this.supservice.update(row).subscribe({
@@ -421,6 +351,4 @@ getFilteredPaths(row: any): string[] {
 //   });
 // }
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 }

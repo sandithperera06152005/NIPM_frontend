@@ -35,11 +35,8 @@ import { TheGRNLineBatchesService } from 'app/entities/inventorymicro/the-grn-li
 import { TheInventoryBatchesService } from 'app/entities/inventorymicro/the-inventory-batches/service/the-inventory-batches.service';
 import dayjs from 'dayjs/esm';
 import { forkJoin, debounceTime } from 'rxjs';
-<<<<<<< HEAD
 import { Location } from "@angular/common";
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 @Component({
   selector: 'app-dayendtransaction',
@@ -79,12 +76,8 @@ activeTabIndex: number = 1;
   constructor(
     private fb: FormBuilder,
    private dialog: MatDialog
-<<<<<<< HEAD
    ,private _snackBar: MatSnackBar,private router: Router,private route: ActivatedRoute,private cdr: ChangeDetectorRef,
    private location:Location,
-=======
-   ,private _snackBar: MatSnackBar,private router: Router,private route: ActivatedRoute,private cdr: ChangeDetectorRef
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
       
   ) {
    this.grnForm = this.fb.group({
@@ -994,11 +987,8 @@ if (!this.suid) {
   //  console.warn('General form is invalid');
  // }
  }
-<<<<<<< HEAD
 
  onStepBack(): void {
     this.location.back();
   }
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 }

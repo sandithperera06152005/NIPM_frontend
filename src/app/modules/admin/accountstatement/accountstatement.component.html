@@ -165,10 +165,6 @@ th.mat-header-cell {
       mode="over"
       [opened]="drawerOpened"
       (backdropClick)="preventClose()"
-<<<<<<< HEAD
-=======
-      disableClose
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
       style="width: 400px; padding: 1rem; background-color: white;">
       
       <form [formGroup]="grnForm" (ngSubmit)="onContinue()" style="flex: 1; min-width: 300px;">
@@ -176,7 +172,6 @@ th.mat-header-cell {
 
         <!-- Account Name Field -->
         <mat-form-field appearance="outline" class="form-field" style="width: 100%;">
-<<<<<<< HEAD
   <mat-label>Account Name*</mat-label>
   <mat-icon matPrefix>person</mat-icon>
 
@@ -203,21 +198,6 @@ th.mat-header-cell {
         <!-- Date Range Field -->
         <mat-form-field appearance="outline" style="width: 100%;">
           <mat-label>GRN DATE RANGE*</mat-label>
-=======
-          <mat-label>Account Name*</mat-label>
-          <mat-icon matPrefix>person</mat-icon>
-          <input matInput required formControlName="supplierName" [matAutocomplete]="autov" />
-          <mat-autocomplete #autov="matAutocomplete" (optionSelected)="onItemSelectedvendor($event.option.value)">
-            <mat-option *ngFor="let vendor of searchResultsvendor" [value]="vendor">
-              {{ vendor.code }}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
-
-        <!-- Date Range Field -->
-        <mat-form-field appearance="outline" style="width: 100%;">
-          <mat-label>DATE RANGE*</mat-label>
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
           <mat-date-range-input [formGroup]="grnForm" [rangePicker]="grnDatePicker">
             <input matStartDate formControlName="grnStartDate" placeholder="Start date" [max]="today">
             <input matEndDate formControlName="grnEndDate" placeholder="End date" [max]="today">
@@ -228,11 +208,7 @@ th.mat-header-cell {
 
         <!-- Submit Button -->
         <div style="margin-top: 1rem; text-align: right;">
-<<<<<<< HEAD
           <button mat-raised-button color="primary" type="submit"  (click)="fetchData()">
-=======
-          <button mat-raised-button color="primary" type="submit" [disabled]="grnForm.invalid" (click)="fetchData()">
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
             Continue
           </button>
         </div>
@@ -275,26 +251,15 @@ th.mat-header-cell {
   <p style="text-align: center; margin-bottom: 16px;">
     for the period of <strong>{{ grnForm.value.grnStartDate | date:'yyyy-MM-dd' }}</strong>
     to <strong>{{ grnForm.value.grnEndDate | date:'yyyy-MM-dd' }}</strong>
-<<<<<<< HEAD
   </p><br><br>
-=======
-  </p>
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
   <!-- Summary Fields -->
   <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 20px; font-size: 1rem; font-weight: 600;">
     <label>Account Code:</label>
-<<<<<<< HEAD
     <input matInput [value]="grnForm.get('accountCode')?.value || 'N/A'" readonly style="width: 100px; border: none; background: transparent;" />
 
     <label>Account Name:</label>
     <input matInput [value]="res?.name || 'N/A'" readonly style="width: 250px; border: none; background: transparent;" />
-=======
-    <input matInput [value]="grnForm.get('supplierName')?.value || 'N/A'" readonly style="width: 150px; border: none; background: transparent;" />
-
-    <label>Account Name:</label>
-    <input matInput [value]="res?.name || 'N/A'" readonly style="width: 200px; border: none; background: transparent;" />
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
     <label>Opening Balance:</label>
     <input matInput [value]="openingBalance" readonly style="width: 150px; border: none; background: transparent;" />
@@ -303,7 +268,6 @@ th.mat-header-cell {
     <input matInput [value]="closingBalance" readonly style="width: 200px; border: none; background: transparent;" />
   </div>
 
-<<<<<<< HEAD
   <div *ngIf="isLoading" style="text-align: center; padding: 20px;">
   Loading account statement...
 </div>
@@ -352,56 +316,10 @@ th.mat-header-cell {
   <td mat-cell *matCellDef="let e">{{ e.source }}</td>
 </ng-container>
 
-=======
-  <!-- Transaction Table -->
-  <table mat-table [dataSource]="flatRelatedData" class="w-full table-auto border-collapse" style="width: 100%; font-size: 0.9rem; border: 1px solid #ccc;">
-    
-    <!-- Columns -->
-    <ng-container matColumnDef="groupIndex">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Group</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.groupIndex }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="itemName">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Rel ID</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.relid }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="lineTotal">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Account Code</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.accountCode }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="manufactureDate">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Date</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.date | date:'yyyy-MM-dd' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="purcost">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Debit</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.debit | number:'1.2-2' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="sellprice">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Credit</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.credit | number:'1.2-2' }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="quantity">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">RefDoc</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.refDoc }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="source">
-      <th mat-header-cell *matHeaderCellDef style="border: 1px solid #ccc; padding: 8px;">Source</th>
-      <td mat-cell *matCellDef="let element" style="border: 1px solid #ccc; padding: 8px;">{{ element.source }}</td>
-    </ng-container>
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
     <!-- Row Definitions -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-<<<<<<< HEAD
   </table>
   <div style="margin-top: 16px; text-align: right;">
   <button
@@ -413,10 +331,6 @@ th.mat-header-cell {
     New Statement
   </button>
 </div>
-=======
-
-  </table>
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 </div>
 
   </mat-drawer-container>

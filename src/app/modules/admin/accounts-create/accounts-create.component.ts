@@ -118,13 +118,8 @@ console.log(parent)
 
 fullPathPreview: string = '';
 
-<<<<<<< HEAD
 itemsave(): void {
   let fullPath = this.computeFullPath();
-=======
-  itemsave(): void {
-    let fullPath = this.computeFullPath();
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
   if (fullPath.endsWith('/')) {
     fullPath = fullPath.slice(0, -1);
@@ -144,7 +139,6 @@ itemsave(): void {
     generatedCode = `${first3First}${first3SecondLast}${randomNum}`;
   }
 
-<<<<<<< HEAD
   // Single payload declaration with all required fields
   const payload = {
     id: null,
@@ -156,20 +150,10 @@ itemsave(): void {
     debitAmount: 0, // Default values
     creditAmount: 0,
     amount: 0
-=======
-  const payload = {
-    id: null,
-     parent: this.categoryForm.value.parentCategory.type || this.categoryForm.value.parentCategory,
-     path: fullPath,
-    code: generatedCode,  // Use generated code here
-    child:  this.categoryForm.controls.name.value || '',
-    name: this.categoryForm.controls.name.value || ''
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   };
 
   console.log('Generated Code:', generatedCode);
   console.log('Payload:', payload);
-<<<<<<< HEAD
   
   // Single service call
   this.AccountsService.create(payload).subscribe({
@@ -184,21 +168,6 @@ itemsave(): void {
     }
   });
 }
-=======
-  this.AccountsService.create(payload).subscribe({
-      next: (response) => {
-   this._snackBarService.open("Category created successfully!", "Close", {
-           duration: 3000,
-      });
-     this.dialogRef.close(true);
-        // window.location.reload();
-       },
-      error: (err) => {
-        console.error('Error creating category:', err);
-  }
-    });
-  }
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
   onSave(): void {
     if (this.categoryForm.valid) {
