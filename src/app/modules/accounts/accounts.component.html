@@ -12,15 +12,12 @@
       </h2>
     </div>
 
-<<<<<<< HEAD
     <!--<div class="min-w-0 flex-1 mt-2">
       <h3 class="text-lg font-medium text-gray-400 leading-6">
         Search "VEN" for Vendor accounts, "CUS" for Customer accounts, "INV" for Inventory account, "INVCE" for Invoice accounts, "GRN" for Goods Received Note accounts.
       </h3>
     </div>-->
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     <!-- Actions Section -->
    <div class="mt-6 flex shrink-0 items-center sm:ml-4 sm:mt-0">
 
@@ -140,19 +137,11 @@
             mat-header-cell
             *matHeaderCellDef
             mat-sort-header
-<<<<<<< HEAD
             class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold pl-8"
           >
             Code
           </th>
           <td mat-cell *matCellDef="let suppliers" class="px-4 py-2 pl-8">
-=======
-            class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold"
-          >
-            Code
-          </th>
-          <td mat-cell *matCellDef="let suppliers" class="px-4 py-2">
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
             {{ suppliers.code }}
           </td>
         </ng-container>
@@ -193,7 +182,6 @@
             {{ suppliers.parent}}
           </td>
         </ng-container>
-<<<<<<< HEAD
          <ng-container matColumnDef="vehicleBrand1">
           <th
             mat-header-cell
@@ -207,9 +195,6 @@
             {{ suppliers.date}}
           </td>
         </ng-container>
-=======
-        
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
          <ng-container matColumnDef="vehicleBrand2">
           <th
             mat-header-cell
@@ -217,11 +202,7 @@
             mat-sort-header
             class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold"
           >
-<<<<<<< HEAD
           Child
-=======
-          child
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
           </th>
           <td mat-cell *matCellDef="let suppliers" class="px-4 py-2">
             {{ suppliers.child}}
@@ -232,7 +213,6 @@
             mat-header-cell
             *matHeaderCellDef
             mat-sort-header
-<<<<<<< HEAD
             class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-10 py-3 text-left font-semibold"
           >
           Amount
@@ -241,34 +221,17 @@
             {{ (suppliers.creditAmount || 0) - (suppliers.debitAmount || 0) }}
           </td>
 
-=======
-            class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold"
-          >
-          Amount
-          </th>
-          <td mat-cell *matCellDef="let suppliers" class="px-4 py-2">
-            {{ suppliers.amount}}
-          </td>
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
         </ng-container>
          <ng-container matColumnDef="vehicleBrand4">
           <th
             mat-header-cell
             *matHeaderCellDef
             mat-sort-header
-<<<<<<< HEAD
             class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-10 py-3 text-left font-semibold"
           >
            Credit
           </th>
           <td mat-cell *matCellDef="let suppliers" class="px-14 py-2">
-=======
-            class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold"
-          >
-           Credit
-          </th>
-          <td mat-cell *matCellDef="let suppliers" class="px-4 py-2">
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
             {{ suppliers.creditAmount}}
           </td>
         </ng-container>
@@ -277,24 +240,15 @@
             mat-header-cell
             *matHeaderCellDef
             mat-sort-header
-<<<<<<< HEAD
             class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-10 py-3 text-left font-semibold"
           >
            Debit
           </th>
           <td mat-cell *matCellDef="let suppliers" class="px-14 py-2">
-=======
-            class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold"
-          >
-           Debit
-          </th>
-          <td mat-cell *matCellDef="let suppliers" class="px-4 py-2">
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
             {{ suppliers.debitAmount}}
           </td>
         </ng-container>
 
-<<<<<<< HEAD
 <!-- Path Column -->
 <ng-container matColumnDef="vehicleModel">
   <th
@@ -346,32 +300,13 @@
 </ng-container>
 
 
-=======
-        <!-- Email -->
-        <ng-container matColumnDef="vehicleModel">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            mat-sort-header
-            class="sticky top-0 z-10 bg-white dark:bg-gray-900 px-4 py-3 text-left font-semibold"
-          >
-           Path
-          </th>
-          <td mat-cell *matCellDef="let suppliers" class="px-4 py-2">
-            {{ suppliers. path }}
-          </td>
-        </ng-container>
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 
         <!-- Header and Row Definitions -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
-<<<<<<< HEAD
       
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     </div>
   </div>
 
@@ -383,32 +318,10 @@
     [pageSizeOptions]="[5, 10, 20]"
     (page)="onPaginateChange($event)"
   >
-<<<<<<< HEAD
   <div class="custom-footer-text">
     Search "VEN" for Vendor accounts, "CUS" for Customer accounts, "INV" for Inventory account, "INVCE" for Invoice accounts, "GRN" for Goods Received Note accounts.
   </div>
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   </mat-paginator>
 </div>
 
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca

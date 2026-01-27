@@ -412,17 +412,12 @@ export const appRoutes: Route[] = [
       {
         path: "agingreport-print",
         loadChildren: () => import("app/modules/admin/agingrportprint/agingrportprint.routes"),
-<<<<<<< HEAD
       },
       {
-=======
-      },{
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
         path: "trailbalance",
         loadChildren: () => import("app/modules/trailbalance/trailbalance.routes"),
       },
       {
-<<<<<<< HEAD
         path: 'receipt',
         loadChildren: () =>
         import('app/modules/receipt/receipt.routes').then(m => m.receiptRoutes),
@@ -473,8 +468,6 @@ export const appRoutes: Route[] = [
         import('app/modules/cheque-registry/cheque-registry.routes').then(m => m.ChequeRegistryRoutes),
       },
       {
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
         path: "dayendtransaction",
         loadChildren: () => import("app/modules/dayendtransaction/dayendtransaction.routes"),
       },

@@ -1,7 +1,7 @@
 {
-  "name": "Nimesh Motors",
+  "name": "NIPM",
   "version": "21.0.0",
-  "description": "Nimesh Motors - Developed by GeoEDGE",
+  "description": "NIPM - Developed by GeoEDGE",
   "author": "https://themeforest.net/user/srcn",
   "license": "https://themeforest.net/licenses/standard",
   "private": true,
@@ -21,7 +21,7 @@
     "@angular/forms": "19.0.5",
     "@angular/material": "^19.0.4",
     "@angular/material-luxon-adapter": "19.0.4",
-    "@angular/material-moment-adapter": "^20.0.3",
+    "@angular/material-moment-adapter": "19.0.4",
     "@angular/platform-browser": "19.0.5",
     "@angular/platform-browser-dynamic": "19.0.5",
     "@angular/router": "19.0.5",

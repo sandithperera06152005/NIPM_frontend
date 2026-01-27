@@ -22,7 +22,6 @@ import { SupplierviewComponent } from '../admin/supplierview/supplierview/suppli
 import { AccountTypeService } from 'app/entities/financemicro/account-type/service/account-type.service';
 import { IAccountType } from 'app/entities/financemicro/account-type/account-type.model';
 import { AccounttreeCreateComponent } from '../admin/accounttree-create/accounttree-create.component';
-<<<<<<< HEAD
 import { AccountSubcreateComponent } from '../admin/accounttree-subCreate/accounttree-subCreate.component';
 import { AccounttreeViewComponent } from '../account-tree-view/accounttree-view.component';
 
@@ -31,23 +30,12 @@ import { AccounttreeViewComponent } from '../account-tree-view/accounttree-view.
   selector: 'app-accounttree',
   standalone: true,
   imports: [CommonModule,
-=======
-
-@Component({
-  selector: 'app-accounttree',
-   standalone: true,
-    imports: [ CommonModule,
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     FormsModule,
     NgFor,
     NgIf,
     RouterModule,
     // Material modules
-<<<<<<< HEAD
     MatPaginatorModule,
-=======
-  MatPaginatorModule,
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
@@ -59,33 +47,21 @@ import { AccounttreeViewComponent } from '../account-tree-view/accounttree-view.
   styleUrl: './accounttree.component.scss'
 })
 export class AccounttreeComponent {
-<<<<<<< HEAD
   category = inject(AccountTypeService);
   supservice = inject(SupplierService);
   supplierbank = inject(SupplierBankAccountsService);
   supplierbankacc = inject(SupplierBankService);
-=======
- category= inject(AccountTypeService);
- supservice = inject(SupplierService);
-supplierbank=inject(SupplierBankAccountsService);
-supplierbankacc=inject(SupplierBankService);
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   supplier: IAccountType[] = [];
   currentPage = 1;
   pageSize = 10;
   totalItems = 0;
   totalPages = 0;
-<<<<<<< HEAD
   searchByCode = false;
-=======
-searchByCode = false;
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   // 👇 new filter model to bind to form
   filter = {
     name: '',
     code: ''
   };
-<<<<<<< HEAD
   // Example: define supplierId before using it, or move this code into a method and use a parameter
   // let supplierId = 1; // Replace with actual supplier ID
   // this._dialogService.open(SupplierviewComponent, {
@@ -287,174 +263,6 @@ searchByCode = false;
   }
   openVehicleCreateDialog(): void {
     const dialogRef = this._dialogService.open(AccounttreeCreateComponent, {
-=======
-// Example: define supplierId before using it, or move this code into a method and use a parameter
-// let supplierId = 1; // Replace with actual supplier ID
-// this._dialogService.open(SupplierviewComponent, {
-//   data: { id: supplierId }  // pass just the ID
-// });
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-editRowId: number | null = null;
-editInputname: string = '';
-editfullPath : string = '';
-
-enableEdit(suppliers: any): void {
-  this.editRowId = suppliers.id;
-  this.editInputname = suppliers.name;  // Fix here
-  this.editfullPath = suppliers.fullPath ;        // Fix here
-}
-
-getParentName(fullPath: string): string {
-  if (!fullPath) return '';
-
-  const parts = fullPath.split('/').filter(part => part.trim() !== '');
-
-  if (parts.length >= 2) {
-    // Return second last segment as parent
-    return parts[parts.length - 2];
-  } else if (parts.length === 1) {
-    // If only one segment, parent is same as that segment
-    return parts[0];
-  }
-
-  return '';
-}
-
-
-saveEdit(id: number): void {
-  const updatedData = {
-    id,
-    name: this.editInputname,
-    fullPath:  this.editfullPath 
-  };
-
-  this.category.partialUpdate(updatedData).subscribe({
-    next: (res) => {
-      console.log('Updated successfully:', res);
-      this.editRowId = null;
-       if (this.paginator) {
-        this.paginator.firstPage(); // Resets UI and emits change
-      }
-
-      // You may still reset manually if needed
-      this.currentPage = 1;
-
-      this.loadSuppliers();
-      // Reload or update local table row if needed
-    },
-    error: (err) => {
-      console.error('Error while updating:', err);
-    }
-  });
-}
-
-
-// Or, move this logic into a method:
-openSupplierViewDialog(supplierId: number): void {
-  this._dialogService.open(SupplierviewComponent, {
-    data: { id: supplierId }  // pass just the ID
-  });
-}
-
-selectedSupplierId: number | null = 3;
-
-toggleDetails(id: number): void {
-  this.supplierbankacc.find(id).subscribe({
-    next: data => {
-      console.log('Bank Account:', data);
-      // handle/display data
-    },
-    error: err => console.error('Bank Account error:', err)
-  });
-
-  this.supplierbank.find(id).subscribe({
-    next: data => {
-      console.log('Bank:', data);
-    },
-    error: err => console.error('Bank error:', err)
-  });
-
-  this.supservice.find(id).subscribe({
-    next: data => {
-      console.log('Supplier:', data);
-    },
-    error: err => console.error('Supplier error:', err)
-  });
-}
-
-onPaginateChange(event: PageEvent): void {
-  this.pageSize = event.pageSize;
-  this.currentPage = event.pageIndex + 1;
-  this.loadSuppliers();
-}
-deleteSupplier(id: number): void {
-  this.category.delete(id).subscribe({
-    next: () => {
-      this._snackBarService.open("  deleted successfully!", "Close", {
-        duration: 3000,
-      });
-      this.loadSuppliers();
-    },
-    error: (err) => {
-      console.error('Supplier delete failed', err);
-      this._snackBarService.open("Supplier delete failed", "Close", {
-        duration: 3000,
-      });
-    }
-  });
-}
-
-refreshFilters(): void {
-  // Clear all filter inputs
-  this.filter.code = '';
-  this.filter.name = '';
-  
-
-  // Reset toggles if needed
-  this.searchByCode = true;   // or false, depending on your default
-  
-
-  // Call your existing loadSuppliers() method to reload data
-  this.loadSuppliers();
-}
-
-
-itemsPerPage: number = 10;
-  ngOnInit(): void {
-   this.loadSuppliers();
-  }
- 
-
-  showId = false;  // or true, depending on when you want to show the id column
-
-get displayedColumns(): string[] {
-  const cols = [
-    // columns that always show
-    'code',
-  
-  'vehicleOwnerName',
- 'parentName',
- 
- 
-  'action'
-  ];
-
-  if (this.showId) {
-    cols.unshift('id');  // add 'id' column at the start if needed
-  }
-
-  return cols;
-}
-  constructor(
-    
-    private _dialogService: MatDialog,
-    private _snackBarService: MatSnackBar
-  ) {
-    
-  }
-  openVehicleCreateDialog(): void {
-    const dialogRef = this._dialogService.open(AccounttreeCreateComponent , {
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
       width: "80vh",
       maxHeight: "95vh",
     });
@@ -464,7 +272,6 @@ get displayedColumns(): string[] {
         this._snackBarService.open("Supplier Created Successfully!", "Close", {
           duration: 3000,
         });
-<<<<<<< HEAD
         this.loadSuppliers(); // ✅ refresh with new generatedCode
       }
     });
@@ -478,20 +285,6 @@ get displayedColumns(): string[] {
     this.currentPage = 1;  // Reset to first page
     this.loadSuppliers();
   }
-=======
-        
-      }
-    });
-  }
-viewopenSupplierViewDialog(supplierId: number): void {
-  this._dialogService.open(SupplierviewComponent, {
-  data: { id: supplierId }  // pass just the ID
-});}
-onFilterChange(): void {
-  this.currentPage = 1;  // Reset to first page
-  this.loadSuppliers();
-}
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
   loadSuppliers(): void {
     const params: any = {
@@ -509,14 +302,10 @@ onFilterChange(): void {
 
     this.category.query(params).subscribe({
       next: response => {
-<<<<<<< HEAD
         this.supplier = (response.body || []).map(acc => ({
           ...acc,
           generatedCode: "AC-" + Math.random().toString(36).substring(2, 8).toUpperCase()
         }));
-=======
-        this.supplier = response.body || [];
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
         const total = response.headers.get('X-Total-Count');
         this.totalItems = total ? +total : 0;
         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
@@ -558,7 +347,6 @@ onFilterChange(): void {
     // Navigate or show modal — customize as needed
     console.log('Viewing supplier:', supplier);
   }
-<<<<<<< HEAD
   openAccountTreeDialog(): void {
     this._dialogService.open(AccounttreeViewComponent, {
       width: '700px',
@@ -567,6 +355,4 @@ onFilterChange(): void {
       data: {}
     });
   }
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 }

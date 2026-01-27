@@ -1,10 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-<<<<<<< HEAD
 import { Observable, asapScheduler, map, scheduled, tap } from 'rxjs';
-=======
-import { Observable, asapScheduler, map, scheduled } from 'rxjs';
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 import { catchError } from 'rxjs/operators';
 
@@ -15,11 +11,8 @@ import { ApplicationConfigService } from 'app/core/config/application-config.ser
 import { createRequestOption } from 'app/core/request/request-util';
 import { SearchWithPagination } from 'app/core/request/request.model';
 import { IAccounts, NewAccounts } from '../accounts.model';
-<<<<<<< HEAD
 import { TransactionService } from 'app/entities/financemicro/transaction/service/transaction.service';
 import { NewTransaction } from 'app/entities/financemicro/transaction/transaction.model';
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 export type PartialUpdateAccounts = Partial<IAccounts> & Pick<IAccounts, 'id'>;
 
@@ -41,25 +34,18 @@ export type EntityArrayResponseType = HttpResponse<IAccounts[]>;
 export class AccountsService {
   protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
-<<<<<<< HEAD
   protected readonly transactionService = inject(TransactionService);
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
   protected resourceUrl = this.applicationConfigService.getEndpointFor('api/accounts', 'financemicro');
   protected resourceSearchUrl = this.applicationConfigService.getEndpointFor('api/accounts/_search', 'financemicro');
 
-<<<<<<< HEAD
   // Store previous account state to calculate changes
   private previousAccountState = new Map<number, { debitAmount: number; creditAmount: number }>();
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   create(accounts: NewAccounts): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(accounts);
     return this.http
       .post<RestAccounts>(this.resourceUrl, copy, { observe: 'response' })
-<<<<<<< HEAD
       .pipe(
         map(res => this.convertResponseFromServer(res)),
         tap((res) => {
@@ -136,29 +122,11 @@ export class AccountsService {
           }
         })
       );
-=======
-      .pipe(map(res => this.convertResponseFromServer(res)));
-  }
-
-  update(accounts: IAccounts): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(accounts);
-    return this.http
-      .put<RestAccounts>(`${this.resourceUrl}/${this.getAccountsIdentifier(accounts)}`, copy, { observe: 'response' })
-      .pipe(map(res => this.convertResponseFromServer(res)));
-  }
-
-  partialUpdate(accounts: PartialUpdateAccounts): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(accounts);
-    return this.http
-      .patch<RestAccounts>(`${this.resourceUrl}/${this.getAccountsIdentifier(accounts)}`, copy, { observe: 'response' })
-      .pipe(map(res => this.convertResponseFromServer(res)));
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http
       .get<RestAccounts>(`${this.resourceUrl}/${id}`, { observe: 'response' })
-<<<<<<< HEAD
       .pipe(
         map(res => this.convertResponseFromServer(res)),
         tap((res) => {
@@ -171,16 +139,12 @@ export class AccountsService {
           }
         })
       );
-=======
-      .pipe(map(res => this.convertResponseFromServer(res)));
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);
     return this.http
       .get<RestAccounts[]>(this.resourceUrl, { params: options, observe: 'response' })
-<<<<<<< HEAD
       .pipe(
         map(res => this.convertResponseArrayFromServer(res)),
         tap((res) => {
@@ -200,12 +164,6 @@ export class AccountsService {
   delete(id: number): Observable<HttpResponse<{}>> {
     // Remove from state tracking when deleted
     this.previousAccountState.delete(id);
-=======
-      .pipe(map(res => this.convertResponseArrayFromServer(res)));
-  }
-
-  delete(id: number): Observable<HttpResponse<{}>> {
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
@@ -213,7 +171,6 @@ export class AccountsService {
     const options = createRequestOption(req);
     return this.http.get<RestAccounts[]>(this.resourceSearchUrl, { params: options, observe: 'response' }).pipe(
       map(res => this.convertResponseArrayFromServer(res)),
-<<<<<<< HEAD
       tap((res) => {
         // Store states for all accounts in search result
         if (res.body) {
@@ -225,14 +182,10 @@ export class AccountsService {
           });
         }
       }),
-=======
-
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
       catchError(() => scheduled([new HttpResponse<IAccounts[]>()], asapScheduler)),
     );
   }
 
-<<<<<<< HEAD
   // Updated recordTransaction method to accept change amounts
   private recordTransaction(account: IAccounts, action: 'CREATE' | 'UPDATE', debitChange: number, creditChange: number): void {
     const transactionData: NewTransaction = {
@@ -255,8 +208,6 @@ export class AccountsService {
     });
   }
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   getAccountsIdentifier(accounts: Pick<IAccounts, 'id'>): number {
     return accounts.id;
   }
@@ -312,8 +263,4 @@ export class AccountsService {
       body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
     });
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca

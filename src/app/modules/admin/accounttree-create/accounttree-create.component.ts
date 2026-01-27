@@ -18,7 +18,6 @@ import { InventoryService } from 'app/entities/inventorymicro/inventory/service/
 import { Observable, startWith, map } from 'rxjs';
 import { CategoryCreateComponent } from '../category-create/category-create.component';
 import { AccountTypeService } from 'app/entities/financemicro/account-type/service/account-type.service';
-<<<<<<< HEAD
 import { AbstractControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 
 
@@ -36,8 +35,6 @@ export function accountCodeRangeValidator(min: number, max: number): ValidatorFn
   };
 }
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 @Component({
   selector: 'app-accounttree-create',
@@ -72,7 +69,6 @@ export class AccounttreeCreateComponent implements OnInit {
   parentCategoryControl = new FormControl(null);
   filteredCategories!: Observable<any[]>;
   ngOnInit(): void {
-<<<<<<< HEAD
 
   this.categoryForm.get('parentCategory')?.valueChanges.subscribe((parent) => {
   const nameControl = this.categoryForm.get('name');
@@ -127,8 +123,6 @@ export class AccounttreeCreateComponent implements OnInit {
 
 
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   this.fetchCategories();
 this.filteredCategories = this.categoryForm.controls.parentCategory.valueChanges.pipe(
   startWith(''),
@@ -165,11 +159,7 @@ this.filteredCategories = this.categoryForm.controls.parentCategory.valueChanges
     }
   }
   fetchCategories() {
-<<<<<<< HEAD
     this.categoryService.query({size: 1000}).subscribe({
-=======
-    this.categoryService.query().subscribe({
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
       next: (res) => {
         this.categories = res.body || [];
         console.log(this.categories)
@@ -184,22 +174,12 @@ this.filteredCategories = this.categoryForm.controls.parentCategory.valueChanges
   const parent = this.categoryForm.controls.parentCategory.value;
   const name = this.categoryForm.controls.name.value || '';
 console.log(parent)
-<<<<<<< HEAD
 if (parent) {
     if (typeof parent === 'object' && parent.lmu) {
       return parent.lmu;   // 👈 only parent path, no account code
     }
     if (typeof parent === 'string' && parent.trim() !== '') {
       return parent.trim(); // 👈 only parent string, no account code
-=======
-  if (parent) {
-    if (typeof parent === 'object' && parent.lmu) {
-      return `${parent.lmu}/${name}`;
-    }
-    if (typeof parent === 'string' && parent.trim() !== '') {
-      console.log('tis works')
-      return `${parent.trim()}/${name}`;
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
     }
   }
 
@@ -217,23 +197,16 @@ itemsave(): void {
     fullPath = fullPath.slice(1); // remove leading slash if needed
   }
 
-<<<<<<< HEAD
   // auto-generate code
   const generatedCode = 'AC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   const payload = {
     id: null,
     type: this.categoryForm.value.parentCategory.type || this.categoryForm.value.parentCategory,
     lmu: fullPath,
-<<<<<<< HEAD
     code: this.categoryForm.value.name,
     generatedCode: generatedCode                // auto-generated
-=======
-    code: this.categoryForm.value.name
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   };
 
   console.log('aaa', payload);
@@ -259,10 +232,7 @@ itemsave(): void {
       console.warn('Form is invalid');
     }
   }
-<<<<<<< HEAD
 
 
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 }

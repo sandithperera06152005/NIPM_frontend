@@ -26,13 +26,10 @@ import { AccountTypeService } from 'app/entities/financemicro/account-type/servi
 import { AccountsService } from 'app/entities/financemicro/accounts/service/accounts.service';
 import { TransactionService } from 'app/entities/financemicro/transaction/service/transaction.service';
 import { NextpaymentagingComponent } from '../admin/nextpaymentaging/nextpaymentaging.component';
-<<<<<<< HEAD
 import { VoucherCreateComponent } from '../voucher-create/voucher-create.component';
 
 
 
-=======
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
 @Component({
   selector: 'app-nextpayment',
@@ -457,18 +454,11 @@ updatecash(grnvalue: number) {
 
 updateAmountOwing(id: number, amount: number,grnvalue: number,supname:String,grncode:string,invoicecode:string): void {
   this.transaction(grncode, grnvalue, invoicecode);
-<<<<<<< HEAD
   const newTotal = Math.max(0, amount - grnvalue); // prevent negatives
   const updatePayload = {
   inspected: newTotal === 0, // mark inspected only if fully paid
   amountOwing: newTotal
 };
-=======
-  const updatePayload = {
-    inspected: true,
-    total: amount 
-  };
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
 
   this.grnservice.partialUpdate({ id, ...updatePayload }).subscribe({
     next: (response) => {

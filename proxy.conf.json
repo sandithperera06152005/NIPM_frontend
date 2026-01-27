@@ -6,19 +6,6 @@
     "loglevel": "debug",
     "changeOrigin": true
   },
-    "/api/transactions": {
-    "target": "http://localhost:8080/",
-    "secure": false,
-    "loglevel": "debug",
-    "changeOrigin": true
-  },
-
-   "/api/account-types": {
-    "target": "http://localhost:8080/",
-    "secure": false,
-    "loglevel": "debug",
-    "changeOrigin": true
-  },
     "/api/receipt": {
     "target": "http://localhost:8080/",
     "secure": false,
@@ -56,15 +43,6 @@
     "loglevel": "debug",
     "changeOrigin": true
   },
-<<<<<<< HEAD
-=======
-  "/services/financemicro": {
-    "target": "http://localhost:8080/",
-    "secure": false,
-    "loglevel": "debug",
-    "changeOrigin": true
-  },
->>>>>>> 000a1c8ebb8750b6a4c0438765135f41821067ca
   "/services/**": {
     "target": "http://localhost:8080/",
     "secure": false,
