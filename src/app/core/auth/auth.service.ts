@@ -100,7 +100,7 @@ export class AuthService {
 
     const body = new URLSearchParams();
     body.set("grant_type", "password");
-    body.set("client_id", "nipm_dev");
+    body.set("client_id", "web_app");
     body.set("username", credentials.username);
     body.set("password", credentials.password);
     // body.set("client_secret", "enSW3YuTLFtCFfvvivMjh8toVC4XAy8J");
@@ -214,7 +214,7 @@ export class AuthService {
 
     const body = new URLSearchParams();
     body.set("grant_type", "refresh_token");
-    body.set("client_id", "nipm_dev");
+    body.set("client_id", "web_app");
     // body.set("client_secret", "enSW3YuTLFtCFfvvivMjh8toVC4XAy8J");
     // body.set("client_secret", "SX2wGiLaPhyTAFQWeGkzLp683VkaMOj0");
     body.set("refresh_token", this.refreshToken);
