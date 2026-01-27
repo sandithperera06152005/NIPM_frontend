@@ -345,7 +345,6 @@ export class AccountstatementComponent {
   onContinue() {
     if (this.grnForm.valid) {
       // Do whatever processing you want here
-
       // Then close the drawer
       this.drawer.close();
     }
