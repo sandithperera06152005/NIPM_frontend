@@ -1,0 +1,1 @@
+import{D as r}from"./chunk-TUDKCDCT.js";function s(e){return e!=null}var p=e=>{let t=new r;return e&&Object.entries(e).forEach(([n,o])=>{if(o!=null)for(let i of[].concat(e[n]).filter(f=>f!==""))t=t.append(n,i)}),t};export{s as a,p as b};

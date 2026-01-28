@@ -35,7 +35,7 @@
         <div>
           <!-- <img
             src="assets/car.png"
-            alt="Nimesh Motor Works Logo"
+            alt="NIPM Logo"
             class="h-50 mt-10"
           /> -->
         </div>
@@ -169,10 +169,9 @@
           <tbody>
             <tr *ngFor="let line of formLines[section]; let i = index">
               <!-- Fixed width for # column -->
-        <td class="border p-2 w-[60px]">{{ line.rowNumber | number: "2.0" }}</td>
-
-
-
+              <td class="border p-2 w-[60px]">
+                {{ line.rowNumber | number: "2.0" }}
+              </td>
 
               <!-- Dynamic width for Work column -->
               <td

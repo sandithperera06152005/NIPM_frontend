@@ -1,3 +1,4 @@
+
 import { ChangeDetectorRef, Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -345,7 +346,6 @@ export class AccountstatementComponent {
   onContinue() {
     if (this.grnForm.valid) {
       // Do whatever processing you want here
-
       // Then close the drawer
       this.drawer.close();
     }
