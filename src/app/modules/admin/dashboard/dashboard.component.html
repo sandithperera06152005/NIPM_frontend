@@ -1,8 +1,6 @@
 <div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden bg-gray-100">
   <!-- Header -->
-  <div
-    class="flex flex-col gap-2 bg-white px-8 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-  >
+  <div class="flex flex-col gap-2 bg-white px-8 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
     <div>
       <h1 class="text-3xl font-bold tracking-tight text-gray-800">
         NIPM Dashboard
@@ -18,7 +16,7 @@
 
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      
+
       <!-- Academic Years -->
       <div class="rounded-2xl bg-white p-6 shadow">
         <div class="flex items-center gap-4">
@@ -27,7 +25,10 @@
           </div>
           <div>
             <div class="text-sm text-gray-500">Academic Years</div>
-            <div class="text-3xl font-bold">08</div>
+            <div class="text-3xl font-bold">
+              {{ stats.academicYears }}
+            </div>
+
           </div>
         </div>
       </div>
@@ -40,7 +41,7 @@
           </div>
           <div>
             <div class="text-sm text-gray-500">Applications</div>
-            <div class="text-3xl font-bold">1,245</div>
+            <div class="text-3xl font-bold">{{ stats.courseAdmissions }}</div>
           </div>
         </div>
       </div>
@@ -53,20 +54,20 @@
           </div>
           <div>
             <div class="text-sm text-gray-500">App Users</div>
-            <div class="text-3xl font-bold">126</div>
+            <div class="text-3xl font-bold">{{ stats.appUsers }}</div>
           </div>
         </div>
       </div>
 
-      <!-- Banks -->
+      <!-- Companies -->
       <div class="rounded-2xl bg-white p-6 shadow">
         <div class="flex items-center gap-4">
           <div class="rounded-xl bg-rose-100 p-3 text-rose-600">
-            <mat-icon svgIcon="heroicons_outline:building-library"></mat-icon>
+            <mat-icon svgIcon="heroicons_outline:building-office"></mat-icon>
           </div>
           <div>
-            <div class="text-sm text-gray-500">Banks</div>
-            <div class="text-3xl font-bold">14</div>
+            <div class="text-sm text-gray-500">Companies</div>
+            <div class="text-3xl font-bold">{{ stats.companies }}</div>
           </div>
         </div>
       </div>
@@ -98,40 +99,145 @@
     </div>
 
     <!-- Lower Panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       <!-- Recent Applications -->
-      <div class="rounded-2xl bg-white p-6 shadow">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">
-          Recent Admission Applications
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <!-- Header -->
+        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
+          Academic Years Status
         </h2>
 
-        <div class="space-y-3 text-sm text-gray-600">
-          <div class="flex justify-between">
-            <span>Application #A1023</span>
-            <span class="text-amber-600">Pending</span>
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let app of recentApplications" class="flex justify-between">
+            <span>Academic Year {{ app.id }}</span>
+
+            <span [ngClass]="{
+          'text-amber-600': app.status === 'Upcoming',
+          'text-green-600': app.status === 'Active',
+          'text-gray-500': app.status === 'Completed'
+        }">
+              {{ app.status }}
+            </span>
           </div>
-          <div class="flex justify-between">
-            <span>Application #A1022</span>
-            <span class="text-green-600">Approved</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Application #A1021</span>
-            <span class="text-red-600">Rejected</span>
+
+          <div *ngIf="recentApplications.length === 0" class="text-gray-400">
+            No academic years found
           </div>
         </div>
       </div>
 
       <!-- Audit Logs -->
-      <div class="rounded-2xl bg-white p-6 shadow">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">
-          Recent Audit Logs
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
+          Audit Logs
         </h2>
 
-        <div class="space-y-3 text-sm text-gray-600">
-          <div>User admin created Academic Year 2025</div>
-          <div>Bank account updated</div>
-          <div>Application status changed</div>
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let log of recentAuditLogs" class="flex justify-between">
+            <span>{{ log.action }}</span>
+            <span class="text-gray-500">{{ log.entityName }}</span>
+          </div>
+
+          <div *ngIf="recentAuditLogs.length === 0" class="text-gray-400">
+            No audit logs found
+          </div>
+        </div>
+      </div>
+
+
+      <!-- App Users -->
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
+          App Users
+        </h2>
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let user of recentAppUsers" class="flex justify-between">
+            <span>{{ user.name }}</span>
+            <span [ngClass]="{
+          'text-green-600': user.status === 'Active',
+          'text-gray-500': user.status === 'Inactive'
+        }">
+              {{ user.status }}
+            </span>
+          </div>
+
+          <div *ngIf="recentAppUsers.length === 0" class="text-gray-400">
+            No app users found
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Companies -->
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">
+          Companies
+        </h2>
+
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let company of recentCompanies" class="flex justify-between">
+            <span>{{ company.name }}</span>
+            <span [ngClass]="{
+              'text-green-600': company.status === 'Active',
+              'text-gray-500': company.status === 'Inactive'
+            }">
+              {{ company.status }}
+            </span>
+          </div>
+
+          <div *ngIf="recentCompanies.length === 0" class="text-gray-400">
+            No companies found
+          </div>
+        </div>
+      </div>
+
+      <!-- Courses -->
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">
+          Courses
+        </h2>
+
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let course of recentCourses" class="flex justify-between">
+            <span>{{ course.name }}</span>
+            <span [ngClass]="{
+              'text-green-600': course.status === 'Active',
+              'text-amber-600': course.status === 'Upcoming',
+              'text-gray-500': course.status === 'Completed'
+            }">
+              {{ course.status }}
+            </span>
+          </div>
+
+          <div *ngIf="recentCourses.length === 0" class="text-gray-400">
+            No courses found
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Admissions -->
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">
+          Course Admissions
+        </h2>
+
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let admission of recentCourseAdmissions" class="flex justify-between">
+            <span>Admission #{{ admission.id }}</span>
+            <span [ngClass]="{
+              'text-amber-600': admission.status === 'Pending',
+              'text-green-600': admission.status === 'Approved',
+              'text-red-600': admission.status === 'Rejected'
+            }">
+              {{ admission.status }}
+            </span>
+          </div>
+
+          <div *ngIf="recentCourseAdmissions.length === 0" class="text-gray-400">
+            No course admissions found
+          </div>
         </div>
       </div>
 

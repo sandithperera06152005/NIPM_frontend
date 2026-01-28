@@ -167,6 +167,11 @@ export const appRoutes: Route[] = [
           import("app/modules/course-application/course-application.routes"),
       },
       {
+        path: "course-admission",
+        loadChildren: () =>
+          import("app/modules/course-admission/course-admission.routes"),
+      },
+      {
         path: "course-admission-qualification",
         loadChildren: () =>
           import("app/modules/course-admission-qualification/course-admission-qualification.routes"),

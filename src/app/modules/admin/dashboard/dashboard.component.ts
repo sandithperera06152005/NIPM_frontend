@@ -1,393 +1,259 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
-import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatIcon } from "@angular/material/icon";
-import { IClientRegistry } from "app/entities/operationsModuleCooperation/client-registry/client-registry.model";
-import { ClientRegistryService } from "app/entities/operationsModuleCooperation/client-registry/service/client-registry.service";
-import { EstimateService } from "app/entities/operationsModuleCooperation/estimate/service/estimate.service";
-import { VehicleRegistryService } from "app/entities/operationsModuleCooperation/vehicle-registry/service/vehicle-registry.service";
-import { IVehicleRegistry } from "app/entities/operationsModuleCooperation/vehicle-registry/vehicle-registry.model";
-import { environment } from "environments/environment";
-import { SelectedCardService } from "./services/selected-card.service";
-import { MatDialog } from "@angular/material/dialog";
-import { VehicleAddWizardComponent } from "../vehicle_details/vehicle_details/vehicle-add-wizard/vehicle-add-wizard.component";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { OwnerCreateWizardComponent } from "../owners/owner-create-wizard/owner-create-wizard.component";
-import { VehicleAddComponent } from "../vehicle_details/vehicle_details/vehicle-add-dashboard/vehicle-add-wizard.component";
-import { PreEstimateService } from "app/entities/operationsModuleCooperation/pre-estimate/service/pre-estimate.service";
-import { JobCardService } from "app/entities/operationsModuleCooperation/job-card/service/job-card.service";
-import { InvoiceItemService } from "app/entities/operationsModuleCooperation/invoice-item/service/invoice-item.service";
-import { InvoiceService } from "app/entities/operationsModuleCooperation/invoice/service/invoice.service";
-import { Router } from "@angular/router";
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import dayjs from 'dayjs/esm';
+
+import { AcademicYearService } from 'app/modules/academic-year/service/academic-year.service';
+import { IAcademicYear } from 'app/modules/academic-year/academic-year.model';
+
+import { AppUserService } from 'app/modules/app-user/service/app-user.service';
+import { IAppUser } from 'app/modules/app-user/app-user.model';
+import { UserStatus } from 'app/enums/user-status.model';
+import { CompanyService } from 'app/modules/company/service/company.service';
+import { ICompany } from 'app/modules/company/company.model';
+import { CourseService } from 'app/modules/course/service/course.service';
+import { ICourse } from 'app/modules/course/course.model';
+import { CourseAdmissionService } from 'app/modules/course-admission/service/course-admission.service';
+import { ICourseAdmission } from 'app/modules/course-admission/course-admission.model';
+import { ApplicationStatus } from 'app/enums/application-status.model';
+import { AuditLogService } from 'app/modules/audit-log/service/audit-log.service';
+import { IAuditLog } from 'app/modules/audit-log/audit-log.model';
+
+
+import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: "app-dashboard",
+  selector: 'app-dashboard',
+  standalone: true,
+  templateUrl: './dashboard.component.html',
   imports: [
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatIcon,
-    VehicleAddComponent,
-  ],
+    MatIconModule
 
-  templateUrl: "./dashboard.component.html",
-  styleUrl: "./dashboard.component.scss",
+  ],
 })
 export class DashboardComponent implements OnInit {
-  searchInputControl = new FormControl();
-  allVehicleDetails: IVehicleRegistry[] = [];
-  allClientDetails: IClientRegistry[] = [];
-  searchByVehicleNo: boolean = true;
-  isVehicleSelected: boolean = false;
-  fromDashboard: boolean = false;
-  selectedCard: {
-    vehicle: IVehicleRegistry;
-    client: IClientRegistry;
-  } | null = null;
-
-  estimateCount: number = 0;
-  preEstimateCount: number = 0;
-  invoiceCount: number = 0;
-  jobCardCount: number = 0;
-
-  showCreateVehicleForm: boolean = false;
-
-  private _router = inject(Router);
+  recentApplications: { id: string; status: string }[] = [];
+  recentAuditLogs: { action: string; entityName: string }[] = [];
+  recentAppUsers: { name: string; status: string }[] = [];
+  recentCompanies: { name: string; status: string }[] = [];
+  recentCourses: { name: string; status: string }[] = [];
+  recentCourseAdmissions: { id: string; status: string }[] = [];
+  stats = {
+    academicYears: 0,
+    appUsers: 0,
+    companies: 0,
+    courses: 0,
+    courseAdmissions: 0,
+  };
 
   constructor(
-    private _estimateService: EstimateService,
-    private _preEstimateService: PreEstimateService,
-    private _vehicleRegistryService: VehicleRegistryService,
-    private _clientRegistryService: ClientRegistryService,
-    private _selectedCardService: SelectedCardService,
-    private _dialogService: MatDialog,
-    private _snackBarService: MatSnackBar,
-    private _jobCardService: JobCardService,
-    private _invoiceService: InvoiceService
-  ) {
-    this.searchInputControl.valueChanges.subscribe((w) => {
-      // this.page = 0;
-      this.searchVehicle();
-    });
-  }
+    private academicYearService: AcademicYearService,
+    private auditLogService: AuditLogService,
+    private appUserService: AppUserService,
+    private companyService: CompanyService,
+    private courseService: CourseService,
+    private courseAdmissionService: CourseAdmissionService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.fromDashboard = true;
-    this._selectedCardService.selectedCard$.subscribe((selected) => {
-      // alert(
-      //   "Selected Vehicle: " +
-      //     JSON.stringify(selected?.vehicle) +
-      //     "\nSelected Client: " +
-      //     JSON.stringify(selected?.client)
-      // );
-      this.selectedCard = selected;
-      this.isVehicleSelected = !!selected;
-      if (selected) {
-        const licenseNo = selected.vehicle?.licenseNo;
-        this.getDetails(licenseNo);
-        this.isVehicleSelected = true;
-      }
-    });
-
-    // Initialization logic here
+    this.loadAcademicYears();
+    this.loadAppUsers();
+    this.loadCompanies();
+    this.loadCourses();
+    this.loadCourseAdmissions();
+    this.loadStats();
+    this.loadAuditLogs();
   }
 
-  searchVehicle(): void {
-    const searchTerm = this.searchInputControl.value?.trim();
-    if (!searchTerm) {
-      this.allVehicleDetails = [];
-      return;
-    }
+  // ================================
+  // Dashboard Data
+  // ================================
+  private loadAcademicYears(): void {
+    this.academicYearService.query().subscribe({
+      next: res => {
+        const academicYears = res.body ?? [];
 
-    if (this.searchByVehicleNo) {
-      // Search by Vehicle License Number
-      const params = {
-        page: "0",
-        size: "1",
-        "licenseNo.contains": searchTerm,
-      };
+        this.recentApplications = academicYears.map(ay => ({
+          id: String(ay.id),
+          status: this.getAcademicYearStatus(ay),
+        }));
 
-      this._vehicleRegistryService.query(params).subscribe({
-        next: (res) => {
-          this.allVehicleDetails = res.body ?? [];
-          const clientParams = {
-            page: "0",
-            size: "1",
-            "id.equals": this.allVehicleDetails[0]?.clientRegistry?.id,
-            // sort: "createdDate,desc",
-          };
-          const licenseNo = this.allVehicleDetails[0]?.licenseNo;
-          this.getDetails(licenseNo);
-          if (this.allVehicleDetails.length > 0) {
-            this.allClientDetails = [];
-
-            this._clientRegistryService.query(clientParams).subscribe((res) => {
-              this.allClientDetails = res.body ?? [];
-              console.log("Client Details: ", this.allClientDetails);
-            });
-          }
-        },
-        error: () => {
-          this.allVehicleDetails = [];
-        },
-      });
-    } else {
-      // Search by Client Name and then fetch their last registered vehicle
-      const params = {
-        page: "0",
-        size: "5",
-        "name.contains": searchTerm,
-      };
-
-      this._clientRegistryService.query(params).subscribe({
-        next: (res) => {
-          this.allClientDetails = res.body ?? [];
-          const clients = res.body ?? [];
-          if (clients.length > 0) {
-            const vehicleID = clients[0].id;
-
-            const params = {
-              page: "0",
-              size: "5",
-              "clientRegistryId.equals": vehicleID,
-            };
-
-            this._vehicleRegistryService.query(params).subscribe({
-              next: (vehicleRes) => {
-                this.allVehicleDetails = vehicleRes.body;
-              },
-              error: () => {
-                this.allVehicleDetails = [];
-              },
-            });
-          } else {
-            this.allVehicleDetails = [];
-          }
-        },
-        error: () => {
-          this.allVehicleDetails = [];
-        },
-      });
-    }
-  }
-
-  set accessVehicle(vehicle: string) {
-    localStorage.setItem("accessVehicle", vehicle);
-  }
-
-  set accessClient(client: string) {
-    localStorage.setItem("accessClient", client);
-  }
-
-  selectCard(vehicle: IVehicleRegistry, client: IClientRegistry): void {
-    this.searchInputControl.setValue("");
-    this.searchByVehicleNo = true;
-    this.allVehicleDetails = [];
-    // this.allClientDetails = [];
-    this._selectedCardService.setSelectedCard(vehicle, client);
-    this.isVehicleSelected = true;
-    this.selectedCard = {
-      vehicle,
-      client,
-    };
-    this._estimateService
-      .query({
-        size: 1000,
-        "licenseNo.contains": `${this.selectedCard?.vehicle?.licenseNo}`,
-        sort: "createdDate,desc",
-      })
-      .subscribe((estimate) => {
-        this.estimateCount = estimate.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this._preEstimateService
-      .query({
-        size: 1000,
-        "licenseNo.contains": `${this.selectedCard?.vehicle?.licenseNo}`,
-        sort: "createdDate,desc",
-      })
-      .subscribe((preEstimate) => {
-        this.preEstimateCount = preEstimate.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this._jobCardService
-      .query({
-        size: 1000,
-        "vehicleLicenseNumber.contains": `${this.selectedCard?.vehicle?.licenseNo}`,
-        sort: "createdDate,desc",
-      })
-      .subscribe((jobCard) => {
-        this.jobCardCount = jobCard.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this._invoiceService
-      .query({
-        size: 1000,
-        "vehicleLicenseNumber.contains": `${this.selectedCard?.vehicle?.licenseNo}`,
-        // sort: "createdDate,desc",
-      })
-      .subscribe((invoice) => {
-        this.invoiceCount = invoice.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this.accessVehicle = JSON.stringify(vehicle);
-    this.accessClient = JSON.stringify(client);
-  }
-
-  getDetails(licenseNo: string): void {
-    this._estimateService
-      .query({
-        size: 1000,
-        "licenseNo.contains": `${licenseNo}`,
-        sort: "createdDate,desc",
-      })
-      .subscribe((estimate) => {
-        this.estimateCount = estimate.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this._preEstimateService
-      .query({
-        size: 1000,
-        "licenseNo.contains": `${licenseNo}`,
-        sort: "createdDate,desc",
-      })
-      .subscribe((preEstimate) => {
-        this.preEstimateCount = preEstimate.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this._jobCardService
-      .query({
-        size: 1000,
-        "vehicleLicenseNumber.contains": `${licenseNo}`,
-        sort: "createdDate,desc",
-      })
-      .subscribe((jobCard) => {
-        this.jobCardCount = jobCard.body.length;
-        // alert(this.estimateCount);
-      });
-
-    this._invoiceService
-      .query({
-        size: 1000,
-        "vehicleLicenseNumber.contains": `${licenseNo}`,
-      })
-      .subscribe((invoice) => {
-        this.invoiceCount = invoice.body.length;
-        // alert(this.estimateCount);
-      });
-  }
-
-  /**
-   * Open Client edit dialog
-   */
-  openClientEditDialog(
-    owner: IClientRegistry,
-    vehicle: IVehicleRegistry
-  ): void {
-    console.log("Owner: ", owner);
-    console.log("Vehicle: ", vehicle);
-    const owners = this.allClientDetails;
-    console.log("Owners: ", owners);
-    const isFromDashboard = this.fromDashboard;
-    const dialogRef = this._dialogService.open(OwnerCreateWizardComponent, {
-      width: "80vh",
-      maxHeight: "90vh",
-      data: {
-        owner,
-        vehicle,
-        owners,
-        isFromDashboard,
+        this.stats.academicYears = academicYears.length;
       },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this._snackBarService.open("Client updated successfully!", "Close", {
-          duration: 3000,
-        });
-
-        if (result.body.clientRegistry.id) {
-          this._clientRegistryService
-            .find(result.body.clientRegistry.id)
-            .subscribe((res) => {
-              this._selectedCardService.setSelectedCard(
-                this.selectedCard.vehicle,
-                res.body
-              );
-            });
-        }
-
-        // ✅ Update selected card
-        console.log(result);
-        // this._selectedCardService.setSelectedCard(
-        //   this.selectedCard.vehicle,
-        //   result.body
-        // );
-      }
+      error: err => console.error('Failed to load academic years', err),
     });
   }
 
-  /**
-   * Open vehicle creation dialog
-   */
-  openVehicleCreateDialog(): void {
-    const dialogRef = this._dialogService.open(VehicleAddWizardComponent, {
-      width: "80vh",
-      maxHeight: "90vh",
-    });
+  private loadAuditLogs(): void {
+    this.auditLogService.query({ size: 10, sort: ['performedAt,desc'] }).subscribe({
+      next: res => {
+        const logs = res.body ?? [];
 
-    dialogRef.afterClosed().subscribe((response) => {
-      if (response) {
-        console.log("Vehicle created successfully", response);
-        this._selectedCardService.setSelectedCard(response.body, null);
-        this.allVehicleDetails = [];
-        this.allClientDetails = [];
-        this.searchInputControl.setValue("");
-        this.searchByVehicleNo = true;
-        this.allVehicleDetails = response.body;
-        // this._snackBarService.open("Vehicle created successfully!", "Close", {
-        //   duration: 3000,
-        // });
-      }
+        this.recentAuditLogs = logs.map(log => ({
+          action: String(log.action ?? 'Unknown action'),
+          entityName: String(log.entityName ?? 'Unknown entity'),
+        }));
+      },
+      error: err => console.error('Failed to load audit logs', err),
     });
   }
 
-  goToEstimate() {
-    this._router.navigate(["/create-estimates"]);
+
+  private loadAppUsers(): void {
+    this.appUserService.query().subscribe({
+      next: res => {
+        const appUsers = res.body ?? [];
+
+        this.recentAppUsers = appUsers.map(user => ({
+          name: (user.firstName || '') + ' ' + (user.lastName || ''),
+          status: user.status === UserStatus.ACTIVE ? 'Active' : 'Inactive',
+        }));
+      },
+      error: err => console.error('Failed to load app users', err),
+    });
   }
 
-  goToPreEstimate() {
-    this._router.navigate(["/pre-estimates-create"]);
+  private loadCompanies(): void {
+    this.companyService.query().subscribe({
+      next: res => {
+        const companies = res.body ?? [];
+
+        this.recentCompanies = companies.map(company => ({
+          name: (company.companyName as string) || '',
+          status: company.status === 'ACTIVE' ? 'Active' : 'Inactive',
+        }));
+      },
+      error: err => console.error('Failed to load companies', err),
+    });
   }
 
-  goToJobCard() {
-    this._router.navigate(["/job-cards-create"]);
+  private loadCourses(): void {
+    this.courseService.query().subscribe({
+      next: res => {
+        const courses = res.body ?? [];
+
+        this.recentCourses = courses.map(course => ({
+          name: (course.title as string) || '',
+          status: course.active ? 'Active' : 'Inactive',
+        }));
+      },
+      error: err => console.error('Failed to load courses', err),
+    });
   }
 
-  goToInvoice() {
-    this._router.navigate(["/invoices-create"]);
+  private loadCourseAdmissions(): void {
+    this.courseAdmissionService.query().subscribe({
+      next: res => {
+        const courseAdmissions = res.body ?? [];
+
+        this.recentCourseAdmissions = courseAdmissions.map(admission => ({
+          id: String(admission.id),
+          status: this.mapAdmissionStatus(admission.status),
+        }));
+      },
+      error: err => console.error('Failed to load course admissions', err),
+    });
   }
 
-  handleVehicleCreated(licenseNo: string): void {
-    this.searchInputControl.setValue(licenseNo); // or however you're handling the form
-    this.searchVehicle();
+  private mapAdmissionStatus(status: ApplicationStatus | null): string {
+    switch (status) {
+      case ApplicationStatus.PENDING:
+        return 'Pending';
+      case ApplicationStatus.APPROVED:
+        return 'Approved';
+      case ApplicationStatus.REJECTED:
+        return 'Rejected';
+      case ApplicationStatus.SUBMITTED:
+        return 'Submitted';
+      default:
+        return 'Unknown';
+    }
   }
+
+  private getAcademicYearStatus(ay: IAcademicYear): string {
+    const today = dayjs();
+
+    if (ay.startDate && today.isBefore(ay.startDate)) {
+      return 'Upcoming';
+    }
+
+    if (
+      ay.startDate &&
+      ay.endDate &&
+      today.isAfter(ay.startDate) &&
+      today.isBefore(ay.endDate)
+    ) {
+      return 'Active';
+    }
+
+    if (ay.endDate && today.isAfter(ay.endDate)) {
+      return 'Completed';
+    }
+
+    return 'Unknown';
+  }
+
+  private loadStats(): void {
+    this.academicYearService.query().subscribe({
+      next: res => {
+        this.stats.academicYears = res.body?.length || 0;
+      },
+      error: err => console.error('Failed to load academic years count', err),
+    });
+
+    this.appUserService.query().subscribe({
+      next: res => {
+        this.stats.appUsers = res.body?.length || 0;
+      },
+      error: err => console.error('Failed to load app users count', err),
+    });
+
+    this.companyService.query().subscribe({
+      next: res => {
+        this.stats.companies = res.body?.length || 0;
+      },
+      error: err => console.error('Failed to load companies count', err),
+    });
+
+    this.courseService.query().subscribe({
+      next: res => {
+        this.stats.courses = res.body?.length || 0;
+      },
+      error: err => console.error('Failed to load courses count', err),
+    });
+
+    this.courseAdmissionService.query().subscribe({
+      next: res => {
+        this.stats.courseAdmissions = res.body?.length || 0;
+      },
+      error: err => console.error('Failed to load course admissions count', err),
+    });
+  }
+
+  // ================================
+  // Quick Actions (Button Handlers)
+  // ================================
 
   createAcademicYear(): void {
-    this._router.navigate(["/academic-years"]);
+    // Later route to academic year create page
+    console.log('Create Academic Year clicked');
+    this.router.navigate(['/academic-year/new']);
   }
+
   reviewApplications(): void {
-    this._router.navigate(["/applications-review"]);
+    console.log('Review Applications clicked');
+    this.router.navigate(['/admissions/applications']);
   }
-  manageBankAccounts(): void {
-    this._router.navigate(["/bank-accounts"]);
-  }
+
   addAppUser(): void {
-    this._router.navigate(["/app-users"]);
+    console.log('Add App User clicked');
+    this.router.navigate(['/admin/user-management']);
+  }
+
+  manageBankAccounts(): void {
+    console.log('Manage Bank Accounts clicked');
+    this.router.navigate(['/banks']);
   }
 }

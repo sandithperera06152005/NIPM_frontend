@@ -73,11 +73,11 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: "/course-application",
       },
       {
-        id: "course-addmission",
+        id: "course-admission",
         title: "Course Admission",
         type: "basic",
         icon: "heroicons_outline:chart-pie",
-        link: "/course-addmission",
+        link: "/course-admission",
       },
       {
         id: "course-admission-qualification",
