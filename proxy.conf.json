@@ -6,19 +6,6 @@
     "loglevel": "debug",
     "changeOrigin": true
   },
-    "/api/transactions": {
-    "target": "http://localhost:8080/",
-    "secure": false,
-    "loglevel": "debug",
-    "changeOrigin": true
-  },
-
-   "/api/account-types": {
-    "target": "http://localhost:8080/",
-    "secure": false,
-    "loglevel": "debug",
-    "changeOrigin": true
-  },
     "/api/receipt": {
     "target": "http://localhost:8080/",
     "secure": false,
