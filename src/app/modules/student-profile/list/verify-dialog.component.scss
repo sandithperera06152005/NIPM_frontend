@@ -1,0 +1,47 @@
+.dialog-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.dialog-content {
+    padding-top: 8px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 24px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item.full-width {
+    grid-column: span 2;
+}
+
+.label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280; // gray-500
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827; // gray-900
+}
+
+.value.status {
+    font-weight: 600;
+    color: #2563eb; // blue-600
+}
+
+.dialog-actions {
+    padding-top: 16px;
+}

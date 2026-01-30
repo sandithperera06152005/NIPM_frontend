@@ -1,0 +1,49 @@
+<!-- Reusable form component template -->
+<form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="flex items-center justify-between border-b pb-4">
+    <h2 class="text-2xl font-bold">
+      {{ heading || (isEditMode ? 'Edit MembershipType' : 'New MembershipType') }}
+    </h2>
+    <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
+  </div>
+
+  <div class="flex-auto space-y-4 overflow-y-auto pt-6">
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>Fee</mat-label>
+      <input matInput formControlName="fee" required>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>ValidityMonths</mat-label>
+      <input matInput formControlName="validityMonths" >
+    </mat-form-field>
+      
+    
+
+    
+    
+  </div>
+
+  <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">
+    {{ errorMessage }}
+  </div>
+
+  <div class="mt-6 flex items-center justify-end border-t pt-6">
+    <button type="button" mat-button (click)="onCancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" class="ml-3" [disabled]="form.invalid || isSaving">
+      <span *ngIf="!isSaving">Save</span>
+      <span *ngIf="isSaving">Saving…</span>
+    </button>
+  </div>
+</form>

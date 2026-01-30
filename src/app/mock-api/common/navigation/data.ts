@@ -17,6 +17,29 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: "/dashboard",
       },
       {
+        id: "student",
+        title: "Student",
+        type: "basic",
+        icon: "heroicons_outline:chart-pie",
+        link: "/student-profile",
+      },
+      {
+        id: "membership-application",
+        title: "Members Application",
+        type: "basic",
+        icon: "heroicons_outline:chart-pie",
+        link: "/membership-application",
+      },
+    ],
+  },
+  {
+    id: "management-module",
+    title: "NIPM Management",
+    subtitle: "Frequently used features for managements",
+    type: "collapsable",
+    icon: "heroicons_outline:cog",
+    children: [
+      {
         id: "Academic Year",
         title: "Academic Year",
         type: "basic",
@@ -87,119 +110,84 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: "/course-admission-qualification",
       },
 
-
-      
-      // {
-      //   id: "estimates",
-      //   title: "Estimates and Invoices",
-      //   subtitle: "Estimates and invoices",
-      //   type: "group",
-      //   icon: "heroicons_outline:home",
-      //   children: [
-      //     {
-      //       id: "estimates",
-      //       title: "Estimates",
-      //       type: "basic",
-      //       icon: "heroicons_outline:truck",
-      //       link: "/estimates",
-      //     },
-      //   ],
-      // },
-
-      // {
-      //   id: "registries",
-      //   title: "Registries",
-      //   subtitle: "Sets of vehicles and clients",
-      //   type: "group",
-      //   icon: "heroicons_outline:home",
-      //   children: [
-      //     {
-      //       id: "vehicles",
-      //       title: "Vehicles",
-      //       type: "basic",
-      //       icon: "heroicons_outline:truck",
-      //       link: "/vehicles",
-      //     },
-      //   ],
-      // },
     ],
   },
 
-// {
-//   id: "inventory",
-//   title: "Inventory",
-//   subtitle: "Frequent actions for managing stock",
-//   type: "collapsable",
-//   icon: "inventory",
-//   children: [
-//     {
-//       id: "stock-management",
-//       title: "Stock Management",
-//       subtitle: "Manage stock and goods",
-//       type: "group",
-//       icon: "heroicons_outline:archive-box",
-//       children: [
-//         {
-//           id: "supplier",
-//           title: "View Supplier",
-//           type: "basic",
-//           icon: "heroicons_outline:user-group",
-//           link: "/supplier",
-//         },
-       
-//       ],
-//     },
-//     {
-//       id: "records-management",
-//       title: "Records & Categories",
-//       subtitle: "Documents and classifications",
-//       type: "group",
-//       icon: "heroicons_outline:clipboard-document-list",
-//       children: [
-//         {
-//           id: "bin-card",
-//           title: "Bin Card",
-//           type: "basic",
-//           icon: "heroicons_outline:clipboard-document-list",
-//           link: "/bin-card",
-//         },
-//         {
-//           id: "category",
-//           title: "Category",
-//           type: "basic",
-//           icon: "heroicons_outline:tag",
-//           link: "/category",
-//         },
-//       ],
-//     },
-//   ],
-// },
+  // {
+  //   id: "inventory",
+  //   title: "Inventory",
+  //   subtitle: "Frequent actions for managing stock",
+  //   type: "collapsable",
+  //   icon: "inventory",
+  //   children: [
+  //     {
+  //       id: "stock-management",
+  //       title: "Stock Management",
+  //       subtitle: "Manage stock and goods",
+  //       type: "group",
+  //       icon: "heroicons_outline:archive-box",
+  //       children: [
+  //         {
+  //           id: "supplier",
+  //           title: "View Supplier",
+  //           type: "basic",
+  //           icon: "heroicons_outline:user-group",
+  //           link: "/supplier",
+  //         },
 
-// {
-//   id: "inventory1",
-//   title: "Finance",
-//   subtitle: "Frequent actions for managing finance",
-//   type: "collapsable",
-//   icon: "inventory",
-//   children: [
-//     {
-//       id: "stock-management1",
-//       title: "finance Management",
-//       subtitle: "Manage finance",
-//       type: "group",
-//       icon: "heroicons_outline:archive-box",
-//       children: [
-//         {
-//           id: "supplier1",
-//           title: "Transaction",
-//           type: "basic",
-//           icon: "heroicons_outline:document-text",
-//           link: "/transaction"
-//         },
-//       ]
-//     }
-//   ]
-// }
+  //       ],
+  //     },
+  //     {
+  //       id: "records-management",
+  //       title: "Records & Categories",
+  //       subtitle: "Documents and classifications",
+  //       type: "group",
+  //       icon: "heroicons_outline:clipboard-document-list",
+  //       children: [
+  //         {
+  //           id: "bin-card",
+  //           title: "Bin Card",
+  //           type: "basic",
+  //           icon: "heroicons_outline:clipboard-document-list",
+  //           link: "/bin-card",
+  //         },
+  //         {
+  //           id: "category",
+  //           title: "Category",
+  //           type: "basic",
+  //           icon: "heroicons_outline:tag",
+  //           link: "/category",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
+
+  // {
+  //   id: "inventory1",
+  //   title: "Finance",
+  //   subtitle: "Frequent actions for managing finance",
+  //   type: "collapsable",
+  //   icon: "inventory",
+  //   children: [
+  //     {
+  //       id: "stock-management1",
+  //       title: "finance Management",
+  //       subtitle: "Manage finance",
+  //       type: "group",
+  //       icon: "heroicons_outline:archive-box",
+  //       children: [
+  //         {
+  //           id: "supplier1",
+  //           title: "Transaction",
+  //           type: "basic",
+  //           icon: "heroicons_outline:document-text",
+  //           link: "/transaction"
+  //         },
+  //       ]
+  //     }
+  //   ]
+  // }
 
 ];
 export const compactNavigation: FuseNavigationItem[] = [
