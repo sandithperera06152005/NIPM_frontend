@@ -92,9 +92,6 @@
           Add App User
         </button>
 
-        <button (click)="manageBankAccounts()" class="rounded-xl bg-rose-50 p-4 text-rose-700 hover:bg-rose-100">
-          Manage Bank Accounts
-        </button>
       </div>
     </div>
 
@@ -129,7 +126,7 @@
       </div>
 
       <!-- Audit Logs -->
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+      <!-- <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
         <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
           Audit Logs
         </h2>
@@ -144,8 +141,31 @@
             No audit logs found
           </div>
         </div>
-      </div>
+      </div> -->
 
+      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
+          Students (Pending)
+        </h2>
+
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let student of recentStudents" class="flex justify-between">
+            <span>{{ student.name }}</span>
+            <span [ngClass]="{
+              'text-amber-600': student.status === 'Pending',
+              'text-green-600': student.status === 'Enrolled',
+              'text-red-600': student.status === 'Withdrawn',
+              'text-gray-500': student.status === 'Suspended'
+            }">
+              {{ student.status }}
+            </span>
+          </div>
+
+          <div *ngIf="recentStudents.length === 0" class="text-gray-400">
+            No pending students found
+          </div>
+        </div>
+      </div>
 
       <!-- App Users -->
       <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">

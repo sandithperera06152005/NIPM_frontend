@@ -183,6 +183,20 @@ export const appRoutes: Route[] = [
             "app/modules/admin/appointments_details/appointments/appointments.routes"
           ),
       },
+      {
+        path: "student-profile",
+        loadChildren: () =>
+          import(
+            "app/modules/student-profile/student-profile.routes"
+          ),
+      },
+      {
+        path: "membership-application",
+        loadChildren: () =>
+          import(
+            "app/modules/membership-application/membership-application.routes"
+          ),
+      },
 
       // {
       //   path: "job-cards",
@@ -398,15 +412,15 @@ export const appRoutes: Route[] = [
         path: "transaction",
         loadChildren: () => import("app/modules/transaction/transaction.routes"),
       },
-            {
+      {
         path: "accounttree",
         loadChildren: () => import("app/modules/accounttree/accounttree.routes"),
       },
-            {
+      {
         path: "accounts",
         loadChildren: () => import("app/modules/accounts/accounts.routes"),
       },
-         {
+      {
         path: "accountstatement",
         loadChildren: () => import("app/modules/admin/accountstatement/accountstatement.routes"),
       },
@@ -425,52 +439,52 @@ export const appRoutes: Route[] = [
       {
         path: 'receipt',
         loadChildren: () =>
-        import('app/modules/receipt/receipt.routes').then(m => m.receiptRoutes),
+          import('app/modules/receipt/receipt.routes').then(m => m.receiptRoutes),
       },
       {
         path: 'customer-payments',
         loadChildren: () =>
-        import('app/modules/customer-payments/customer-payments.routes').then(m => m.CustomerPaymentsRoutes),
+          import('app/modules/customer-payments/customer-payments.routes').then(m => m.CustomerPaymentsRoutes),
       },
       {
         path: 'voucher',
         loadChildren: () =>
-        import('app/modules/voucher/voucher.routes').then(m => m.VoucherRoutes),
+          import('app/modules/voucher/voucher.routes').then(m => m.VoucherRoutes),
       },
       {
         path: 'vendor-payments',
         loadChildren: () =>
-        import('app/modules/vendor-payments/vendor-payments.routes').then(m => m.VendorPaymentsRoutes),
+          import('app/modules/vendor-payments/vendor-payments.routes').then(m => m.VendorPaymentsRoutes),
       },
       {
         path: 'bank-accounts',
         loadChildren: () =>
-        import('app/modules/bank-accounts/bank-accounts.routes').then(m => m.BankAccountsRoutes),
+          import('app/modules/bank-accounts/bank-accounts.routes').then(m => m.BankAccountsRoutes),
       },
       {
         path: 'journal-voucher',
         loadChildren: () =>
-        import('app/modules/journal-voucher/journal-voucher.routes').then(m => m.JournalVoucherRoutes),
+          import('app/modules/journal-voucher/journal-voucher.routes').then(m => m.JournalVoucherRoutes),
       },
       {
         path: 'ageAnalysis-supplier',
         loadChildren: () =>
-        import('app/modules/ageAnalysis-supplier/ageAnalysis-supplier.routes').then(m => m.AgeAnalysisSupplierRoutes),
+          import('app/modules/ageAnalysis-supplier/ageAnalysis-supplier.routes').then(m => m.AgeAnalysisSupplierRoutes),
       },
       {
         path: 'ageAnalysis-customer',
         loadChildren: () =>
-        import('app/modules/ageAnalysis-customer/ageAnalysis-customer.routes').then(m => m.AgeAnalysisCustomerRoutes),
+          import('app/modules/ageAnalysis-customer/ageAnalysis-customer.routes').then(m => m.AgeAnalysisCustomerRoutes),
       },
       {
         path: 'account-tree-view',
-        loadChildren: () => 
-        import('app/modules/account-tree-view/account-tree-view.routes').then(m => m.AccountTreeViewRoutes),
+        loadChildren: () =>
+          import('app/modules/account-tree-view/account-tree-view.routes').then(m => m.AccountTreeViewRoutes),
       },
       {
         path: 'cheque-registry',
-        loadChildren: () => 
-        import('app/modules/cheque-registry/cheque-registry.routes').then(m => m.ChequeRegistryRoutes),
+        loadChildren: () =>
+          import('app/modules/cheque-registry/cheque-registry.routes').then(m => m.ChequeRegistryRoutes),
       },
       {
         path: "dayendtransaction",
@@ -503,7 +517,7 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import("app/modules/admin/bincard-print/bincard-print.routes"),
       },
-       {
+      {
         path: "inventory-export",
         loadChildren: () =>
           import("app/modules/inventory-export/inventory-export.routes"),

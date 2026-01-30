@@ -17,6 +17,9 @@ import { ICourseAdmission } from 'app/modules/course-admission/course-admission.
 import { ApplicationStatus } from 'app/enums/application-status.model';
 import { AuditLogService } from 'app/modules/audit-log/service/audit-log.service';
 import { IAuditLog } from 'app/modules/audit-log/audit-log.model';
+import { StudentProfileService } from 'app/modules/student-profile/service/student-profile.service';
+import { IStudentProfile } from 'app/modules/student-profile/student-profile.model';
+import { EnrollmentStatus } from 'app/enums/enrollment-status.model';
 
 
 import { MatIconModule } from '@angular/material/icon';
@@ -34,6 +37,7 @@ import { CommonModule } from '@angular/common';
 })
 export class DashboardComponent implements OnInit {
   recentApplications: { id: string; status: string }[] = [];
+  recentStudents: { id: string; name: string; status: string }[] = [];
   recentAuditLogs: { action: string; entityName: string }[] = [];
   recentAppUsers: { name: string; status: string }[] = [];
   recentCompanies: { name: string; status: string }[] = [];
@@ -54,6 +58,7 @@ export class DashboardComponent implements OnInit {
     private companyService: CompanyService,
     private courseService: CourseService,
     private courseAdmissionService: CourseAdmissionService,
+    private studentProfileService: StudentProfileService,
     private router: Router
   ) { }
 
@@ -63,6 +68,7 @@ export class DashboardComponent implements OnInit {
     this.loadCompanies();
     this.loadCourses();
     this.loadCourseAdmissions();
+    this.loadStudentProfiles();
     this.loadStats();
     this.loadAuditLogs();
   }
@@ -157,6 +163,23 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private loadStudentProfiles(): void {
+    this.studentProfileService.query().subscribe({
+      next: res => {
+        const studentProfiles = res.body ?? [];
+
+        this.recentStudents = studentProfiles
+          .filter(student => student.enrollmentStatus === EnrollmentStatus.PENDING)
+          .map(student => ({
+            id: String(student.id),
+            name: (student.studentName as string) || '',
+            status: this.mapEnrollmentStatus(student.enrollmentStatus),
+          }));
+      },
+      error: err => console.error('Failed to load student profiles', err),
+    });
+  }
+
   private mapAdmissionStatus(status: ApplicationStatus | null): string {
     switch (status) {
       case ApplicationStatus.PENDING:
@@ -167,6 +190,23 @@ export class DashboardComponent implements OnInit {
         return 'Rejected';
       case ApplicationStatus.SUBMITTED:
         return 'Submitted';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  private mapEnrollmentStatus(status: EnrollmentStatus | null): string {
+    switch (status) {
+      case EnrollmentStatus.PENDING:
+        return 'Pending';
+      case EnrollmentStatus.ENROLLED:
+        return 'Enrolled';
+      case EnrollmentStatus.WITHDRAWN:
+        return 'Withdrawn';
+      case EnrollmentStatus.GRADUATED:
+        return 'Graduated';
+      case EnrollmentStatus.SUSPENDED:
+        return 'Suspended';
       default:
         return 'Unknown';
     }
