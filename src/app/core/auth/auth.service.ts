@@ -17,7 +17,7 @@ import { User } from "../user/user.types";
 import { Logout } from "app/login/logout.model";
 import { ApplicationConfigService } from "../config/application-config.service";
 import { MatDialog } from "@angular/material/dialog";
-import { ActiveConfirmationWizardComponent } from "app/modules/admin/activ-confirm-wizard/active-confirmation-wizard.component";
+//import { ActiveConfirmationWizardComponent } from "app/modules/admin/activ-confirm-wizard/active-confirmation-wizard.component";
 
 @Injectable({ providedIn: "root" })
 export class AuthService {
@@ -181,20 +181,20 @@ export class AuthService {
   /**
    * Open Active dialog
    */
-  openActiveDialog(): void {
-    const dialogRef = this._dialogService.open(
-      ActiveConfirmationWizardComponent,
-      {
-        width: "60vh",
-        maxHeight: "90vh",
-      }
-    );
+  // openActiveDialog(): void {
+  //   const dialogRef = this._dialogService.open(
+  //     ActiveConfirmationWizardComponent,
+  //     {
+  //       width: "60vh",
+  //       maxHeight: "90vh",
+  //     }
+  //   );
 
-    dialogRef.afterClosed().subscribe(() => {
-      this.signOut();
-      location.reload();
-    });
-  }
+  //   dialogRef.afterClosed().subscribe(() => {
+  //     this.signOut();
+  //     location.reload();
+  //   });
+  // }
 
   refreshTokenIfActive(): void {
     this.refreshAccessToken().subscribe({

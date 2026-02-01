@@ -145,7 +145,7 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
   @ViewChild(MatPaginator) set paginatorSetter(paginator: MatPaginator) {
     if (paginator) {
       this._paginator = paginator;
-      paginator.page.subscribe(this.pageChangeSubject);
+      // paginator.page.subscribe(this.pageChangeSubject);
     }
   }
 
@@ -203,6 +203,7 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
     }
 
     this.loadData();
+    // this.dataSource.filterPredicate = this.buildFilterPredicate();
   }
 
   loadData(): void {
@@ -212,8 +213,8 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
 
     this.isLoading = true;
     const req = {
-      page: this._paginator.pageIndex,
-      size: this._paginator.pageSize,
+      // page: this._paginator.pageIndex,
+      // size: this._paginator.pageSize,
       sort: this.getSortParameters(),
       ...this.baseParentFilters,
       ...this.activeFilters,
@@ -223,8 +224,9 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
       .pipe(
         tap(res => {
           this.isLoading = false;
-          this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
+          // this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
           this.dataSource.data = res.body ?? [];
+          this.dataSource.paginator = this._paginator!;
         }),
         catchError(() => {
           this.isLoading = false;
@@ -398,10 +400,10 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
   clearFilters(): void {
     this.filterFields.forEach(field => this.clearField(field.key));
     this.activeFilters = {};
-    if (this._paginator) this._paginator.firstPage();
-    this.refreshTrigger.next();
-    this.loadData();
+    this.dataSource.filter = '';
+    this.dataSource.paginator?.firstPage();
   }
+
 
   clearField(key: string): void {
     const group = this.fieldGroup(key);

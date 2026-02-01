@@ -15,8 +15,8 @@ import { NavigationService } from "app/core/navigation/navigation.service";
 import { Navigation } from "app/core/navigation/navigation.types";
 import { UserService } from "app/core/user/user.service";
 import { User } from "app/core/user/user.types";
-import { IClientRegistry } from "app/entities/operationsModuleCooperation/client-registry/client-registry.model";
-import { IVehicleRegistry } from "app/entities/operationsModuleCooperation/vehicle-registry/vehicle-registry.model";
+//import { IClientRegistry } from "app/entities/operationsModuleCooperation/client-registry/client-registry.model";
+//import { IVehicleRegistry } from "app/entities/operationsModuleCooperation/vehicle-registry/vehicle-registry.model";
 import { IUser } from "app/entities/user/user.model";
 import { LanguagesComponent } from "app/layout/common/languages/languages.component";
 import { MessagesComponent } from "app/layout/common/messages/messages.component";
@@ -55,8 +55,8 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy {
   isScreenSmall: boolean;
   navigation: Navigation;
   user: User;
-  selectedVehicle: IVehicleRegistry;
-  selectedClient: IClientRegistry;
+  //selectedVehicle: IVehicleRegistry;
+  //selectedClient: IClientRegistry;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   /**
@@ -99,11 +99,11 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy {
       //       JSON.stringify(selected?.client)
       //   );
       if (selected) {
-        this.selectedVehicle = selected.vehicle;
-        this.selectedClient = selected.client;
+       // this.selectedVehicle = selected.vehicle;
+        //this.selectedClient = selected.client;
       } else {
-        this.selectedVehicle = null;
-        this.selectedClient = null;
+       // this.selectedVehicle = null;
+       // this.selectedClient = null;
       }
     });
 
@@ -163,7 +163,7 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy {
 
   clearSelectedVehicle(): void {
     this._selectedCardService.clearSelectedCard();
-    this.selectedVehicle = null;
-    this.selectedClient = null;
+    //this.selectedVehicle = null;
+    //this.selectedClient = null;
   }
 }
