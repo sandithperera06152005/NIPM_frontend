@@ -1,0 +1,175 @@
+<div>
+  <h2 id="page-heading" data-cy="AdvancedLevelQualificationHeading">
+    <span>Advanced Level Qualifications</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span>Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-advanced-level-qualification"
+        [routerLink]="['/advanced-level-qualification/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span class="hidden-sm-down">Create a new Advanced Level Qualification</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  <form name="searchForm" class="row row-cols-sm-auto align-items-center">
+    <div class="col-sm-12">
+      <div class="input-group w-100 mt-3">
+        <label class="visually-hidden" for="currentSearch">Search for Advanced Level Qualification</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentSearch"
+          id="currentSearch"
+          name="currentSearch"
+          placeholder="Search for Advanced Level Qualification"
+        />
+
+        <button class="btn btn-info" (click)="search(currentSearch)">
+          <fa-icon icon="search"></fa-icon>
+        </button>
+
+        @if (currentSearch) {
+          <button class="btn btn-danger" (click)="search('')">
+            <fa-icon icon="trash-alt"></fa-icon>
+          </button>
+        }
+      </div>
+    </div>
+  </form>
+
+  @if (advancedLevelQualifications().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span>No Advanced Level Qualifications found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span>Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="examYear">
+              <div class="d-flex">
+                <span>Exam Year</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="indexNumber">
+              <div class="d-flex">
+                <span>Index Number</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="stream">
+              <div class="d-flex">
+                <span>Stream</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="medium">
+              <div class="d-flex">
+                <span>Medium</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="zScore">
+              <div class="d-flex">
+                <span>Z Score</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="applicant.id">
+              <div class="d-flex">
+                <span>Applicant</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (advancedLevelQualification of advancedLevelQualifications(); track trackId(advancedLevelQualification)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/advanced-level-qualification', advancedLevelQualification.id, 'view']">{{
+                  advancedLevelQualification.id
+                }}</a>
+              </td>
+              <td>{{ advancedLevelQualification.examYear }}</td>
+              <td>{{ advancedLevelQualification.indexNumber }}</td>
+              <td>{{ advancedLevelQualification.stream }}</td>
+              <td>{{ advancedLevelQualification.medium }}</td>
+              <td>{{ advancedLevelQualification.zScore }}</td>
+              <td>
+                @if (advancedLevelQualification.applicant) {
+                  <div>
+                    <a [routerLink]="['/applicant', advancedLevelQualification.applicant.id, 'view']">{{
+                      advancedLevelQualification.applicant.id
+                    }}</a>
+                  </div>
+                }
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a
+                    [routerLink]="['/advanced-level-qualification', advancedLevelQualification.id, 'view']"
+                    class="btn btn-info btn-sm"
+                    data-cy="entityDetailsButton"
+                  >
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline">View</span>
+                  </a>
+
+                  <a
+                    [routerLink]="['/advanced-level-qualification', advancedLevelQualification.id, 'edit']"
+                    class="btn btn-primary btn-sm"
+                    data-cy="entityEditButton"
+                  >
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline">Edit</span>
+                  </a>
+
+                  <button
+                    type="submit"
+                    (click)="delete(advancedLevelQualification)"
+                    class="btn btn-danger btn-sm"
+                    data-cy="entityDeleteButton"
+                  >
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

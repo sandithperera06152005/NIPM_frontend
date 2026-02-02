@@ -1,0 +1,201 @@
+<div>
+  <h2 id="page-heading" data-cy="DiplomaQualificationHeading">
+    <span>Diploma Qualifications</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading">
+        <fa-icon icon="sync" [animation]="isLoading ? 'spin' : undefined"></fa-icon>
+        <span>Refresh list</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-diploma-qualification"
+        [routerLink]="['/diploma-qualification/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span class="hidden-sm-down">Create a new Diploma Qualification</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  <form name="searchForm" class="row row-cols-sm-auto align-items-center">
+    <div class="col-sm-12">
+      <div class="input-group w-100 mt-3">
+        <label class="visually-hidden" for="currentSearch">Search for Diploma Qualification</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentSearch"
+          id="currentSearch"
+          name="currentSearch"
+          placeholder="Search for Diploma Qualification"
+        />
+
+        <button class="btn btn-info" (click)="search(currentSearch)">
+          <fa-icon icon="search"></fa-icon>
+        </button>
+
+        @if (currentSearch) {
+          <button class="btn btn-danger" (click)="search('')">
+            <fa-icon icon="trash-alt"></fa-icon>
+          </button>
+        }
+      </div>
+    </div>
+  </form>
+
+  @if (diplomaQualifications().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span>No Diploma Qualifications found</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span>Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="qualificationType">
+              <div class="d-flex">
+                <span>Qualification Type</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="diplomaProgramName">
+              <div class="d-flex">
+                <span>Diploma Program Name</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="discipline">
+              <div class="d-flex">
+                <span>Discipline</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="instituteName">
+              <div class="d-flex">
+                <span>Institute Name</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="effectiveDate">
+              <div class="d-flex">
+                <span>Effective Date</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="certificateRefNumber">
+              <div class="d-flex">
+                <span>Certificate Ref Number</span>
+                @if (!currentSearch) {
+                  <fa-icon class="p-1" icon="sort"></fa-icon>
+                }
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="applicant.id">
+              <div class="d-flex">
+                <span>Applicant</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (diplomaQualification of diplomaQualifications(); track trackId(diplomaQualification)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/diploma-qualification', diplomaQualification.id, 'view']">{{ diplomaQualification.id }}</a>
+              </td>
+              <td>
+                {{
+                  { null: '', NVQ5: 'NVQ5', NVQ6: 'NVQ6', NVQ5_EQUIVALENT: 'NVQ5_EQUIVALENT', NVQ6_EQUIVALENT: 'NVQ6_EQUIVALENT' }[
+                    diplomaQualification.qualificationType ?? 'null'
+                  ]
+                }}
+              </td>
+              <td>{{ diplomaQualification.diplomaProgramName }}</td>
+              <td>{{ diplomaQualification.discipline }}</td>
+              <td>{{ diplomaQualification.instituteName }}</td>
+              <td>{{ diplomaQualification.effectiveDate | formatMediumDate }}</td>
+              <td>{{ diplomaQualification.certificateRefNumber }}</td>
+              <td>
+                @if (diplomaQualification.applicant) {
+                  <div>
+                    <a [routerLink]="['/applicant', diplomaQualification.applicant.id, 'view']">{{ diplomaQualification.applicant.id }}</a>
+                  </div>
+                }
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a
+                    [routerLink]="['/diploma-qualification', diplomaQualification.id, 'view']"
+                    class="btn btn-info btn-sm"
+                    data-cy="entityDetailsButton"
+                  >
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline">View</span>
+                  </a>
+
+                  <a
+                    [routerLink]="['/diploma-qualification', diplomaQualification.id, 'edit']"
+                    class="btn btn-primary btn-sm"
+                    data-cy="entityEditButton"
+                  >
+                    <fa-icon icon="pencil-alt"></fa-icon>
+                    <span class="d-none d-md-inline">Edit</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(diplomaQualification)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times"></fa-icon>
+                    <span class="d-none d-md-inline">Delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (diplomaQualifications().length > 0) {
+    <div>
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page, totalItems, itemsPerPage }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems"
+          [page]="page"
+          [pageSize]="itemsPerPage"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        ></ngb-pagination>
+      </div>
+    </div>
+  }
+</div>

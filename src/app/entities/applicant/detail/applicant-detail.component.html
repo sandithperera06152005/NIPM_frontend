@@ -1,0 +1,102 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (applicant(); as applicantRef) {
+      <div>
+        <h2 data-cy="applicantDetailsHeading"><span>Applicant</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ applicantRef.id }}</span>
+          </dd>
+          <dt><span>Full Name</span></dt>
+          <dd>
+            <span>{{ applicantRef.fullName }}</span>
+          </dd>
+          <dt><span>Initials Name</span></dt>
+          <dd>
+            <span>{{ applicantRef.initialsName }}</span>
+          </dd>
+          <dt><span>Date Of Birth</span></dt>
+          <dd>
+            <span>{{ applicantRef.dateOfBirth | formatMediumDate }}</span>
+          </dd>
+          <dt><span>Gender</span></dt>
+          <dd>
+            <span>{{ { null: '', MALE: 'MALE', FEMALE: 'FEMALE' }[applicantRef.gender ?? 'null'] }}</span>
+          </dd>
+          <dt><span>Nationality</span></dt>
+          <dd>
+            <span>{{ applicantRef.nationality }}</span>
+          </dd>
+          <dt><span>Nic Number</span></dt>
+          <dd>
+            <span>{{ applicantRef.nicNumber }}</span>
+          </dd>
+          <dt><span>Email</span></dt>
+          <dd>
+            <span>{{ applicantRef.email }}</span>
+          </dd>
+          <dt><span>Mobile Number</span></dt>
+          <dd>
+            <span>{{ applicantRef.mobileNumber }}</span>
+          </dd>
+          <dt><span>Whatsapp Number</span></dt>
+          <dd>
+            <span>{{ applicantRef.whatsappNumber }}</span>
+          </dd>
+          <dt><span>Contact Address</span></dt>
+          <dd>
+            <span>{{ applicantRef.contactAddress }}</span>
+          </dd>
+          <dt><span>Permanent Address</span></dt>
+          <dd>
+            <span>{{ applicantRef.permanentAddress }}</span>
+          </dd>
+          <dt><span>District</span></dt>
+          <dd>
+            <span>{{ applicantRef.district }}</span>
+          </dd>
+          <dt><span>Preferred Course Type</span></dt>
+          <dd>
+            <span>{{ { null: '', WEEKDAY: 'WEEKDAY', WEEKEND: 'WEEKEND' }[applicantRef.preferredCourseType ?? 'null'] }}</span>
+          </dd>
+          <dt><span>Finance Type</span></dt>
+          <dd>
+            <span>{{ { null: '', SELF: 'SELF', SPONSORED: 'SPONSORED' }[applicantRef.financeType ?? 'null'] }}</span>
+          </dd>
+          <dt><span>Sponsor Name</span></dt>
+          <dd>
+            <span>{{ applicantRef.sponsorName }}</span>
+          </dd>
+          <dt><span>Declaration Accepted</span></dt>
+          <dd>
+            <span>{{ applicantRef.declarationAccepted }}</span>
+          </dd>
+          <dt><span>Employment</span></dt>
+          <dd>
+            @if (applicant()!.employment) {
+              <div>
+                <a [routerLink]="['/employment', applicant()!.employment?.id, 'view']">{{ applicantRef.employment?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/applicant', applicantRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

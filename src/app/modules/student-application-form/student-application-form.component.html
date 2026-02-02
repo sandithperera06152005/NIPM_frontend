@@ -1,0 +1,387 @@
+<div class="h-full overflow-y-auto bg-gray-50 p-6">
+  <div class="w-full px-6 lg:px-50">
+    <div class="mb-6 flex items-center justify-between gap-6">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">
+          Student Application Form
+        </h1>
+        <p class="mt-2 text-gray-600">
+          Please fill out all the required information below to apply for admission.
+        </p>
+      </div>
+
+      <div class="w-20 shrink-0">
+        <img src="images/logo/NIPM_Main_Logo(without bg).png" alt="NIPM Logo" class="w-full object-contain" />
+      </div>
+    </div>
+
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <!-- Personal Details -->
+      <mat-expansion-panel class="mb-4" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">person</mat-icon>
+            Personal Details
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div formGroupName="applicant" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <mat-form-field class="w-full">
+            <mat-label>Full Name</mat-label>
+            <input matInput formControlName="fullName" placeholder="Enter your full name">
+            <mat-error *ngIf="form.get('applicant.fullName')?.hasError('required')">Full name is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Initials Name</mat-label>
+            <input matInput formControlName="initialsName" placeholder="Enter your initials">
+          </mat-form-field>
+
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>Contact Address</mat-label>
+            <textarea matInput formControlName="contactAddress" rows="2"
+              placeholder="Enter your contact address"></textarea>
+          </mat-form-field>
+
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>Permanent Address</mat-label>
+            <textarea matInput formControlName="permanentAddress" rows="2"
+              placeholder="Enter your permanent address"></textarea>
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>District</mat-label>
+            <input matInput formControlName="district" placeholder="Enter your district">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="Enter your email">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Date of Birth</mat-label>
+            <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth"
+              placeholder="Select date of birth">
+            <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+            <mat-datepicker #dobPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Gender</mat-label>
+            <mat-select formControlName="gender">
+              <mat-option value="">Select Gender</mat-option>
+              <mat-option *ngFor="let g of genders" [value]="g">{{ g }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Nationality</mat-label>
+            <input matInput formControlName="nationality" placeholder="Enter your nationality">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>NIC Number</mat-label>
+            <input matInput formControlName="nicNumber" placeholder="Enter your NIC number">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Mobile Number</mat-label>
+            <input matInput formControlName="mobileNumber" placeholder="Enter your mobile number">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>WhatsApp Number</mat-label>
+            <input matInput formControlName="whatsappNumber" placeholder="Enter your WhatsApp number">
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Course Preferences -->
+      <mat-expansion-panel class="mb-4" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">school</mat-icon>
+            Course Preferences
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div formGroupName="applicant" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <mat-form-field class="w-full">
+            <mat-label>Preferred Course Type</mat-label>
+            <mat-select formControlName="preferredCourseType">
+              <mat-option value="">Select Course Type</mat-option>
+              <mat-option *ngFor="let ct of courseTypes" [value]="ct">{{ ct }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Finance Type</mat-label>
+            <mat-select formControlName="financeType">
+              <mat-option value="">Select Finance Type</mat-option>
+              <mat-option *ngFor="let ft of financeTypes" [value]="ft">{{ ft }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>Sponsor Name (if sponsored)</mat-label>
+            <input matInput formControlName="sponsorName" placeholder="Enter sponsor name">
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- A/L Qualifications -->
+      <mat-expansion-panel class="mb-4" formGroupName="advancedLevel" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">book</mat-icon>
+            A/L Qualifications
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <mat-form-field class="w-full">
+            <mat-label>Exam Year</mat-label>
+            <input matInput formControlName="examYear" placeholder="Enter exam year">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Index Number</mat-label>
+            <input matInput formControlName="indexNumber" placeholder="Enter index number">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Stream</mat-label>
+            <input matInput formControlName="stream" placeholder="Enter stream">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Medium</mat-label>
+            <input matInput formControlName="medium" placeholder="Enter medium">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Z-Score</mat-label>
+            <input matInput type="number" formControlName="zScore" placeholder="Enter Z-Score">
+          </mat-form-field>
+        </div>
+
+        <div class="mt-4">
+          <h4 class="mb-3 text-lg font-semibold">Subjects & Grades</h4>
+          <div formArrayName="subjects">
+            <div *ngFor="let subject of subjects.controls; let i = index" [formGroupName]="i"
+              class="mb-3 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <mat-form-field class="w-full">
+                <mat-label>Subject {{ i + 1 }}</mat-label>
+                <input matInput formControlName="subjectName" placeholder="Enter subject name">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Grade</mat-label>
+                <input matInput formControlName="grade" placeholder="Enter grade">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Diplomas -->
+      <mat-expansion-panel class="mb-4" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">workspace_premium</mat-icon>
+            Diplomas
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div formArrayName="diplomas">
+          <div *ngFor="let diploma of diplomas.controls; let i = index" [formGroupName]="i"
+            class="mb-4 rounded-lg border border-gray-200 p-4">
+            <div class="mb-2 flex items-center justify-between">
+              <h4 class="font-semibold">Diploma {{ i + 1 }}</h4>
+              <button mat-icon-button color="warn" type="button" (click)="removeDiploma(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <mat-form-field class="w-full">
+                <mat-label>Qualification Type</mat-label>
+                <input matInput formControlName="qualificationType" placeholder="Enter qualification type">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Diploma Name</mat-label>
+                <input matInput formControlName="diplomaProgramName" placeholder="Enter diploma name">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Discipline</mat-label>
+                <input matInput formControlName="discipline" placeholder="Enter discipline">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Institute Name</mat-label>
+                <input matInput formControlName="instituteName" placeholder="Enter institute name">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Effective Date</mat-label>
+                <input matInput [matDatepicker]="diplomaDatePicker" formControlName="effectiveDate"
+                  placeholder="Select date">
+                <mat-datepicker-toggle matSuffix [for]="diplomaDatePicker"></mat-datepicker-toggle>
+                <mat-datepicker #diplomaDatePicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Certificate Reference Number</mat-label>
+                <input matInput formControlName="certificateRefNumber" placeholder="Enter certificate reference">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <button mat-stroked-button type="button" (click)="addDiploma()">
+          <mat-icon>add</mat-icon>
+          Add Diploma
+        </button>
+      </mat-expansion-panel>
+
+      <!-- Industry Experience -->
+      <mat-expansion-panel class="mb-4" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">work</mat-icon>
+            Industry Experience
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div formArrayName="industry">
+          <div *ngFor="let exp of industry.controls; let i = index" [formGroupName]="i"
+            class="mb-4 rounded-lg border border-gray-200 p-4">
+            <div class="mb-2 flex items-center justify-between">
+              <h4 class="font-semibold">Experience {{ i + 1 }}</h4>
+              <button mat-icon-button color="warn" type="button" (click)="removeIndustry(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <mat-form-field class="w-full">
+                <mat-label>Institute/Organization</mat-label>
+                <input matInput formControlName="instituteName" placeholder="Enter institute/organization name">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>From Date</mat-label>
+                <input matInput [matDatepicker]="industryFromPicker" formControlName="fromDate"
+                  placeholder="Select date">
+                <mat-datepicker-toggle matSuffix [for]="industryFromPicker"></mat-datepicker-toggle>
+                <mat-datepicker #industryFromPicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>To Date</mat-label>
+                <input matInput [matDatepicker]="industryToPicker" formControlName="toDate" placeholder="Select date">
+                <mat-datepicker-toggle matSuffix [for]="industryToPicker"></mat-datepicker-toggle>
+                <mat-datepicker #industryToPicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Years</mat-label>
+                <input matInput type="number" formControlName="years" placeholder="Enter years">
+              </mat-form-field>
+              <mat-form-field class="w-full">
+                <mat-label>Months</mat-label>
+                <input matInput type="number" formControlName="months" placeholder="Enter months">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+        <button mat-stroked-button type="button" (click)="addIndustry()">
+          <mat-icon>add</mat-icon>
+          Add Experience
+        </button>
+      </mat-expansion-panel>
+
+      <!-- Current Employment -->
+      <mat-expansion-panel class="mb-4" formGroupName="employment" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">business</mat-icon>
+            Current Employment
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <mat-form-field class="w-full">
+            <mat-label>Organization</mat-label>
+            <input matInput formControlName="organizationName" placeholder="Enter organization name">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Designation</mat-label>
+            <input matInput formControlName="designation" placeholder="Enter designation">
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Official Telephone</mat-label>
+            <input matInput formControlName="officialTelephone" placeholder="Enter official telephone">
+          </mat-form-field>
+
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>Official Address</mat-label>
+            <textarea matInput formControlName="officialAddress" rows="2"
+              placeholder="Enter official address"></textarea>
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Achievements -->
+      <mat-expansion-panel class="mb-4" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">emoji_events</mat-icon>
+            Achievements
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <mat-form-field class="w-full">
+          <mat-label>Achievements & Awards</mat-label>
+          <textarea matInput formControlName="achievements" rows="4"
+            placeholder="List your achievements and awards"></textarea>
+        </mat-form-field>
+      </mat-expansion-panel>
+
+      <!-- Declaration -->
+      <mat-card class="mb-4">
+        <mat-card-header>
+          <mat-card-title>Declaration</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="mb-4 text-gray-700">
+            I hereby declare that all the information provided above is true and accurate to the best of my knowledge.
+            I understand that any false information may result in the rejection of my application.
+          </p>
+          <div formGroupName="applicant">
+            <mat-checkbox formControlName="declarationAccepted" color="primary">
+              I accept the declaration above
+            </mat-checkbox>
+            <mat-error *ngIf="
+  form.get('applicant.declarationAccepted')?.touched &&
+  form.get('applicant.declarationAccepted')?.invalid
+">
+              You must accept the declaration before submitting
+            </mat-error>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Submit Button -->
+      <div class="flex justify-end gap-4">
+        <button mat-button type="button" (click)="printForm()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+        <button mat-button type="button" routerLink="/student-profile">
+          Cancel
+        </button>
+        <button mat-flat-button color="primary" type="submit">
+          <mat-icon>send</mat-icon>
+          Submit Application
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

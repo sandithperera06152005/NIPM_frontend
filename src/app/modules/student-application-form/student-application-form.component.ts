@@ -1,0 +1,269 @@
+import { Component, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { forkJoin } from 'rxjs';
+import dayjs from 'dayjs/esm';
+import { DATE_FORMAT } from 'app/config/input.constants';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { RouterModule } from '@angular/router';
+
+// Angular Material Imports
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
+
+import { ApplicantService } from 'app/entities/applicant/service/applicant.service';
+import { AdvancedLevelQualificationService } from 'app/entities/advanced-level-qualification/service/advanced-level-qualification.service';
+import { AdvancedLevelSubjectService } from 'app/entities/advanced-level-subject/service/advanced-level-subject.service';
+import { DiplomaQualificationService } from 'app/entities/diploma-qualification/service/diploma-qualification.service';
+import { IndustryExperienceService } from 'app/entities/industry-experience/service/industry-experience.service';
+import { EmploymentService } from 'app/entities/employment/service/employment.service';
+import { AchievementService } from 'app/entities/achievement/service/achievement.service';
+
+@Component({
+    standalone: true,
+    selector: 'app-student-application-form',
+    templateUrl: './student-application-form.component.html',
+    styleUrls: ['./student-application-form.component.scss'],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatIconModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatCheckboxModule,
+        MatCardModule,
+        MatDividerModule,
+        MatExpansionModule,
+        RouterModule,
+    ],
+})
+export class StudentApplicationFormComponent implements OnInit {
+    form!: FormGroup;
+
+    genders = ['MALE', 'FEMALE'];
+    courseTypes = ['WEEKDAY', 'WEEKEND'];
+    financeTypes = ['SELF', 'SPONSORED'];
+
+    constructor(
+        private fb: FormBuilder,
+        private applicantService: ApplicantService,
+        private alService: AdvancedLevelQualificationService,
+        private alSubjectService: AdvancedLevelSubjectService,
+        private diplomaService: DiplomaQualificationService,
+        private industryService: IndustryExperienceService,
+        private employmentService: EmploymentService,
+        private achievementService: AchievementService
+    ) { }
+
+    ngOnInit(): void {
+        this.form = this.fb.group({
+            applicant: this.fb.group({
+                fullName: ['', Validators.required],
+                initialsName: [''],
+                contactAddress: [''],
+                permanentAddress: [''],
+                district: [''],
+                email: [''],
+                dateOfBirth: [''],
+                gender: [''],
+                nationality: [''],
+                nicNumber: [''],
+                mobileNumber: [''],
+                whatsappNumber: [''],
+                preferredCourseType: [''],
+                financeType: [''],
+                sponsorName: [''],
+                declarationAccepted: [false, Validators.requiredTrue],
+            }),
+
+            advancedLevel: this.fb.group({
+                examYear: [''],
+                indexNumber: [''],
+                stream: [''],
+                medium: [''],
+                zScore: [''],
+                subjects: this.fb.array([
+                    this.createSubject(),
+                    this.createSubject(),
+                    this.createSubject(),
+                ]),
+            }),
+
+            diplomas: this.fb.array([]),
+            industry: this.fb.array([]),
+
+            employment: this.fb.group({
+                organizationName: [''],
+                designation: [''],
+                officialTelephone: [''],
+                officialAddress: [''],
+            }),
+
+            achievements: [''],
+        });
+    }
+
+    createSubject(): FormGroup {
+        return this.fb.group({
+            subjectName: [''],
+            grade: [''],
+        });
+    }
+
+    get subjects(): FormArray {
+        return this.form.get('advancedLevel.subjects') as FormArray;
+    }
+
+    get diplomas(): FormArray {
+        return this.form.get('diplomas') as FormArray;
+    }
+
+    get industry(): FormArray {
+        return this.form.get('industry') as FormArray;
+    }
+
+    addDiploma(): void {
+        this.diplomas.push(
+            this.fb.group({
+                qualificationType: [''],
+                diplomaProgramName: [''],
+                discipline: [''],
+                instituteName: [''],
+                effectiveDate: [''],
+                certificateRefNumber: [''],
+            })
+        );
+    }
+
+    addIndustry(): void {
+        this.industry.push(
+            this.fb.group({
+                instituteName: [''],
+                fromDate: [''],
+                toDate: [''],
+                years: [''],
+                months: [''],
+            })
+        );
+    }
+
+    removeDiploma(index: number): void {
+        this.diplomas.removeAt(index);
+    }
+
+    removeIndustry(index: number): void {
+        this.industry.removeAt(index);
+    }
+
+    submit(): void {
+        if (this.form.invalid) {
+            this.form.markAllAsTouched();
+            return;
+        }
+
+        const data = this.form.value;
+
+        // Convert Date objects to dayjs format strings
+        const applicantData = {
+            ...data.applicant,
+            dateOfBirth: data.applicant.dateOfBirth ? dayjs(data.applicant.dateOfBirth).format(DATE_FORMAT) : null,
+        };
+
+        /** 1️⃣ Save Applicant FIRST */
+        this.applicantService.create(applicantData).subscribe(applicantRes => {
+            const applicant = applicantRes.body!;
+            const calls = [];
+
+            /** 2️⃣ A/L Qualification */
+            const alObservable = this.alService.create({
+                examYear: data.advancedLevel.examYear,
+                indexNumber: data.advancedLevel.indexNumber,
+                stream: data.advancedLevel.stream,
+                medium: data.advancedLevel.medium,
+                zScore: data.advancedLevel.zScore,
+                applicant,
+                id: null
+            });
+
+            // Create A/L subjects after A/L qualification is saved
+            const alSubjectsObservables = data.advancedLevel.subjects
+                .filter((s: any) => s.subjectName)
+                .map((s: any) =>
+                    this.alSubjectService.create({
+                        subjectName: s.subjectName,
+                        grade: s.grade,
+                        advancedLevelQualification: null, // Will be linked after alObservable completes
+                        id: null
+                    })
+                );
+
+            // Combine A/L qualification with its subjects
+            calls.push(forkJoin([alObservable, ...alSubjectsObservables]));
+
+            /** 3️⃣ Diplomas */
+            data.diplomas.forEach((d: any) => {
+                calls.push(
+                    this.diplomaService.create({
+                        ...d,
+                        applicant,
+                    })
+                );
+            });
+
+            /** 4️⃣ Industry Experience */
+            data.industry.forEach((i: any) => {
+                calls.push(
+                    this.industryService.create({
+                        ...i,
+                        applicant,
+                    })
+                );
+            });
+
+            /** 5️⃣ Employment */
+            if (data.employment.organizationName) {
+                calls.push(
+                    this.employmentService.create({
+                        ...data.employment,
+                        applicant,
+                    })
+                );
+            }
+
+            /** 6️⃣ Achievements */
+            if (data.achievements) {
+                calls.push(
+                    this.achievementService.create({
+                        description: data.achievements,
+                        applicant,
+                        id: null
+                    })
+                );
+            }
+
+            forkJoin(calls).subscribe(() => {
+                window.location.reload();
+            });
+        });
+
+        console.log('Form Data Submitted: ', data);
+    }
+
+    printForm(): void {
+        window.print();
+    }
+}

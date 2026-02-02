@@ -23,9 +23,10 @@ import { EnrollmentStatus } from '../../../enums/enrollment-status.model';
 import { VerifyDialogComponent } from './verify-dialog.component';
 import { Component, AfterViewInit, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { merge, of, startWith, Subject, switchMap, tap, catchError } from 'rxjs';
+import { StudentApplicationFormComponent } from '../../student-application-form/student-application-form.component';
 
 type ParentDialogData = {
   parentFilters?: Record<string, string | number>;
@@ -156,6 +157,7 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
     }
   }
 
+  private router: Router = inject(Router);
   private _paginator: MatPaginator | undefined;
   private _sort: MatSort | undefined;
   private sortChangeSubject = new Subject<Sort>();
@@ -458,5 +460,9 @@ export class StudentProfileListComponent implements AfterViewInit, OnInit {
         this.loadData();
       }
     });
+  }
+
+  openStudentApplicationForm(): void {
+    this.router.navigate(['/student-application-form']);
   }
 }

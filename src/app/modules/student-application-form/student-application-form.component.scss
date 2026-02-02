@@ -1,0 +1,168 @@
+.application-form {
+  max-width: 100%;
+  margin: auto;
+  padding: 24px;
+
+  h1 {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  section {
+    border: 1px solid #ddd;
+    padding: 16px;
+    margin-bottom: 24px;
+    border-radius: 6px;
+  }
+
+  h2 {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+  }
+
+  .subjects,
+  [formArrayName]>div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  button {
+    margin-top: 16px;
+  }
+
+  .declaration {
+    font-size: 14px;
+  }
+}
+
+// Print styles
+@media print {
+  :host {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .bg-gray-50 {
+    background-color: white !important;
+    padding: 0 !important;
+  }
+
+  .mx-auto {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .mb-6 {
+    margin-bottom: 20px !important;
+    text-align: center;
+  }
+
+  .mb-4 {
+    margin-bottom: 16px !important;
+    page-break-inside: avoid;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+  }
+
+  .mat-mdc-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  .mat-mdc-card-header {
+    background-color: #f5f5f5 !important;
+    padding: 12px 16px !important;
+    margin: -16px -16px 16px -16px !important;
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  .mat-mdc-card-content {
+    padding: 16px !important;
+  }
+
+  .text-3xl {
+    font-size: 24px !important;
+  }
+
+  .grid {
+    display: grid !important;
+  }
+
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .mat-mdc-form-field {
+    margin-bottom: 8px !important;
+  }
+
+  .mat-mdc-button {
+    display: none !important;
+  }
+
+  .flex.justify-end {
+    display: none !important;
+  }
+
+  // Hide all buttons during print
+  button {
+    display: none !important;
+  }
+
+  // Hide add/remove buttons in print
+  [type="button"] {
+    display: none !important;
+  }
+
+  // Show border for deleted items placeholders
+  .rounded-lg.border.border-gray-200 {
+    border: 1px solid #ddd !important;
+    background-color: #f9f9f9 !important;
+  }
+
+  // Ensure form fields show values in print
+  input,
+  textarea,
+  select {
+    border: none !important;
+    background: transparent !important;
+    padding: 4px 0 !important;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+
+  .mat-mdc-form-field-bottom-align::before {
+    display: none !important;
+  }
+
+  // Page setup
+  @page {
+    margin: 1cm;
+    size: A4 portrait;
+  }
+}

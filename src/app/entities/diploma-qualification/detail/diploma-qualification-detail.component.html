@@ -1,0 +1,68 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (diplomaQualification(); as diplomaQualificationRef) {
+      <div>
+        <h2 data-cy="diplomaQualificationDetailsHeading"><span>Diploma Qualification</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ diplomaQualificationRef.id }}</span>
+          </dd>
+          <dt><span>Qualification Type</span></dt>
+          <dd>
+            <span>{{
+              { null: '', NVQ5: 'NVQ5', NVQ6: 'NVQ6', NVQ5_EQUIVALENT: 'NVQ5_EQUIVALENT', NVQ6_EQUIVALENT: 'NVQ6_EQUIVALENT' }[
+                diplomaQualificationRef.qualificationType ?? 'null'
+              ]
+            }}</span>
+          </dd>
+          <dt><span>Diploma Program Name</span></dt>
+          <dd>
+            <span>{{ diplomaQualificationRef.diplomaProgramName }}</span>
+          </dd>
+          <dt><span>Discipline</span></dt>
+          <dd>
+            <span>{{ diplomaQualificationRef.discipline }}</span>
+          </dd>
+          <dt><span>Institute Name</span></dt>
+          <dd>
+            <span>{{ diplomaQualificationRef.instituteName }}</span>
+          </dd>
+          <dt><span>Effective Date</span></dt>
+          <dd>
+            <span>{{ diplomaQualificationRef.effectiveDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span>Certificate Ref Number</span></dt>
+          <dd>
+            <span>{{ diplomaQualificationRef.certificateRefNumber }}</span>
+          </dd>
+          <dt><span>Applicant</span></dt>
+          <dd>
+            @if (diplomaQualification()!.applicant) {
+              <div>
+                <a [routerLink]="['/applicant', diplomaQualification()!.applicant?.id, 'view']">{{
+                  diplomaQualificationRef.applicant?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/diploma-qualification', diplomaQualificationRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

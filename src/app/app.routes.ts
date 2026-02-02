@@ -121,6 +121,16 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import("app/modules/admin/dashboard/dashboard.routes"),
       },
+      {
+        path: "student-application-form",
+        loadChildren: () =>
+          import("app/modules/student-application-form/student-application-form.routes"),
+      },
+      {
+        path: "student-profile",
+        loadChildren: () =>
+          import("app/modules/student-profile/student-profile.routes"),
+      },
       // {
       //   path: "gatepass",
       //   loadChildren: () =>
