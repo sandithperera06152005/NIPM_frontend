@@ -177,25 +177,52 @@ export class StudentApplicationFormComponent implements OnInit {
 
         const data = this.form.value;
 
-        // Convert Date objects to dayjs format strings
-        const applicantData = {
-            ...data.applicant,
-            dateOfBirth: data.applicant.dateOfBirth ? dayjs(data.applicant.dateOfBirth).format(DATE_FORMAT) : null,
+        // Clean up data - remove empty strings and null values
+        const cleanAdvancedLevel = {
+            examYear: data.advancedLevel?.examYear || null,
+            indexNumber: data.advancedLevel?.indexNumber || null,
+            stream: data.advancedLevel?.stream || null,
+            medium: data.advancedLevel?.medium || null,
+            zScore: data.advancedLevel?.zScore ? Number(data.advancedLevel.zScore) : null,
+            subjects: data.advancedLevel?.subjects || [],
         };
+
+        console.log('Form Data:', data);
+        console.log('Advanced Level Data:', cleanAdvancedLevel);
+
+        // Convert Date objects to dayjs format strings
+        const applicantData: any = {
+            ...data.applicant,
+            dateOfBirth: data.applicant.dateOfBirth
+                ? dayjs(data.applicant.dateOfBirth).format(DATE_FORMAT)
+                : null,
+        };
+
+        // ATTACH employment ONLY if filled (NO id)
+        // if (data.employment?.organizationName) {
+        //     applicantData.employment = {
+        //         organizationName: data.employment.organizationName,
+        //         designation: data.employment.designation,
+        //         officialTelephone: data.employment.officialTelephone,
+        //         officialAddress: data.employment.officialAddress,
+        //     };
+        // }
 
         /** 1️⃣ Save Applicant FIRST */
         this.applicantService.create(applicantData).subscribe(applicantRes => {
             const applicant = applicantRes.body!;
+            const applicantRef = { id: applicant.id };
             const calls = [];
+            let employmentObservable = null;
 
             /** 2️⃣ A/L Qualification */
             const alObservable = this.alService.create({
-                examYear: data.advancedLevel.examYear,
-                indexNumber: data.advancedLevel.indexNumber,
-                stream: data.advancedLevel.stream,
-                medium: data.advancedLevel.medium,
-                zScore: data.advancedLevel.zScore,
-                applicant,
+                examYear: cleanAdvancedLevel.examYear,
+                indexNumber: cleanAdvancedLevel.indexNumber,
+                stream: cleanAdvancedLevel.stream,
+                medium: cleanAdvancedLevel.medium,
+                zScore: cleanAdvancedLevel.zScore,
+                applicant: applicantRef,
                 id: null
             });
 
@@ -218,8 +245,14 @@ export class StudentApplicationFormComponent implements OnInit {
             data.diplomas.forEach((d: any) => {
                 calls.push(
                     this.diplomaService.create({
-                        ...d,
-                        applicant,
+                        qualificationType: d.qualificationType || null,
+                        diplomaProgramName: d.diplomaProgramName || null,
+                        discipline: d.discipline || null,
+                        instituteName: d.instituteName || null,
+                        effectiveDate: d.effectiveDate || null,
+                        certificateRefNumber: d.certificateRefNumber || null,
+                        applicant: applicantRef,
+                        id: null,
                     })
                 );
             });
@@ -228,20 +261,26 @@ export class StudentApplicationFormComponent implements OnInit {
             data.industry.forEach((i: any) => {
                 calls.push(
                     this.industryService.create({
-                        ...i,
-                        applicant,
+                        instituteName: i.instituteName || null,
+                        fromDate: i.fromDate || null,
+                        toDate: i.toDate || null,
+                        years: i.years ? Number(i.years) : null,
+                        months: i.months ? Number(i.months) : null,
+                        applicant: applicantRef,
+                        id: null,
                     })
                 );
             });
 
-            /** 5️⃣ Employment */
+            /** 5️⃣ Employment - Create first to get ID, then link to applicant */
             if (data.employment.organizationName) {
-                calls.push(
-                    this.employmentService.create({
-                        ...data.employment,
-                        applicant,
-                    })
-                );
+                employmentObservable = this.employmentService.create({
+                    organizationName: data.employment.organizationName || null,
+                    designation: data.employment.designation || null,
+                    officialTelephone: data.employment.officialTelephone || null,
+                    officialAddress: data.employment.officialAddress || null,
+                    id: null,
+                });
             }
 
             /** 6️⃣ Achievements */
@@ -249,14 +288,28 @@ export class StudentApplicationFormComponent implements OnInit {
                 calls.push(
                     this.achievementService.create({
                         description: data.achievements,
-                        applicant,
+                        applicant: applicantRef,
                         id: null
                     })
                 );
             }
 
-            forkJoin(calls).subscribe(() => {
-                window.location.reload();
+            // Execute all calls
+            forkJoin([...calls, employmentObservable].filter(Boolean)).subscribe(() => {
+                // After all entities are created, update applicant with employment link
+                if (employmentObservable) {
+                    employmentObservable.subscribe(employmentRes => {
+                        const employment = employmentRes.body!;
+                        this.applicantService.update({
+                            ...applicant,
+                            employment: { id: employment.id },
+                        }).subscribe(() => {
+                            window.location.reload();
+                        });
+                    });
+                } else {
+                    window.location.reload();
+                }
             });
         });
 
