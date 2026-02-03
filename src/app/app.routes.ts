@@ -200,6 +200,13 @@ export const appRoutes: Route[] = [
             "app/modules/membership-application/membership-application.routes"
           ),
       },
+      {
+        path: "finance-management",
+        loadChildren: () =>
+          import(
+            "app/modules/finance-management/finance-management.routes"
+          ),
+      },
 
       // {
       //   path: "job-cards",

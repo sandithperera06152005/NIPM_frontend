@@ -1,0 +1,61 @@
+jest.mock('@ng-bootstrap/ng-bootstrap');
+
+import { ComponentFixture, TestBed, fakeAsync, inject, tick } from '@angular/core/testing';
+import { HttpResponse, provideHttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
+import { DocumentService } from '../service/document.service';
+
+import { DocumentDeleteDialogComponent } from './document-delete-dialog.component';
+
+describe('Document Management Delete Component', () => {
+  let comp: DocumentDeleteDialogComponent;
+  let fixture: ComponentFixture<DocumentDeleteDialogComponent>;
+  let service: DocumentService;
+  let mockActiveModal: NgbActiveModal;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [DocumentDeleteDialogComponent],
+      providers: [provideHttpClient(), NgbActiveModal],
+    })
+      .overrideTemplate(DocumentDeleteDialogComponent, '')
+      .compileComponents();
+    fixture = TestBed.createComponent(DocumentDeleteDialogComponent);
+    comp = fixture.componentInstance;
+    service = TestBed.inject(DocumentService);
+    mockActiveModal = TestBed.inject(NgbActiveModal);
+  });
+
+  describe('confirmDelete', () => {
+    it('should call delete service on confirmDelete', inject(
+      [],
+      fakeAsync(() => {
+        // GIVEN
+        jest.spyOn(service, 'delete').mockReturnValue(of(new HttpResponse({ body: {} })));
+
+        // WHEN
+        comp.confirmDelete(123);
+        tick();
+
+        // THEN
+        expect(service.delete).toHaveBeenCalledWith(123);
+        expect(mockActiveModal.close).toHaveBeenCalledWith('deleted');
+      }),
+    ));
+
+    it('should not call delete service on clear', () => {
+      // GIVEN
+      jest.spyOn(service, 'delete');
+
+      // WHEN
+      comp.cancel();
+
+      // THEN
+      expect(service.delete).not.toHaveBeenCalled();
+      expect(mockActiveModal.close).not.toHaveBeenCalled();
+      expect(mockActiveModal.dismiss).toHaveBeenCalled();
+    });
+  });
+});

@@ -135,8 +135,11 @@ export class ApplicantService {
   }
 
   protected convertResponseArrayFromServer(res: HttpResponse<RestApplicant[]>): HttpResponse<IApplicant[]> {
+    const totalItems = res.headers.get('X-Total-count');
     return res.clone({
       body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null,
+      headers: totalItems ? res.headers.set('X-Total-count', totalItems) : res.headers,
+
     });
   }
 }

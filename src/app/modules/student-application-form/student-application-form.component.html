@@ -344,6 +344,61 @@
         </mat-form-field>
       </mat-expansion-panel>
 
+      <!-- Payment Details -->
+      <mat-expansion-panel class="mb-4" expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="mr-2">payments</mat-icon>
+            Payment Details
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div formGroupName="payment" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+          <!-- Payment Method -->
+          <mat-form-field class="w-full">
+            <mat-label>Payment Method</mat-label>
+            <mat-select formControlName="paymentMethod">
+              <mat-option *ngFor="let pm of paymentMethods" [value]="pm">
+                {{ pm.replace('_', ' ') }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('payment.paymentMethod')?.invalid">
+              Payment method is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Amount -->
+          <mat-form-field class="w-full">
+            <mat-label>Amount (LKR)</mat-label>
+            <input matInput type="number" formControlName="amount" placeholder="Enter amount">
+          </mat-form-field>
+
+          <!-- Reference Number -->
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>Reference Number</mat-label>
+            <input matInput formControlName="referenceNumber" placeholder="Bank reference / transaction ID">
+          </mat-form-field>
+
+          <!-- Bank Slip Upload (ONLY if BANK_TRANSFER) -->
+          <div *ngIf="form.get('payment.paymentMethod')?.value === 'BANK_TRANSFER'" class="md:col-span-2">
+
+            <label class="mb-2 block font-medium text-gray-700">
+              Upload Bank Deposit Slip (PDF / Image)
+            </label>
+
+            <input type="file" accept=".pdf,image/*" (change)="onSlipSelected($event)"
+              class="block w-full rounded border border-gray-300 p-2" />
+
+            <p class="mt-1 text-sm text-gray-500">
+              Accepted formats: PDF, JPG, PNG
+            </p>
+          </div>
+
+        </div>
+      </mat-expansion-panel>
+
+
       <!-- Declaration -->
       <mat-card class="mb-4">
         <mat-card-header>

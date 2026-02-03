@@ -28,6 +28,8 @@ import { DiplomaQualificationService } from 'app/entities/diploma-qualification/
 import { IndustryExperienceService } from 'app/entities/industry-experience/service/industry-experience.service';
 import { EmploymentService } from 'app/entities/employment/service/employment.service';
 import { AchievementService } from 'app/entities/achievement/service/achievement.service';
+import { PaymentService } from 'app/entities/payment/service/payment.service';
+import { DocumentService } from 'app/entities/document/service/document.service';
 
 @Component({
     standalone: true,
@@ -57,6 +59,8 @@ export class StudentApplicationFormComponent implements OnInit {
     genders = ['MALE', 'FEMALE'];
     courseTypes = ['WEEKDAY', 'WEEKEND'];
     financeTypes = ['SELF', 'SPONSORED'];
+    paymentMethods = ['CASH', 'BANK_TRANSFER', 'ONLINE'];
+    selectedSlipFile: File | null = null;
 
     constructor(
         private fb: FormBuilder,
@@ -66,7 +70,10 @@ export class StudentApplicationFormComponent implements OnInit {
         private diplomaService: DiplomaQualificationService,
         private industryService: IndustryExperienceService,
         private employmentService: EmploymentService,
-        private achievementService: AchievementService
+        private achievementService: AchievementService,
+        private paymentService: PaymentService,
+        private documentService: DocumentService,
+
     ) { }
 
     ngOnInit(): void {
@@ -114,6 +121,16 @@ export class StudentApplicationFormComponent implements OnInit {
             }),
 
             achievements: [''],
+
+            payment: this.fb.group({
+                paymentMethod: ['', Validators.required],
+                amount: ['', Validators.required],
+                referenceNumber: [''],
+                paymentDate: [new Date()],
+                paymentStatus: ['PENDING'],
+                slip: [null],
+            }),
+
         });
     }
 
@@ -179,7 +196,7 @@ export class StudentApplicationFormComponent implements OnInit {
 
         // Clean up data - remove empty strings and null values
         const cleanAdvancedLevel = {
-            examYear: data.advancedLevel?.examYear || null,
+            examYear: data.advancedLevel?.examYear ? Number(data.advancedLevel.examYear) : null,
             indexNumber: data.advancedLevel?.indexNumber || null,
             stream: data.advancedLevel?.stream || null,
             medium: data.advancedLevel?.medium || null,
@@ -191,11 +208,26 @@ export class StudentApplicationFormComponent implements OnInit {
         console.log('Advanced Level Data:', cleanAdvancedLevel);
 
         // Convert Date objects to dayjs format strings
+        // Clean up applicant data - remove empty strings and null values
         const applicantData: any = {
-            ...data.applicant,
+            fullName: data.applicant.fullName || null,
+            initialsName: data.applicant.initialsName || null,
+            contactAddress: data.applicant.contactAddress || null,
+            permanentAddress: data.applicant.permanentAddress || null,
+            district: data.applicant.district || null,
+            email: data.applicant.email || null,
             dateOfBirth: data.applicant.dateOfBirth
                 ? dayjs(data.applicant.dateOfBirth).format(DATE_FORMAT)
                 : null,
+            gender: data.applicant.gender || null,
+            nationality: data.applicant.nationality || null,
+            nicNumber: data.applicant.nicNumber || null,
+            mobileNumber: data.applicant.mobileNumber || null,
+            whatsappNumber: data.applicant.whatsappNumber || null,
+            preferredCourseType: data.applicant.preferredCourseType || null,
+            financeType: data.applicant.financeType || null,
+            sponsorName: data.applicant.sponsorName || null,
+            declarationAccepted: data.applicant.declarationAccepted ?? null,
         };
 
         // ATTACH employment ONLY if filled (NO id)
@@ -241,7 +273,7 @@ export class StudentApplicationFormComponent implements OnInit {
             // Combine A/L qualification with its subjects
             calls.push(forkJoin([alObservable, ...alSubjectsObservables]));
 
-            /** 3️⃣ Diplomas */
+            /**  Diplomas */
             data.diplomas.forEach((d: any) => {
                 calls.push(
                     this.diplomaService.create({
@@ -249,7 +281,7 @@ export class StudentApplicationFormComponent implements OnInit {
                         diplomaProgramName: d.diplomaProgramName || null,
                         discipline: d.discipline || null,
                         instituteName: d.instituteName || null,
-                        effectiveDate: d.effectiveDate || null,
+                        effectiveDate: d.effectiveDate ? dayjs(d.effectiveDate) : null,
                         certificateRefNumber: d.certificateRefNumber || null,
                         applicant: applicantRef,
                         id: null,
@@ -262,8 +294,8 @@ export class StudentApplicationFormComponent implements OnInit {
                 calls.push(
                     this.industryService.create({
                         instituteName: i.instituteName || null,
-                        fromDate: i.fromDate || null,
-                        toDate: i.toDate || null,
+                        fromDate: i.fromDate ? dayjs(i.fromDate) : null,
+                        toDate: i.toDate ? dayjs(i.toDate) : null,
                         years: i.years ? Number(i.years) : null,
                         months: i.months ? Number(i.months) : null,
                         applicant: applicantRef,
@@ -294,6 +326,49 @@ export class StudentApplicationFormComponent implements OnInit {
                 );
             }
 
+            const paymentData = this.form.value.payment;
+
+            const paymentPayload: any = {
+                paymentMethod: paymentData.paymentMethod,
+                amount: paymentData.amount,
+                referenceNumber: paymentData.referenceNumber || null,
+                paymentDate: dayjs(),
+                paymentStatus: 'PENDING',
+                applicant: { id: applicant.id },
+                id: null,
+            };
+
+            console.log('Payment Payload:', paymentPayload);
+
+            this.paymentService.create(paymentPayload).subscribe(paymentRes => {
+                const payment = paymentRes.body!;
+
+                /** 8️⃣ Upload bank slip ONLY if bank transfer */
+                if (paymentData.paymentMethod === 'BANK_TRANSFER' && this.selectedSlipFile) {
+
+                    const formData = new FormData();
+                    formData.append('file', this.selectedSlipFile);
+
+                    this.documentService.upload(formData).subscribe(uploadRes => {
+                        const fileUrl = uploadRes.fileUrl;
+
+                        /** 9️⃣ Save Document */
+                        this.documentService.create({
+                            fileName: this.selectedSlipFile!.name,
+                            fileUrl,
+                            documentType: 'BANK_SLIP',
+                            payment: { id: payment.id },
+                            id: null,
+                        }).subscribe(() => {
+                            window.location.reload();
+                        });
+                    });
+
+                } else {
+                    window.location.reload();
+                }
+            });
+
             // Execute all calls
             forkJoin([...calls, employmentObservable].filter(Boolean)).subscribe(() => {
                 // After all entities are created, update applicant with employment link
@@ -315,6 +390,14 @@ export class StudentApplicationFormComponent implements OnInit {
 
         console.log('Form Data Submitted: ', data);
     }
+    onSlipSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            this.selectedSlipFile = input.files[0];
+            this.form.get('payment.slip')?.setValue(this.selectedSlipFile);
+        }
+    }
+
 
     printForm(): void {
         window.print();

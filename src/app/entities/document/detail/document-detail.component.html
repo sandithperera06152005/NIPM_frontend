@@ -1,0 +1,52 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (document(); as documentRef) {
+      <div>
+        <h2 data-cy="documentDetailsHeading"><span>Document</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ documentRef.id }}</span>
+          </dd>
+          <dt><span>File Name</span></dt>
+          <dd>
+            <span>{{ documentRef.fileName }}</span>
+          </dd>
+          <dt><span>File Url</span></dt>
+          <dd>
+            <span>{{ documentRef.fileUrl }}</span>
+          </dd>
+          <dt><span>Document Type</span></dt>
+          <dd>
+            <span>{{
+              { null: '', BANK_SLIP: 'BANK_SLIP', NIC_COPY: 'NIC_COPY', CERTIFICATE: 'CERTIFICATE' }[documentRef.documentType ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span>Payment</span></dt>
+          <dd>
+            @if (document()!.payment) {
+              <div>
+                <a [routerLink]="['/payment', document()!.payment?.id, 'view']">{{ documentRef.payment?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/document', documentRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
