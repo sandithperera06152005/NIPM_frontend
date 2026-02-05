@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { forkJoin } from 'rxjs';
+import { mergeMap } from 'rxjs/operators';
 import dayjs from 'dayjs/esm';
 import { DATE_FORMAT } from 'app/config/input.constants';
 import { CommonModule } from '@angular/common';
@@ -258,23 +259,33 @@ export class StudentApplicationFormComponent implements OnInit {
                 id: null
             });
 
-            // Create A/L subjects after A/L qualification is saved
-            const alSubjectsObservables = data.advancedLevel.subjects
-                .filter((s: any) => s.subjectName)
-                .map((s: any) =>
-                    this.alSubjectService.create({
-                        subjectName: s.subjectName,
-                        grade: s.grade,
-                        advancedLevelQualification: null, // Will be linked after alObservable completes
-                        id: null
-                    })
-                );
+            // Create A/L subjects after A/L qualification is saved and link them
+            calls.push(
+                alObservable.pipe(mergeMap(alRes => {
+                    const alQualification = alRes.body!;
+                    const alQualRef = { id: alQualification.id };
 
-            // Combine A/L qualification with its subjects
-            calls.push(forkJoin([alObservable, ...alSubjectsObservables]));
+                    const alSubjectsObservables = data.advancedLevel.subjects
+                        .filter((s: any) => s.subjectName)
+                        .map((s: any) =>
+                            this.alSubjectService.create({
+                                subjectName: s.subjectName,
+                                grade: s.grade,
+                                advancedLevelQualification: alQualRef,
+                                id: null
+                            })
+                        );
+
+                    // If there are subjects, fork join them; otherwise just return the al qualification
+                    if (alSubjectsObservables.length > 0) {
+                        return forkJoin(alSubjectsObservables);
+                    }
+                    return forkJoin([alObservable]); // Return observable to complete the chain
+                }))
+            );
 
             /**  Diplomas */
-            data.diplomas.forEach((d: any) => {
+            this.diplomas.value.forEach((d: any) => {
                 calls.push(
                     this.diplomaService.create({
                         qualificationType: d.qualificationType || null,
@@ -290,7 +301,7 @@ export class StudentApplicationFormComponent implements OnInit {
             });
 
             /** 4️⃣ Industry Experience */
-            data.industry.forEach((i: any) => {
+            this.industry.value.forEach((i: any) => {
                 calls.push(
                     this.industryService.create({
                         instituteName: i.instituteName || null,

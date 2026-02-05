@@ -112,7 +112,6 @@ export class FinanceManagementViewComponent implements OnInit {
 
         forkJoin({
             advancedLevelQualifications: this.advancedLevelQualificationService.query(req).pipe(catchError(() => of({ body: [] }))),
-            advancedLevelSubjects: this.advancedLevelSubjectService.query(req).pipe(catchError(() => of({ body: [] }))),
             diplomaQualifications: this.diplomaQualificationService.query(req).pipe(catchError(() => of({ body: [] }))),
             industryExperiences: this.industryExperienceService.query(req).pipe(catchError(() => of({ body: [] }))),
             employments: this.employmentService.query(req).pipe(catchError(() => of({ body: [] }))),
@@ -122,18 +121,46 @@ export class FinanceManagementViewComponent implements OnInit {
         }).subscribe({
             next: (results) => {
                 this.advancedLevelQualifications = results.advancedLevelQualifications.body ?? [];
-                this.advancedLevelSubjects = results.advancedLevelSubjects.body ?? [];
                 this.diplomaQualifications = results.diplomaQualifications.body ?? [];
                 this.industryExperiences = results.industryExperiences.body ?? [];
                 this.employments = results.employments.body ?? [];
                 this.achievements = results.achievements.body ?? [];
                 this.payments = results.payments.body ?? [];
                 this.documents = results.documents.body ?? [];
+
+                // Load A/L subjects based on the loaded A/L qualifications
+                this.loadAdvancedLevelSubjects();
                 this.isLoading = false;
             },
             error: () => {
                 this.isLoading = false;
             },
+        });
+    }
+
+    loadAdvancedLevelSubjects(): void {
+        // Get the IDs of all A/L qualifications for this applicant
+        const alQualificationIds = this.advancedLevelQualifications.map(alq => alq.id).filter(id => id != null);
+
+        if (alQualificationIds.length === 0) {
+            this.advancedLevelSubjects = [];
+            return;
+        }
+
+        // Query A/L subjects that belong to these A/L qualifications
+        // Since subjects are linked to qualifications (not directly to applicants),
+        // we need to filter by the qualification IDs
+        const req = { 'advancedLevelQualificationId.in': alQualificationIds.join(',') };
+
+        this.advancedLevelSubjectService.query(req).pipe(
+            catchError(() => of({ body: [] }))
+        ).subscribe({
+            next: (results) => {
+                this.advancedLevelSubjects = results.body ?? [];
+            },
+            error: () => {
+                this.advancedLevelSubjects = [];
+            }
         });
     }
 
