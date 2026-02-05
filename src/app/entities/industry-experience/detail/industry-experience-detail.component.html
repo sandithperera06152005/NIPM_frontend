@@ -1,0 +1,58 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (industryExperience(); as industryExperienceRef) {
+      <div>
+        <h2 data-cy="industryExperienceDetailsHeading"><span>Industry Experience</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ industryExperienceRef.id }}</span>
+          </dd>
+          <dt><span>Institute Name</span></dt>
+          <dd>
+            <span>{{ industryExperienceRef.instituteName }}</span>
+          </dd>
+          <dt><span>From Date</span></dt>
+          <dd>
+            <span>{{ industryExperienceRef.fromDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span>To Date</span></dt>
+          <dd>
+            <span>{{ industryExperienceRef.toDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span>Years</span></dt>
+          <dd>
+            <span>{{ industryExperienceRef.years }}</span>
+          </dd>
+          <dt><span>Months</span></dt>
+          <dd>
+            <span>{{ industryExperienceRef.months }}</span>
+          </dd>
+          <dt><span>Applicant</span></dt>
+          <dd>
+            @if (industryExperience()!.applicant) {
+              <div>
+                <a [routerLink]="['/applicant', industryExperience()!.applicant?.id, 'view']">{{ industryExperienceRef.applicant?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/industry-experience', industryExperienceRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

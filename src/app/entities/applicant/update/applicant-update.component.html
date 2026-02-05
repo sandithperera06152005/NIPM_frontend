@@ -1,0 +1,240 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-applicant-heading" data-cy="ApplicantCreateUpdateHeading">Create or edit a Applicant</h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">Id</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let fullNameRef = editForm.get('fullName')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fullName">Full Name</label>
+          <input type="text" class="form-control" name="fullName" id="field_fullName" data-cy="fullName" formControlName="fullName" />
+          @if (fullNameRef.invalid && (fullNameRef.dirty || fullNameRef.touched)) {
+            <div>
+              @if (editForm.get('fullName')?.errors?.required) {
+                <small class="form-text text-danger">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_initialsName">Initials Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="initialsName"
+            id="field_initialsName"
+            data-cy="initialsName"
+            formControlName="initialsName"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_dateOfBirth">Date Of Birth</label>
+          <div class="input-group">
+            <input
+              id="field_dateOfBirth"
+              data-cy="dateOfBirth"
+              type="text"
+              class="form-control"
+              name="dateOfBirth"
+              ngbDatepicker
+              #dateOfBirthDp="ngbDatepicker"
+              formControlName="dateOfBirth"
+            />
+            <button type="button" class="btn btn-secondary" (click)="dateOfBirthDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_gender">Gender</label>
+          <select class="form-control" name="gender" formControlName="gender" id="field_gender" data-cy="gender">
+            <option [ngValue]="null"></option>
+            @for (gender of genderValues; track $index) {
+              <option [value]="gender">{{ { null: '', MALE: 'MALE', FEMALE: 'FEMALE' }[gender] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_nationality">Nationality</label>
+          <input
+            type="text"
+            class="form-control"
+            name="nationality"
+            id="field_nationality"
+            data-cy="nationality"
+            formControlName="nationality"
+          />
+        </div>
+
+        @let nicNumberRef = editForm.get('nicNumber')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_nicNumber">Nic Number</label>
+          <input type="text" class="form-control" name="nicNumber" id="field_nicNumber" data-cy="nicNumber" formControlName="nicNumber" />
+          @if (nicNumberRef.invalid && (nicNumberRef.dirty || nicNumberRef.touched)) {
+            <div></div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_email">Email</label>
+          <input type="text" class="form-control" name="email" id="field_email" data-cy="email" formControlName="email" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_mobileNumber">Mobile Number</label>
+          <input
+            type="text"
+            class="form-control"
+            name="mobileNumber"
+            id="field_mobileNumber"
+            data-cy="mobileNumber"
+            formControlName="mobileNumber"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_whatsappNumber">Whatsapp Number</label>
+          <input
+            type="text"
+            class="form-control"
+            name="whatsappNumber"
+            id="field_whatsappNumber"
+            data-cy="whatsappNumber"
+            formControlName="whatsappNumber"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_contactAddress">Contact Address</label>
+          <textarea
+            class="form-control"
+            name="contactAddress"
+            id="field_contactAddress"
+            data-cy="contactAddress"
+            formControlName="contactAddress"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_permanentAddress">Permanent Address</label>
+          <textarea
+            class="form-control"
+            name="permanentAddress"
+            id="field_permanentAddress"
+            data-cy="permanentAddress"
+            formControlName="permanentAddress"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_district">District</label>
+          <input type="text" class="form-control" name="district" id="field_district" data-cy="district" formControlName="district" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_preferredCourseType">Preferred Course Type</label>
+          <select
+            class="form-control"
+            name="preferredCourseType"
+            formControlName="preferredCourseType"
+            id="field_preferredCourseType"
+            data-cy="preferredCourseType"
+          >
+            <option [ngValue]="null"></option>
+            @for (courseType of courseTypeValues; track $index) {
+              <option [value]="courseType">{{ { null: '', WEEKDAY: 'WEEKDAY', WEEKEND: 'WEEKEND' }[courseType] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_financeType">Finance Type</label>
+          <select class="form-control" name="financeType" formControlName="financeType" id="field_financeType" data-cy="financeType">
+            <option [ngValue]="null"></option>
+            @for (financeType of financeTypeValues; track $index) {
+              <option [value]="financeType">{{ { null: '', SELF: 'SELF', SPONSORED: 'SPONSORED' }[financeType] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_sponsorName">Sponsor Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="sponsorName"
+            id="field_sponsorName"
+            data-cy="sponsorName"
+            formControlName="sponsorName"
+          />
+        </div>
+
+        @let declarationAcceptedRef = editForm.get('declarationAccepted')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_declarationAccepted">Declaration Accepted</label>
+          <input
+            type="checkbox"
+            class="form-check"
+            name="declarationAccepted"
+            id="field_declarationAccepted"
+            data-cy="declarationAccepted"
+            formControlName="declarationAccepted"
+          />
+          @if (declarationAcceptedRef.invalid && (declarationAcceptedRef.dirty || declarationAcceptedRef.touched)) {
+            <div>
+              @if (editForm.get('declarationAccepted')?.errors?.required) {
+                <small class="form-text text-danger">This field is required.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_employment">Employment</label>
+          <select
+            class="form-control"
+            id="field_employment"
+            data-cy="employment"
+            name="employment"
+            formControlName="employment"
+            [compareWith]="compareEmployment"
+          >
+            <option [ngValue]="null"></option>
+            @for (employmentOption of employmentsCollection; track $index) {
+              <option [ngValue]="employmentOption">{{ employmentOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

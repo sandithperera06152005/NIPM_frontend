@@ -1,0 +1,9 @@
+export enum NVQType {
+  NVQ5 = 'NVQ5',
+
+  NVQ6 = 'NVQ6',
+
+  NVQ5_EQUIVALENT = 'NVQ5_EQUIVALENT',
+
+  NVQ6_EQUIVALENT = 'NVQ6_EQUIVALENT',
+}

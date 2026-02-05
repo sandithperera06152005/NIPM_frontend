@@ -1,0 +1,140 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-diploma-qualification-heading" data-cy="DiplomaQualificationCreateUpdateHeading">
+        Create or edit a Diploma Qualification
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id">Id</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_qualificationType">Qualification Type</label>
+          <select
+            class="form-control"
+            name="qualificationType"
+            formControlName="qualificationType"
+            id="field_qualificationType"
+            data-cy="qualificationType"
+          >
+            <option [ngValue]="null"></option>
+            @for (nVQType of nVQTypeValues; track $index) {
+              <option [value]="nVQType">
+                {{
+                  { null: '', NVQ5: 'NVQ5', NVQ6: 'NVQ6', NVQ5_EQUIVALENT: 'NVQ5_EQUIVALENT', NVQ6_EQUIVALENT: 'NVQ6_EQUIVALENT' }[nVQType]
+                }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_diplomaProgramName">Diploma Program Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="diplomaProgramName"
+            id="field_diplomaProgramName"
+            data-cy="diplomaProgramName"
+            formControlName="diplomaProgramName"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_discipline">Discipline</label>
+          <input
+            type="text"
+            class="form-control"
+            name="discipline"
+            id="field_discipline"
+            data-cy="discipline"
+            formControlName="discipline"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_instituteName">Institute Name</label>
+          <input
+            type="text"
+            class="form-control"
+            name="instituteName"
+            id="field_instituteName"
+            data-cy="instituteName"
+            formControlName="instituteName"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_effectiveDate">Effective Date</label>
+          <div class="input-group">
+            <input
+              id="field_effectiveDate"
+              data-cy="effectiveDate"
+              type="text"
+              class="form-control"
+              name="effectiveDate"
+              ngbDatepicker
+              #effectiveDateDp="ngbDatepicker"
+              formControlName="effectiveDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="effectiveDateDp.toggle()">
+              <fa-icon icon="calendar-alt"></fa-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_certificateRefNumber">Certificate Ref Number</label>
+          <input
+            type="text"
+            class="form-control"
+            name="certificateRefNumber"
+            id="field_certificateRefNumber"
+            data-cy="certificateRefNumber"
+            formControlName="certificateRefNumber"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_applicant">Applicant</label>
+          <select
+            class="form-control"
+            id="field_applicant"
+            data-cy="applicant"
+            name="applicant"
+            formControlName="applicant"
+            [compareWith]="compareApplicant"
+          >
+            <option [ngValue]="null"></option>
+            @for (applicantOption of applicantsSharedCollection; track $index) {
+              <option [ngValue]="applicantOption">{{ applicantOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span>Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span>Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -13,7 +13,7 @@ import { AuthService } from "app/core/auth/auth.service";
 import { ApplicationConfigService } from "app/login/application-config.service";
 import { LoginService } from "app/login/login.service";
 import { Logout } from "app/login/logout.model";
-import { JobcardCreateComponent } from "app/modules/admin/jobcards_details/jobcard-create/jobcard-create.component";
+//import { JobcardCreateComponent } from "app/modules/admin/jobcards_details/jobcard-create/jobcard-create.component";
 import {
   Observable,
   Subject,

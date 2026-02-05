@@ -1,0 +1,105 @@
+<mat-drawer-container class="absolute h-full w-full bg-transparent">
+
+    <!-- Main Content (The Table) -->
+    <mat-drawer-content class="flex flex-col">
+        <div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+
+            <!-- Header -->
+            <div
+                class="bg-default dark:bg-transparent flex flex-0 flex-col p-6 pb-22 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-28 sm:pt-12">
+                <div class="min-w-0 flex-1">
+                    <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
+                        Applicants
+                    </h2>
+
+                </div>
+                <!-- Search Bar -->
+                <div class="mt-6 flex shrink-0 items-center gap-3 sm:ml-4 sm:mt-0">
+                    <mat-form-field appearance="outline" class="w-64">
+                        <mat-label>Search by Full Name</mat-label>
+                        <mat-icon matPrefix [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                        <input matInput [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)"
+                            placeholder="Type to search...">
+                        <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+                            <mat-icon [svgIcon]="'heroicons_mini:x-mark'"></mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="example-table-container bg-card -mt-16 h-full rounded-t-2xl"
+                style="overflow-x: auto; white-space: nowrap; width: 100%">
+                <div *ngIf="isLoading" class="flex items-center justify-center p-8">
+                    <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
+                </div>
+
+                <table mat-table [dataSource]="filteredDataSource" matSort (matSortChange)="onSortChange($event)"
+                    *ngIf="!isLoading">
+
+                    <!-- ID Column -->
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                        <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+                    </ng-container>
+
+                    <!-- Full Name Column -->
+                    <ng-container matColumnDef="fullName">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Full Name</th>
+                        <td mat-cell *matCellDef="let element">{{ element.fullName }}</td>
+                    </ng-container>
+
+                    <!-- Initials Name Column -->
+                    <ng-container matColumnDef="initialsName">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Initials Name</th>
+                        <td mat-cell *matCellDef="let element">{{ element.initialsName }}</td>
+                    </ng-container>
+
+                    <!-- Gender Column -->
+                    <ng-container matColumnDef="gender">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Gender</th>
+                        <td mat-cell *matCellDef="let element">{{ element.gender }}</td>
+                    </ng-container>
+
+                    <!-- Email Column -->
+                    <ng-container matColumnDef="email">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+                        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+                    </ng-container>
+
+                    <!-- Mobile Number Column -->
+                    <ng-container matColumnDef="mobileNumber">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Mobile Number</th>
+                        <td mat-cell *matCellDef="let element">{{ element.mobileNumber }}</td>
+                    </ng-container>
+
+                    <!-- Actions Column -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef></th>
+                        <td mat-cell *matCellDef="let element">
+                            <button mat-icon-button color="primary" type="button"
+                                (click)="viewApplicantDetails(element)">
+                                <mat-icon [svgIcon]="'heroicons_outline:eye'"></mat-icon>
+                            </button>
+
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                            <span *ngIf="searchTerm">No applicants found matching "{{ searchTerm }}"</span>
+                            <span *ngIf="!searchTerm">No data found.</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Paginator -->
+            <mat-paginator [length]="filteredDataSource.data.length" [pageSize]="itemsPerPage"
+                [pageSizeOptions]="[10, 25, 50, 100]"></mat-paginator>
+        </div>
+    </mat-drawer-content>
+</mat-drawer-container>

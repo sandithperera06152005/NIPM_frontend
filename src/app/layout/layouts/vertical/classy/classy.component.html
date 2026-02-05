@@ -56,18 +56,18 @@
       <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
     </button>
 
-    <p *ngIf="selectedVehicle?.licenseNo" class="p-2 bg-amber-400 text-black font-mono font-bold rounded-md px-3">
+    <!-- <p *ngIf="selectedVehicle?.licenseNo" class="p-2 bg-amber-400 text-black font-mono font-bold rounded-md px-3">
       {{ selectedVehicle.licenseNo }}
-    </p>
+    </p> -->
 
-    <p *ngIf="selectedClient?.name" class="ml-2 p-2 bg-amber-400 text-black font-mono font-bold rounded-md px-3">
+    <!-- <p *ngIf="selectedClient?.name" class="ml-2 p-2 bg-amber-400 text-black font-mono font-bold rounded-md px-3">
       {{ selectedClient.name }}
-    </p>
+    </p> -->
 
-    <p *ngIf="!selectedClient && selectedVehicle?.licenseNo"
+    <!-- <p *ngIf="!selectedClient && selectedVehicle?.licenseNo"
       class="ml-2 p-2 bg-red-400 italic text-black font-mono font-bold rounded-md px-3">
       No client assigned
-    </p>
+    </p> -->
 
     <!-- <p
       *ngIf="!selectedVehicle?.licenseNo"
@@ -76,11 +76,11 @@
       Vehicle not assigned
     </p> -->
 
-    <button *ngIf="selectedVehicle?.licenseNo"
+    <!-- <button *ngIf="selectedVehicle?.licenseNo"
       class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-lg ml-2"
       (click)="clearSelectedVehicle()">
       Clear
-    </button>
+    </button> -->
 
     <!-- Components -->
     <div class="ml-auto flex items-center space-x-0.5 pl-2 sm:space-x-2">

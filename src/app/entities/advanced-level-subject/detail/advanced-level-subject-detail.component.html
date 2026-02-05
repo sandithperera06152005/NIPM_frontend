@@ -1,0 +1,48 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (advancedLevelSubject(); as advancedLevelSubjectRef) {
+      <div>
+        <h2 data-cy="advancedLevelSubjectDetailsHeading"><span>Advanced Level Subject</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ advancedLevelSubjectRef.id }}</span>
+          </dd>
+          <dt><span>Subject Name</span></dt>
+          <dd>
+            <span>{{ advancedLevelSubjectRef.subjectName }}</span>
+          </dd>
+          <dt><span>Grade</span></dt>
+          <dd>
+            <span>{{ advancedLevelSubjectRef.grade }}</span>
+          </dd>
+          <dt><span>Advanced Level Qualification</span></dt>
+          <dd>
+            @if (advancedLevelSubject()!.advancedLevelQualification) {
+              <div>
+                <a [routerLink]="['/advanced-level-qualification', advancedLevelSubject()!.advancedLevelQualification?.id, 'view']">{{
+                  advancedLevelSubjectRef.advancedLevelQualification?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/advanced-level-subject', advancedLevelSubjectRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

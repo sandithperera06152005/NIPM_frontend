@@ -1,0 +1,46 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (employment(); as employmentRef) {
+      <div>
+        <h2 data-cy="employmentDetailsHeading"><span>Employment</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ employmentRef.id }}</span>
+          </dd>
+          <dt><span>Organization Name</span></dt>
+          <dd>
+            <span>{{ employmentRef.organizationName }}</span>
+          </dd>
+          <dt><span>Designation</span></dt>
+          <dd>
+            <span>{{ employmentRef.designation }}</span>
+          </dd>
+          <dt><span>Official Telephone</span></dt>
+          <dd>
+            <span>{{ employmentRef.officialTelephone }}</span>
+          </dd>
+          <dt><span>Official Address</span></dt>
+          <dd>
+            <span>{{ employmentRef.officialAddress }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button type="button" [routerLink]="['/employment', employmentRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

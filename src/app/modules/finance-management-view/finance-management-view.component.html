@@ -1,0 +1,320 @@
+<div class="min-w-0 flex-1 flex-col p-6">
+    <!-- Header -->
+    <div class="mb-6 flex items-center justify-between">
+        <!-- Left side: Back button and title -->
+        <div class="flex items-center gap-4">
+            <button mat-icon-button (click)="goBack()" matTooltip="Back">
+                <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+            </button>
+            <h2 class="text-2xl font-bold">Applicant Details</h2>
+        </div>
+
+        <div class="flex gap-3">
+            <!-- Approve Payment button -->
+            <button mat-flat-button style="background-color: #f3f4f6; color: #111;" (click)="approveStudent()">
+                Approve Student
+            </button>
+
+            <!-- Reject Student button -->
+            <button mat-flat-button style="background-color: #fee2e2; color: #b91c1c;" (click)="rejectStudent()">
+                Reject Student
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex items-center justify-center p-8">
+        <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading && applicant" class="space-y-6">
+
+        <!-- Basic Information Card -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Personal Information</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="mt-4">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div>
+                        <p class="text-sm text-gray-500">Full Name</p>
+                        <p class="font-medium">{{ applicant.fullName }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Initials Name</p>
+                        <p class="font-medium">{{ applicant.initialsName }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Date of Birth</p>
+                        <p class="font-medium">{{ applicant.dateOfBirth | date:'mediumDate' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Gender</p>
+                        <p class="font-medium">{{ applicant.gender }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Nationality</p>
+                        <p class="font-medium">{{ applicant.nationality }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">NIC Number</p>
+                        <p class="font-medium">{{ applicant.nicNumber }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Email</p>
+                        <p class="font-medium">{{ applicant.email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Mobile Number</p>
+                        <p class="font-medium">{{ applicant.mobileNumber }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">WhatsApp Number</p>
+                        <p class="font-medium">{{ applicant.whatsappNumber }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">District</p>
+                        <p class="font-medium">{{ applicant.district }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Contact Address</p>
+                        <p class="font-medium">{{ applicant.contactAddress }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Permanent Address</p>
+                        <p class="font-medium">{{ applicant.permanentAddress }}</p>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Course & Finance Information -->
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Course & Finance Information</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="mt-4">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
+                        <p class="text-sm text-gray-500">Preferred Course Type</p>
+                        <mat-chipSet>
+                            <mat-chip>{{ applicant.preferredCourseType }}</mat-chip>
+                        </mat-chipSet>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Finance Type</p>
+                        <mat-chipSet>
+                            <mat-chip [color]="getFinanceTypeColor(applicant.financeType)" highlighted>
+                                {{ applicant.financeType }}
+                            </mat-chip>
+                        </mat-chipSet>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Sponsor Name</p>
+                        <p class="font-medium">{{ applicant.sponsorName }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Declaration Accepted</p>
+                        <mat-icon *ngIf="applicant.declarationAccepted" class="text-green-600"
+                            [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                        <mat-icon *ngIf="!applicant.declarationAccepted" class="text-red-600"
+                            [svgIcon]="'heroicons_outline:x-circle'"></mat-icon>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <!-- Tabs for related data -->
+        <mat-tab-group>
+
+            <!-- Advanced Level Qualifications Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:academic-cap'" class="mr-2"></mat-icon>
+                    A/L Qualifications
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="advancedLevelQualifications.length === 0" class="text-gray-500">
+                        No A/L qualifications found.
+                    </div>
+                    <mat-list *ngFor="let qual of advancedLevelQualifications">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:document-text'"></mat-icon>
+                            <div matListItemTitle>Exam Year: {{ qual.examYear }}</div>
+                            <div matListItemLine>Index Number: {{ qual.indexNumber }} | Stream: {{ qual.stream }}</div>
+                            <div matListItemLine>Medium: {{ qual.medium }} | Z-Score: {{ qual.zScore }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Advanced Level Subjects Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:book-open'" class="mr-2"></mat-icon>
+                    A/L Subjects
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="advancedLevelSubjects.length === 0" class="text-gray-500">
+                        No A/L subjects found.
+                    </div>
+                    <mat-list *ngFor="let subject of advancedLevelSubjects">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:bookmark'"></mat-icon>
+                            <div matListItemTitle>{{ subject.subjectName }}</div>
+                            <div matListItemLine>Grade: {{ subject.grade }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Diploma Qualifications Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:certificate'" class="mr-2"></mat-icon>
+                    Diploma Qualifications
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="diplomaQualifications.length === 0" class="text-gray-500">
+                        No diploma qualifications found.
+                    </div>
+                    <mat-list *ngFor="let diploma of diplomaQualifications">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:academic-cap'"></mat-icon>
+                            <div matListItemTitle>{{ diploma.diplomaProgramName }}</div>
+                            <div matListItemLine>Institute: {{ diploma.instituteName }} | Type: {{
+                                diploma.qualificationType }}</div>
+                            <div matListItemLine>Discipline: {{ diploma.discipline }} | Ref: {{
+                                diploma.certificateRefNumber }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Industry Experience Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:building-office-2'" class="mr-2"></mat-icon>
+                    Industry Experience
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="industryExperiences.length === 0" class="text-gray-500">
+                        No industry experience found.
+                    </div>
+                    <mat-list *ngFor="let experience of industryExperiences">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:briefcase'"></mat-icon>
+                            <div matListItemTitle>{{ experience.instituteName }}</div>
+                            <div matListItemLine>From: {{ experience.fromDate | date:'mediumDate' }} | To: {{
+                                experience.toDate | date:'mediumDate' }}</div>
+                            <div matListItemLine>Years: {{ experience.years }} | Months: {{ experience.months }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Employment Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:users'" class="mr-2"></mat-icon>
+                    Employment
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="employments.length === 0" class="text-gray-500">
+                        No employment records found.
+                    </div>
+                    <mat-list *ngFor="let employment of employments">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:user-group'"></mat-icon>
+                            <div matListItemTitle>{{ employment.organizationName }}</div>
+                            <div matListItemLine>Designation: {{ employment.designation }}</div>
+                            <div matListItemLine>Telephone: {{ employment.officialTelephone }} | Address: {{
+                                employment.officialAddress }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Achievements Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:trophy'" class="mr-2"></mat-icon>
+                    Achievements
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="achievements.length === 0" class="text-gray-500">
+                        No achievements found.
+                    </div>
+                    <mat-list *ngFor="let achievement of achievements">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:star'"></mat-icon>
+                            <div matListItemTitle>{{ achievement.title }}</div>
+                            <div matListItemLine>{{ achievement.description }}</div>
+                            <div matListItemLine>Date: {{ achievement.date | date:'mediumDate' }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Payments Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:credit-card'" class="mr-2"></mat-icon>
+                    Payments
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="payments.length === 0" class="text-gray-500">
+                        No payments found.
+                    </div>
+                    <mat-list *ngFor="let payment of payments">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:banknotes'"></mat-icon>
+                            <div matListItemTitle>Payment Amount: {{ payment.amount }}</div>
+                            <div matListItemLine>Date: {{ payment.paymentDate | date:'mediumDate' }} | Reference: {{
+                                payment.referenceNumber }}</div>
+                            <div matListItemLine>Status: {{ payment.status }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+            <!-- Documents Tab -->
+            <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon [svgIcon]="'heroicons_outline:document-duplicate'" class="mr-2"></mat-icon>
+                    Documents
+                </ng-template>
+                <div class="p-4">
+                    <div *ngIf="documents.length === 0" class="text-gray-500">
+                        No documents found.
+                    </div>
+                    <mat-list *ngFor="let doc of documents">
+                        <mat-list-item>
+                            <mat-icon matListItemIcon [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                            <div matListItemTitle>{{ doc.fileName }}</div>
+                            <div matListItemLine>Type: {{ doc.fileType }} | Size: {{ doc.fileSize }}</div>
+                            <div matListItemLine>Uploaded: {{ doc.uploadDate | date:'medium' }}</div>
+                        </mat-list-item>
+                        <mat-divider></mat-divider>
+                    </mat-list>
+                </div>
+            </mat-tab>
+
+        </mat-tab-group>
+    </div>
+
+    <!-- No Applicant Found -->
+    <div *ngIf="!isLoading && !applicant" class="text-center p-8">
+        <p class="text-gray-500">Applicant not found.</p>
+        <button mat-flat-button color="primary" class="mt-4" (click)="goBack()">Back to List</button>
+    </div>
+</div>

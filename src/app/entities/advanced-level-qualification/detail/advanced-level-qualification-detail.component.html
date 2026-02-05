@@ -1,0 +1,64 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (advancedLevelQualification(); as advancedLevelQualificationRef) {
+      <div>
+        <h2 data-cy="advancedLevelQualificationDetailsHeading"><span>Advanced Level Qualification</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span>Id</span></dt>
+          <dd>
+            <span>{{ advancedLevelQualificationRef.id }}</span>
+          </dd>
+          <dt><span>Exam Year</span></dt>
+          <dd>
+            <span>{{ advancedLevelQualificationRef.examYear }}</span>
+          </dd>
+          <dt><span>Index Number</span></dt>
+          <dd>
+            <span>{{ advancedLevelQualificationRef.indexNumber }}</span>
+          </dd>
+          <dt><span>Stream</span></dt>
+          <dd>
+            <span>{{ advancedLevelQualificationRef.stream }}</span>
+          </dd>
+          <dt><span>Medium</span></dt>
+          <dd>
+            <span>{{ advancedLevelQualificationRef.medium }}</span>
+          </dd>
+          <dt><span>Z Score</span></dt>
+          <dd>
+            <span>{{ advancedLevelQualificationRef.zScore }}</span>
+          </dd>
+          <dt><span>Applicant</span></dt>
+          <dd>
+            @if (advancedLevelQualification()!.applicant) {
+              <div>
+                <a [routerLink]="['/applicant', advancedLevelQualification()!.applicant?.id, 'view']">{{
+                  advancedLevelQualificationRef.applicant?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span>Back</span>
+        </button>
+
+        <button
+          type="button"
+          [routerLink]="['/advanced-level-qualification', advancedLevelQualificationRef.id, 'edit']"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span>Edit</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
