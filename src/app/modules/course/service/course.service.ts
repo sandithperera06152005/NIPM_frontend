@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators';
 import dayjs from 'dayjs/esm';
 
 import { ICourse, NewCourse } from '../course.model';
-
+import { FormBuilder, FormGroup, FormControl, Validators, FormArray } from '@angular/forms';
 
 
 export type PartialUpdateCourse = Partial<ICourse> & Pick<ICourse, 'id'>;
@@ -25,6 +25,7 @@ export type EntityArrayResponseType = HttpResponse<ICourse[]>;
 
 
 @Injectable({ providedIn: 'root' })
+
 export class CourseService {
   protected readonly http = inject(HttpClient);
 
@@ -86,4 +87,7 @@ export class CourseService {
   protected convertResponseArrayFromServer(res: HttpResponse<RestCourse[]>): HttpResponse<ICourse[]> {
     return res.clone({ body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null });
   }
+
+
+
 }

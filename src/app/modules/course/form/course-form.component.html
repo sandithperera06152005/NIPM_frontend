@@ -32,19 +32,50 @@
     
       
     <mat-form-field class="w-full">
-      <mat-label>DurationMonths</mat-label>
+      <mat-label>Duration Months</mat-label>
       <input matInput formControlName="durationMonths" >
     </mat-form-field>
       
-    
+    <mat-form-field class="w-full">
+      <mat-label>Number of Installments</mat-label>
+      <input matInput formControlName="noofInstallments" >
+    </mat-form-field>
+
+    <!--Installments section -->
+    <div
+      *ngIf="installments.length > 0"
+      formArrayName="installments"
+      class="space-y-4"
+    >
+      <h3 class="text-lg font-semibold">Installments</h3>
+
+      <div
+        *ngFor="let inst of installments.controls; let i = index"
+        [formGroupName]="i"
+        class="flex gap-4"
+      >
+        <mat-form-field class="w-1/3">
+          <mat-label>Installment #</mat-label>
+          <input matInput formControlName="installmentNo" readonly>
+        </mat-form-field>
+
+        <mat-form-field class="w-2/3">
+          <mat-label>Installment Fee</mat-label>
+          <input matInput type="number" formControlName="installmentFee">
+        </mat-form-field>
+      </div>
+     <!--Validation message-->
+      <div *ngIf="installments.errors?.totalMismatch" class="text-red-600 font-semibold">
+        Total of installments must equal total fee.
+      </div>
+
+    </div>
+    <!---->
       
     <mat-checkbox class="w-full" formControlName="active">
       Active
     </mat-checkbox>
-      
-    
 
-    
     
   </div>
 
@@ -54,7 +85,7 @@
 
   <div class="mt-6 flex items-center justify-end border-t pt-6">
     <button type="button" mat-button (click)="onCancel()">Cancel</button>
-    <button type="submit" mat-flat-button color="primary" class="ml-3" [disabled]="form.invalid || isSaving">
+    <button type="submit" mat-flat-button color="primary" class="ml-3" [disabled]="form.invalid || installments.hasError('totalMismatch') || isSaving">
       <span *ngIf="!isSaving">Save</span>
       <span *ngIf="isSaving">Saving…</span>
     </button>
