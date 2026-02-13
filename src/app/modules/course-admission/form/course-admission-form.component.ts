@@ -12,13 +12,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { finalize } from 'rxjs/operators';
 
 import { ICourseAdmission, NewCourseAdmission } from '../course-admission.model';
 import { CourseAdmissionService } from '../service/course-admission.service';
 import { CourseAdmissionFormGroup, CourseAdmissionFormService } from '../update/course-admission-form.service';
 
-
+import { ICourse } from '../../course/course.model';
+import { CourseService } from '../../course/service/course.service';
 
 
 import { ApplicationStatus } from '../../../enums/application-status.model';
@@ -45,12 +47,14 @@ type CourseAdmissionFormDialogData = {
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    MatRadioModule,
   ],
   templateUrl: './course-admission-form.component.html',
 })
 export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   private readonly courseAdmissionService = inject(CourseAdmissionService);
   private readonly formService = inject(CourseAdmissionFormService);
+  private readonly courseService = inject(CourseService);
   private readonly dialogRef = inject(MatDialogRef<CourseAdmissionFormComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as CourseAdmissionFormDialogData | null;
 
@@ -63,6 +67,7 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   form: CourseAdmissionFormGroup = this.formService.createCourseAdmissionFormGroup();
   isSaving = false;
   isInitialized = false;
+  courses: ICourse[] = [];
   errorMessage: string | null = null;
 
   
@@ -94,11 +99,17 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
 
     this.errorMessage = null;
     this.isSaving = true;
+
     const payload = this.formService.getCourseAdmission(this.form);
+
+
+    //const payload = this.formService.getCourseAdmission(this.form);
+    // Map form values to API model
+    
     const isUpdate = payload.id !== null;
     const request$ = isUpdate
-      ? this.courseAdmissionService.update(payload as ICourseAdmission)
-      : this.courseAdmissionService.create(payload as NewCourseAdmission);
+      ? this.courseAdmissionService.update(payload)
+      :  this.courseAdmissionService.create(payload as NewCourseAdmission); 
 
     request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: response => {
@@ -125,6 +136,8 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   readonly compareEntityById = (option: { id?: number } | null, value: { id?: number } | null): boolean =>
     option && value ? option.id === value.id : option === value;
 
+ 
+
   private initializeFormFromInputs(): void {
     if (!this.heading && this.dialogData?.heading) {
       this.heading = this.dialogData.heading;
@@ -139,6 +152,16 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   }
 
   private loadRelationshipOptions(): void {
-    
-  }
+  this.courseService.query().subscribe({
+    next: (res) => {
+      this.courses = res.body ?? [];
+
+      // For edit mode: select the current course
+      this.form.patchValue({
+        courseRef: this.entity?.courseRef ?? null,   
+        isSinglePayment: this.entity?.isSinglePayment ?? null,
+      });
+    }
+  });
+}
 }

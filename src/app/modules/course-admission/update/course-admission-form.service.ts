@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ICourseAdmission, NewCourseAdmission } from '../course-admission.model';
-
-
+import { ICourse } from '../../course/course.model';
 
 type CourseAdmissionFormGroupInput = ICourseAdmission | Partial<NewCourseAdmission>;
 type CourseAdmissionFormRawValue = ICourseAdmission;
@@ -56,6 +55,11 @@ export type CourseAdmissionFormGroup = FormGroup<{
   approval3Status: FormControl<ICourseAdmission['approval3Status']>;
   
   approval3DateTime: FormControl<ICourseAdmission['approval3DateTime']>;
+
+  courseRef: FormControl<ICourse  | null>; 
+
+  isSinglePayment: FormControl<boolean | null>;
+
   
   
 }>;
@@ -116,6 +120,10 @@ export class CourseAdmissionFormService {
       approval3Status: new FormControl(entity.approval3Status),
       
       approval3DateTime: new FormControl(entity.approval3DateTime),
+
+       courseRef: new FormControl<ICourse | null>(entity.courseRef ?? null),
+      
+      isSinglePayment: new FormControl(entity.isSinglePayment ?? null),
       
       
     });
@@ -123,12 +131,19 @@ export class CourseAdmissionFormService {
   }
 
   getCourseAdmission(form: CourseAdmissionFormGroup): ICourseAdmission | NewCourseAdmission {
-    return form.getRawValue() as ICourseAdmission | NewCourseAdmission;
+    const raw = form.getRawValue();
+    return {
+      ...raw,
+      courseRef: raw.courseRef,                // send full object if API expects it
+      isSinglePayment: raw.isSinglePayment ?? false,
+    } as ICourseAdmission | NewCourseAdmission;
   }
 
   resetForm(form: CourseAdmissionFormGroup, entity: CourseAdmissionFormGroupInput): void {
     form.reset({
       ...entity,
+      courseRef: entity.courseRef ?? null,
+      isSinglePayment: entity.isSinglePayment ?? false,
       
     } as any);
     form.controls.id.setValue(entity.id);
