@@ -17,6 +17,7 @@ import { ICourse, NewCourse } from '../course.model';
 import { CourseService } from '../service/course.service';
 import { CourseInstallmentService,ICourseInstallment } from '../update/course-installment.service';
 import { CourseFormGroup, CourseFormService } from '../update/course-form.service';
+import { CourseCoordinatorService,ICourseCoordinator } from '../update/course-coordinator.service';
 import { forkJoin } from 'rxjs';
 
 
@@ -48,6 +49,7 @@ type CourseFormDialogData = {
 export class CourseFormComponent implements OnInit, OnChanges {
   private readonly courseService = inject(CourseService);
   private readonly courseInstallmentService = inject(CourseInstallmentService);
+  private readonly courseCoordinatorService = inject(CourseCoordinatorService);
   private readonly formService = inject(CourseFormService);
   private readonly dialogRef = inject(MatDialogRef<CourseFormComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as CourseFormDialogData | null;
@@ -64,10 +66,16 @@ export class CourseFormComponent implements OnInit, OnChanges {
   isInitialized = false;
   
   errorMessage: string | null = null;
+
+  courseCoordinators:ICourseCoordinator[] = [];
   
   // Access to FormArray and controls
   get installments(): FormArray {
     return this.form.get('installments') as FormArray;
+  }
+
+  get courseCoordinatorControl(): FormControl {
+    return this.form.get('coordinator') as FormControl;
   }
 
   get feeControl(): FormControl {
@@ -81,17 +89,15 @@ export class CourseFormComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.initializeFormFromInputs();
     this.loadRelationshipOptions();
+    this.loadCourseCoordinators();
 
-    // Regenerate installments when fee or number changes
     this.noofInstallmentsControl.valueChanges.subscribe(() => this.generateInstallments());
+
     this.feeControl.valueChanges.subscribe(() => this.generateInstallments());
 
-    // Set validator for total installments
     this.installments.setValidators(this.installmentsTotalValidator());
 
-    // Revalidate whenever fee or installment values change
-    this.feeControl.valueChanges.subscribe(() => this.installments.updateValueAndValidity());
-    this.installments.valueChanges.subscribe(() => this.installments.updateValueAndValidity());
+    this.feeControl.valueChanges.subscribe(() => this.installments.updateValueAndValidity({emitEvent:false}));
 
     this.isInitialized = true;
   }
@@ -105,6 +111,18 @@ export class CourseFormComponent implements OnInit, OnChanges {
       }
     }
 
+
+    private loadCourseCoordinators():void{
+      this.courseCoordinatorService.query().subscribe({
+        next: (coordinators) => {
+          this.courseCoordinators = coordinators.filter(c => c.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading course coordinators', err);
+        }
+      });
+    }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -114,7 +132,11 @@ export class CourseFormComponent implements OnInit, OnChanges {
     this.errorMessage = null;
     this.isSaving = true;
 
-    const payload = this.formService.getCourse(this.form);
+    const rawValue = this.formService.getCourse(this.form);
+    const payload:ICourse | NewCourse = {
+      ...rawValue,
+      coordinator: rawValue.coordinator?{ id: rawValue.coordinator.id } : null,
+    };
     const isUpdate = !!payload.id;
 
     const courseRequest$ = isUpdate
@@ -136,6 +158,10 @@ export class CourseFormComponent implements OnInit, OnChanges {
             installmentNo: instRaw.installmentNo,
             installmentFee: instRaw.installmentFee,
             course: { id: savedCourse.id },
+            dueDate: instRaw.dueDate
+              ? new Date(instRaw.dueDate).toISOString().split('T')[0]
+              : null
+
           };
           return this.courseInstallmentService.create(installmentPayload);
         });
@@ -197,22 +223,31 @@ export class CourseFormComponent implements OnInit, OnChanges {
     const fee = this.feeControl.value ?? 0;
     const count = this.noofInstallmentsControl.value ?? 0;
 
-    this.installments.clear();
+    this.installments.clear({ emitEvent: false });
     if (!fee || !count) return;
 
     const perInstallment = +(fee / count).toFixed(2);
     for (let i = 1; i <= count; i++) {
       this.installments.push(this.formService.createInstallment(i, perInstallment));
     }
+    this.installments.updateValueAndValidity({ emitEvent: false });
   }
 
   private loadInstallmentsFromEntity(course: ICourse): void {
-    const installments = course.courseInstallments ?? [];
-    this.installments.clear();
-    installments.forEach(inst => {
-      this.installments.push(this.formService.createInstallment(inst.installmentNo, inst.installmentFee));
-    });
-  }
+  const installments = course.courseInstallments ?? [];
+  this.installments.clear({emitEvent: false});
+
+  installments.forEach(inst => {
+    let dueDate: Date | null = null;
+    if (inst.dueDate) {
+      dueDate = new Date(inst.dueDate);
+    }
+    this.installments.push(
+      this.formService.createInstallment(inst.installmentNo, inst.installmentFee, dueDate)
+    );
+  });
+  this.installments.updateValueAndValidity({ emitEvent: false });
+}
 
   //Validate that sum of installments equals total fee
   private installmentsTotalValidator(): ValidatorFn {
@@ -230,10 +265,8 @@ export class CourseFormComponent implements OnInit, OnChanges {
     // Sum of installment fees
     const total = values.reduce((sum, val) => sum + Number(val), 0);
 
-    // Use a small epsilon to avoid floating point errors
     const epsilon = 0.01;
 
-    // If total differs from fee more than epsilon, set error
     return Math.abs(total - fee) > epsilon ? { totalMismatch: true } : null;
   };
   }

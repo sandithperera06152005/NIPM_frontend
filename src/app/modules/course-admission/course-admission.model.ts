@@ -81,7 +81,7 @@ export interface ICourseAdmission {
   
   approval3DateTime?: dayjs.Dayjs | null;
 
-   courseRef: ICourse | null;
+  courseRef: ICourse | null;
   
   isSinglePayment?: boolean | null;
   

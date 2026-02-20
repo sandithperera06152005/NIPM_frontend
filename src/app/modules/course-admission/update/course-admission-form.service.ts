@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup,FormArray,Validators } from '@angular/forms';
 import { ICourseAdmission, NewCourseAdmission } from '../course-admission.model';
 import { ICourse } from '../../course/course.model';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 type CourseAdmissionFormGroupInput = ICourseAdmission | Partial<NewCourseAdmission>;
 type CourseAdmissionFormRawValue = ICourseAdmission;
@@ -60,7 +61,7 @@ export type CourseAdmissionFormGroup = FormGroup<{
 
   isSinglePayment: FormControl<boolean | null>;
 
-  
+  installments: FormArray<FormGroup>; 
   
 }>;
 
@@ -121,22 +122,35 @@ export class CourseAdmissionFormService {
       
       approval3DateTime: new FormControl(entity.approval3DateTime),
 
-       courseRef: new FormControl<ICourse | null>(entity.courseRef ?? null),
+      courseRef: new FormControl<ICourse | null>(entity.courseRef ?? null),
       
       isSinglePayment: new FormControl(entity.isSinglePayment ?? null),
       
-      
+      installments: new FormArray([]),
     });
     return form;
+  }
+
+  createInstallmentFormGroup(no: number, fee: number, dueDate:String): FormGroup {
+    return new FormGroup({
+      installmentNo: new FormControl(no, Validators.required),
+      installmentFee: new FormControl(fee, [Validators.required, Validators.min(1)]),
+      dueDate: new FormControl(dueDate,Validators.required), 
+    });
   }
 
   getCourseAdmission(form: CourseAdmissionFormGroup): ICourseAdmission | NewCourseAdmission {
     const raw = form.getRawValue();
     return {
       ...raw,
-      courseRef: raw.courseRef,                // send full object if API expects it
-      isSinglePayment: raw.isSinglePayment ?? false,
-    } as ICourseAdmission | NewCourseAdmission;
+      courseRefId: raw.courseRef ? { id: raw.courseRef.id } : null,
+      isSinglePayment: raw.isSinglePayment ?? null,
+      installments: raw.installments.map(inst => ({
+        installmentNo: inst.installmentNo,
+        installmentFee: inst.installmentFee,
+        dupDate:inst.dueDate,
+      })),
+    } as unknown as ICourseAdmission | NewCourseAdmission;
   }
 
   resetForm(form: CourseAdmissionFormGroup, entity: CourseAdmissionFormGroupInput): void {
@@ -147,5 +161,15 @@ export class CourseAdmissionFormService {
       
     } as any);
     form.controls.id.setValue(entity.id);
+  }
+
+  static totalInstallmentsValidator(expectedTotal: number) {
+    return (control: AbstractControl): { [key: string]: any } | null => {
+      const formArray = control as FormArray;
+      const total = formArray.controls.reduce((sum, group) => {
+        return sum + (group.get('installmentFee')?.value ?? 0);
+      }, 0);
+      return total !== expectedTotal ? { totalMismatch: true } : null;
+    };
   }
 }

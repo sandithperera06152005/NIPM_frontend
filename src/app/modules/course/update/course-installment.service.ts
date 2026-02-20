@@ -7,6 +7,7 @@ export interface ICourseInstallment {
   installmentNo: number;
   installmentFee: number;
   course?: { id: number } | null;
+  dueDate: string | null
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,6 +32,9 @@ export class CourseInstallmentService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
+  }
+  getByCourse(courseId: number): Observable<ICourseInstallment[]> {
+    return this.http.get<ICourseInstallment[]>(`${this.resourceUrl}/by-course/${courseId}`);
   }
 }
 

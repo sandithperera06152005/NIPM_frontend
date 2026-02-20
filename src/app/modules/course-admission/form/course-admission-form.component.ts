@@ -1,7 +1,7 @@
 // This is an EJS template that generates the reusable form component for an entity.
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Optional, Output, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormGroup,ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -21,7 +21,8 @@ import { CourseAdmissionFormGroup, CourseAdmissionFormService } from '../update/
 
 import { ICourse } from '../../course/course.model';
 import { CourseService } from '../../course/service/course.service';
-
+import { CourseInstallmentService, ICourseInstallment } from '../../course/update/course-installment.service';
+import { CourseAdmissionInvoiceService,CourseAdmissionInvoice } from '../update/course-admission-invoice.service';
 
 import { ApplicationStatus } from '../../../enums/application-status.model';
 
@@ -57,6 +58,9 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   private readonly courseService = inject(CourseService);
   private readonly dialogRef = inject(MatDialogRef<CourseAdmissionFormComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as CourseAdmissionFormDialogData | null;
+  private readonly installmentService = inject(CourseInstallmentService);
+  private readonly invoiceService = inject(CourseAdmissionInvoiceService);
+
 
   @Input() entity: ICourseAdmission | null = null;
   @Input() heading?: string;
@@ -69,12 +73,18 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   isInitialized = false;
   courses: ICourse[] = [];
   errorMessage: string | null = null;
+  courseFee = 0;
+  courseDurationMonths = 0;
+  allInstallments: ICourseInstallment[] = [];
+
+  get installments(): FormArray {
+    return this.form.get('installments') as FormArray;
+  }
 
   
   readonly applicationStatusOptions = Object.keys(ApplicationStatus);
   
 
-  
 
   ngOnInit(): void {
     this.initializeFormFromInputs();
@@ -86,10 +96,99 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
     if (!this.isInitialized) {
       return;
     }
-    if (changes['entity'] && changes['entity'].currentValue) {
-      this.formService.resetForm(this.form, { ...(changes['entity'].currentValue as ICourseAdmission) });
+    if (changes['entity']?.currentValue) {
+      this.formService.resetForm(this.form, changes['entity'].currentValue);
     }
   }
+
+  onCourseChange(): void {
+    this.loadCourseInstallments();
+  }
+
+  onPaymentPlanChange(): void {
+    this.updateInstallmentsForSelectedPlan();
+  }
+
+  private updateCourseMeta(): void {
+    const selectedCourse = this.form.get('courseRef')?.value;
+
+    this.courseFee = selectedCourse?.fee ?? 0;
+    this.courseDurationMonths = selectedCourse?.durationMonths ?? 0;
+  }
+
+  private loadCourseInstallments(): void {
+    this.installments.clear();
+    this.allInstallments = [];
+    const selectedCourse = this.form.get('courseRef')?.value;
+    if (!selectedCourse?.id) return;
+
+
+    this.form.get('isSinglePayment')?.setValue(null);
+
+    this.installmentService.getByCourse(selectedCourse.id).subscribe({
+      next: (installments: ICourseInstallment[]) => {
+        this.allInstallments = installments;
+      },
+      error: () => {
+        this.errorMessage = 'Failed to load installments for this course.';
+      },
+    });
+
+    this.updateCourseMeta();
+  }
+
+  private updateInstallmentsForSelectedPlan(): void {
+    this.installments.clear();
+    const isSingle = this.form.get('isSinglePayment')?.value;
+    if (!this.allInstallments.length) return;
+
+    if (isSingle === true) {
+      // Single payment
+      const totalFee = this.allInstallments.length === 1
+        ? this.allInstallments[0].installmentFee
+        : this.allInstallments.reduce((sum, inst) => sum + inst.installmentFee, 0);
+
+      this.installments.push(this.formService.createInstallmentFormGroup(1, totalFee,this.allInstallments[0].dueDate));
+    } else if (isSingle === false) {
+      // Multiple installments
+      this.allInstallments
+        .sort((a, b) => a.installmentNo - b.installmentNo)
+        .forEach(inst => this.installments.push(this.formService.createInstallmentFormGroup(inst.installmentNo, inst.installmentFee,inst.dueDate)));
+    }
+
+    this.installments.setValidators(
+      CourseAdmissionFormService.totalInstallmentsValidator(this.courseFee)
+    );
+
+    // Validation
+    this.installments.controls.forEach((group: FormGroup) => {
+      group.get('installmentFee')?.valueChanges.subscribe(() => {
+        this.installments.updateValueAndValidity({ onlySelf: true });
+      });
+    });
+
+    this.installments.updateValueAndValidity();
+  }
+
+  private async saveInstallments(courseAdmissionId: number): Promise<void> {
+  if (!this.installments.length) return;
+
+  const now = new Date().toISOString();
+
+  for (const group of this.installments.controls) {
+    const invoice: CourseAdmissionInvoice = {
+      invoiceNo: `INV-${courseAdmissionId}-${group.value.installmentNo}`, 
+      issuedDate: now,
+      dueDate: group.value.dueDate ? new Date(group.value.dueDate).toISOString() : now,
+      totalAmount: group.value.installmentFee,
+      paidAmount: 0,
+      courseAdmission: { id: courseAdmissionId }
+    };
+
+  
+    await this.invoiceService.create(invoice).toPromise();
+  }
+}
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -101,21 +200,23 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
     this.isSaving = true;
 
     const payload = this.formService.getCourseAdmission(this.form);
-
-
-    //const payload = this.formService.getCourseAdmission(this.form);
-    // Map form values to API model
     
     const isUpdate = payload.id !== null;
+
     const request$ = isUpdate
       ? this.courseAdmissionService.update(payload)
       :  this.courseAdmissionService.create(payload as NewCourseAdmission); 
 
     request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
-      next: response => {
+      next: async response => {
         if (response.body) {
-          this.saved.emit(response.body);
-          this.dialogRef?.close(response.body);
+          try{
+            await this.saveInstallments(response.body.id);
+            this.saved.emit(response.body);
+            this.dialogRef?.close(response.body);
+          }catch (error){
+            this.errorMessage = 'Course Admission saved, but failed to save invoices.';
+          }
         }
       },
       error: () => {
@@ -149,19 +250,21 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
     } else {
       this.formService.resetForm(this.form, { id: null, ...defaults } as Partial<NewCourseAdmission>);
     }
+     this.updateCourseMeta();
   }
 
   private loadRelationshipOptions(): void {
-  this.courseService.query().subscribe({
-    next: (res) => {
-      this.courses = res.body ?? [];
-
-      // For edit mode: select the current course
-      this.form.patchValue({
-        courseRef: this.entity?.courseRef ?? null,   
-        isSinglePayment: this.entity?.isSinglePayment ?? null,
-      });
-    }
-  });
-}
+    this.courseService.query({ page: 0, size: 500 }).subscribe({
+      next: (res) => {
+        this.courses = res.body ?? [];
+        this.form.patchValue({
+          courseRef: this.entity?.courseRef ?? null,   
+          isSinglePayment: this.entity?.isSinglePayment ?? null,
+        });
+      },
+      error: () => {
+        this.errorMessage = 'Unable to load data relationships. Please try again.';
+      },       
+    });
+  }
 }
