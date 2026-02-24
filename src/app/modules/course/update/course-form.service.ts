@@ -21,6 +21,8 @@ export type CourseFormGroup = FormGroup<{
   
   active: FormControl<ICourse['active']>;
 
+  courseregform:FormControl<ICourse['courseregform']>;
+
   installments: FormArray<FormGroup>;
 
   
@@ -46,6 +48,8 @@ export class CourseFormService {
       durationMonths: new FormControl(entity.durationMonths),
 
       noofInstallments: new FormControl((entity as any).noofInstallments ?? 0),
+
+      courseregform:new FormControl(null, Validators.required),
       
       active: new FormControl(entity.active),
 
@@ -69,8 +73,8 @@ export class CourseFormService {
       fee: raw.fee,
       durationMonths: raw.durationMonths,
       noofInstallments: raw.noofInstallments,
+      courseregform:raw.courseregform,
       active: raw.active,
-
       courseInstallments: raw.installments.map(inst => ({
         installmentNo: inst.installmentNo,
         installmentFee: inst.installmentFee,
@@ -94,11 +98,17 @@ export class CourseFormService {
    * @param installmentFee number
    * @param dueDate Date | null
    */
-  createInstallment(installmentNo: number, installmentFee: number, dueDate: Date | null = null): FormGroup {
+  createInstallment(
+    installmentNo: number,
+    installmentFee: number,
+    dueDate: Date | null = null,
+    id: number | null = null
+  ): FormGroup {
     return new FormGroup({
-      installmentNo: new FormControl({ value: installmentNo, disabled: true }, { nonNullable: true }),
-      installmentFee: new FormControl(installmentFee, { nonNullable: true, validators: [Validators.required] }),
-      dueDate: new FormControl<Date | null>(dueDate),
+      id: new FormControl(id),  
+      installmentNo: new FormControl(installmentNo, Validators.required),
+      installmentFee: new FormControl(installmentFee, [Validators.required, Validators.min(0)]),
+      dueDate: new FormControl(dueDate),
     });
   }
 }

@@ -172,9 +172,9 @@ export const appRoutes: Route[] = [
           import("app/modules/course/course.routes"),
       },
       {
-        path: "course-application",
+        path: "course-coordinator",
         loadChildren: () =>
-          import("app/modules/course-application/course-application.routes"),
+          import("app/modules/course-coordinator/course-coordinator.routes"),
       },
       {
         path: "course-admission",

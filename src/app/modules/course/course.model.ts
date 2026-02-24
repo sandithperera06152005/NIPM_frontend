@@ -1,5 +1,3 @@
-import dayjs from 'dayjs/esm';
-
 export interface IInstallment {
   installmentNo: number;
   installmentFee: number;
@@ -29,6 +27,9 @@ export interface ICourse {
 
   
   active?: boolean | null;
+
+  
+  courseregform?: { id: number } | null;
 
  
   courseInstallments?:IInstallment[];

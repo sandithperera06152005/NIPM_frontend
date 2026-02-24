@@ -38,7 +38,7 @@
       <mat-label>
         {{ form.get('isSinglePayment')?.value === true ? 'Payment #' : 'Installment#' }}
       </mat-label>
-      <input matInput formControlName="installmentNo" readonly />
+      <input matInput formControlName="installmentNo" />
     </mat-form-field>
 
     <!-- Total Fee / Installment Fee -->
@@ -192,7 +192,7 @@
       
     
       
-    <mat-form-field class="w-full">
+    <mat-form-field class="w-full"  *ngIf="false">
       <mat-label>Applied Date Time</mat-label>
       <input matInput [matDatepicker]="pickerappliedDateTime" formControlName="appliedDateTime">
       <mat-datepicker-toggle matSuffix [for]="pickerappliedDateTime"></mat-datepicker-toggle>
@@ -201,13 +201,13 @@
       
     
       
-    <mat-checkbox class="w-full" formControlName="approval1Status">
+    <mat-checkbox class="w-full" formControlName="approval1Status"  *ngIf="false">
       Approval1Status
     </mat-checkbox>
       
     
       
-    <mat-form-field class="w-full">
+    <mat-form-field class="w-full"  *ngIf="false">
       <mat-label>Approval1DateTime</mat-label>
       <input matInput [matDatepicker]="pickerapproval1DateTime" formControlName="approval1DateTime">
       <mat-datepicker-toggle matSuffix [for]="pickerapproval1DateTime"></mat-datepicker-toggle>
@@ -216,13 +216,13 @@
       
     
       
-    <mat-checkbox class="w-full" formControlName="approval2Status">
+    <mat-checkbox class="w-full" formControlName="approval2Status"  *ngIf="false">
       Approval2Status
     </mat-checkbox>
       
     
       
-    <mat-form-field class="w-full">
+    <mat-form-field class="w-full"  *ngIf="false">
       <mat-label>Approval2DateTime</mat-label>
       <input matInput [matDatepicker]="pickerapproval2DateTime" formControlName="approval2DateTime">
       <mat-datepicker-toggle matSuffix [for]="pickerapproval2DateTime"></mat-datepicker-toggle>
@@ -231,13 +231,13 @@
       
     
       
-    <mat-checkbox class="w-full" formControlName="approval3Status">
+    <mat-checkbox class="w-full" formControlName="approval3Status"  *ngIf="false">
       Approval3Status
     </mat-checkbox>
       
     
       
-    <mat-form-field class="w-full">
+    <mat-form-field class="w-full"  *ngIf="false">
       <mat-label>Approval3DateTime</mat-label>
       <input matInput [matDatepicker]="pickerapproval3DateTime" formControlName="approval3DateTime">
       <mat-datepicker-toggle matSuffix [for]="pickerapproval3DateTime"></mat-datepicker-toggle>

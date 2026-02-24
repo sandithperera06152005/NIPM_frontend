@@ -1,4 +1,3 @@
-// src/app/entities/course-coordinator/service/course-coordinator.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';

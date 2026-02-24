@@ -91,6 +91,16 @@
     </div>
     <!---->
 
+    <mat-form-field class="w-full">
+      <mat-label>Course Form</mat-label>
+      <mat-select formControlName="courseregform" [compareWith]="compareEntityById">
+        <mat-option [value]="null">-- Select Form --</mat-option>
+        <mat-option *ngFor="let form of courseRegForms" [value]="form">
+          {{ form.formName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <mat-checkbox class="w-full" formControlName="active">
       Active
     </mat-checkbox>
