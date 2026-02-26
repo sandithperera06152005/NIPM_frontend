@@ -1,9 +1,12 @@
 import dayjs from 'dayjs/esm';
 
 import { ApplicationStatus } from '../../enums/application-status.model';
+import { ICourse } from '../course/course.model';
+
 
 
 export interface ICourseAdmission {
+
   id?: number;
   
   
@@ -77,6 +80,10 @@ export interface ICourseAdmission {
   
   
   approval3DateTime?: dayjs.Dayjs | null;
+
+  courseRef: ICourse | null;
+  
+  isSinglePayment?: boolean | null;
   
   
 }

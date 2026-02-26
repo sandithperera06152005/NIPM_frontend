@@ -22,7 +22,17 @@
       <input matInput formControlName="title" required>
     </mat-form-field>
       
-    
+    <mat-form-field class="w-full">
+      <mat-label>Course Coordinator</mat-label>
+      <mat-select formControlName="coordinator" [compareWith]="compareEntityById">
+        <mat-option [value]="null">-- Select Coordinator --</mat-option>
+        <mat-option *ngFor="let coord of courseCoordinators" [value]="coord">
+          {{ coord.fullName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+
       
     <mat-form-field class="w-full">
       <mat-label>Fee</mat-label>
@@ -59,10 +69,19 @@
           <input matInput formControlName="installmentNo" readonly>
         </mat-form-field>
 
-        <mat-form-field class="w-2/3">
+        <mat-form-field class="w-1/3">
           <mat-label>Installment Fee</mat-label>
           <input matInput type="number" formControlName="installmentFee">
         </mat-form-field>
+
+        <mat-form-field class="w-1/2">
+          <mat-label>Due Date</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="dueDate">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+        
       </div>
      <!--Validation message-->
       <div *ngIf="installments.errors?.totalMismatch" class="text-red-600 font-semibold">
@@ -71,7 +90,17 @@
 
     </div>
     <!---->
-      
+
+    <mat-form-field class="w-full">
+      <mat-label>Course Form</mat-label>
+      <mat-select formControlName="courseregform" [compareWith]="compareEntityById">
+        <mat-option [value]="null">-- Select Form --</mat-option>
+        <mat-option *ngFor="let form of courseRegForms" [value]="form">
+          {{ form.formName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <mat-checkbox class="w-full" formControlName="active">
       Active
     </mat-checkbox>

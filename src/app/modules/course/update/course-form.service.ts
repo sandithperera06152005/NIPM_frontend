@@ -10,6 +10,8 @@ export type CourseFormGroup = FormGroup<{
   code: FormControl<ICourse['code']>;
   
   title: FormControl<ICourse['title']>;
+
+  coordinator: FormControl<ICourse['coordinator']>;
   
   fee: FormControl<ICourse['fee']>;
   
@@ -19,8 +21,10 @@ export type CourseFormGroup = FormGroup<{
   
   active: FormControl<ICourse['active']>;
 
+  courseregform:FormControl<ICourse['courseregform']>;
+
   installments: FormArray<FormGroup>;
-  
+
   
 }>;
 
@@ -37,11 +41,15 @@ export class CourseFormService {
       
       title: new FormControl(entity.title, Validators.required),
       
+      coordinator: new FormControl(null, Validators.required),
+
       fee: new FormControl(entity.fee, Validators.required),
 
       durationMonths: new FormControl(entity.durationMonths),
 
       noofInstallments: new FormControl((entity as any).noofInstallments ?? 0),
+
+      courseregform:new FormControl(null, Validators.required),
       
       active: new FormControl(entity.active),
 
@@ -51,23 +59,29 @@ export class CourseFormService {
     return form;
   }
 
+  
+
   getCourse(form: CourseFormGroup): ICourse | NewCourse {
     //return form.getRawValue() as ICourse | NewCourse;
     const raw = form.getRawValue();
 
-    return {
+    const course: ICourse | NewCourse = {
       id: raw.id,
       code: raw.code,
       title: raw.title,
+      coordinator: raw.coordinator,
       fee: raw.fee,
       durationMonths: raw.durationMonths,
+      noofInstallments: raw.noofInstallments,
+      courseregform:raw.courseregform,
       active: raw.active,
-
       courseInstallments: raw.installments.map(inst => ({
         installmentNo: inst.installmentNo,
         installmentFee: inst.installmentFee,
+        dueDate: inst.dueDate? new Date(inst.dueDate).toISOString(): null,
       })),
-    } as ICourse | NewCourse;
+    };
+    return course;
   }
 
   resetForm(form: CourseFormGroup, entity: CourseFormGroupInput): void {
@@ -82,11 +96,19 @@ export class CourseFormService {
    * Create a FormGroup for a single installment
    * @param installmentNo number
    * @param installmentFee number
+   * @param dueDate Date | null
    */
-  createInstallment(installmentNo: number, installmentFee: number): FormGroup {
+  createInstallment(
+    installmentNo: number,
+    installmentFee: number,
+    dueDate: Date | null = null,
+    id: number | null = null
+  ): FormGroup {
     return new FormGroup({
-      installmentNo: new FormControl({ value: installmentNo, disabled: true }, { nonNullable: true }),
-      installmentFee: new FormControl(installmentFee, { nonNullable: true, validators: [Validators.required] }),
+      id: new FormControl(id),  
+      installmentNo: new FormControl(installmentNo, Validators.required),
+      installmentFee: new FormControl(installmentFee, [Validators.required, Validators.min(0)]),
+      dueDate: new FormControl(dueDate),
     });
   }
 }

@@ -28,10 +28,6 @@ import { CourseService } from '../service/course.service';
 import { CourseFormComponent } from '../form/course-form.component';
 
 
-
-
-
-
 type ParentDialogData = {
   parentFilters?: Record<string, string | number>;
 };
