@@ -88,6 +88,20 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: "heroicons_outline:chart-pie",
         link: "/company-participant",
       },
+       {
+        id: "course-reg-form",
+        title: "Course Registration Forms",
+        type: "basic",
+        icon: "heroicons_outline:chart-pie",
+        link: "/course-reg-form",
+      },
+      {
+        id: "course-coordinator",
+        title: "Course Coordinator",
+        type: "basic",
+        icon: "heroicons_outline:chart-pie",
+        link: "/course-coordinator",
+      },
       {
         id: "course",
         title: "Course",
@@ -95,19 +109,27 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: "heroicons_outline:chart-pie",
         link: "/course",
       },
-      {
-        id: "course-application",
-        title: "Course Application",
-        type: "basic",
-        icon: "heroicons_outline:chart-pie",
-        link: "/course-application",
-      },
+      // {
+      //   id: "course-application",
+      //   title: "Course Application",
+      //   type: "basic",
+      //   icon: "heroicons_outline:chart-pie",
+      //   link: "/course-application",
+      // },
+      
       {
         id: "course-admission",
         title: "Course Admission",
         type: "basic",
         icon: "heroicons_outline:chart-pie",
         link: "/course-admission",
+      },
+      {
+        id: "invoice",
+        title: "Invoice",
+        type: "basic",
+        icon: "heroicons_outline:chart-pie",
+        link: "/invoice",
       },
       {
         id: "course-admission-qualification",

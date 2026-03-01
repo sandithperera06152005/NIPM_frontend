@@ -119,23 +119,18 @@ export class CourseFormComponent implements OnInit, OnChanges {
 
     private loadCourseCoordinators():void{
       this.courseCoordinatorService.query().subscribe({
-        next: (coordinators) => {
-          this.courseCoordinators = coordinators.filter(c => c.isActive);
-          if (this.entity?.coordinator) {
-            const selected = this.courseCoordinators.find(c => c.id === this.entity!.coordinator!.id) ?? null;
-            this.courseCoordinatorControl.setValue(selected);
-          }
-        },
-        error: (err) => {
-          console.error('Error loading course coordinators', err);
-        }
+      next: (res) => {
+      const coordinators = res.body ?? [];  
+      this.courseCoordinators = coordinators.filter(c => c.isActive);
+      },
+      error: (err) => console.error(err)
       });
     }
 
     private loadCourseRegForms():void{
       this.courseRegFormService.query().subscribe({
         next: (forms) => {
-          this.courseRegForms = forms;
+          this.courseRegForms = forms.body ?? [];
           if (this.entity?.courseregform) {
             const selected = this.courseRegForms.find(f => f.id === this.entity!.courseregform!.id) ?? null;
             this.courseRegFormControl.setValue(selected);

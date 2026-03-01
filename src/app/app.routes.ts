@@ -167,6 +167,11 @@ export const appRoutes: Route[] = [
           import("app/modules/company-participant/company-participant.routes"),
       },
       {
+        path: "course-reg-form",
+        loadChildren: () =>
+          import("app/modules/course-reg-form/course-reg-form.routes"),
+      },
+      {
         path: "course",
         loadChildren: () =>
           import("app/modules/course/course.routes"),
@@ -180,6 +185,11 @@ export const appRoutes: Route[] = [
         path: "course-admission",
         loadChildren: () =>
           import("app/modules/course-admission/course-admission.routes"),
+      },
+      {
+        path: "invoice",
+        loadChildren: () =>
+          import("app/modules/invoice/invoice.routes"),
       },
       {
         path: "course-admission-qualification",

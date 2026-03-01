@@ -160,7 +160,6 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
       CourseAdmissionFormService.totalInstallmentsValidator(this.courseFee)
     );
 
-    // Validation
     this.installments.controls.forEach((group: FormGroup) => {
       group.get('installmentFee')?.valueChanges.subscribe(() => {
         this.installments.updateValueAndValidity({ onlySelf: true });
@@ -212,6 +211,16 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
         if (response.body) {
           try{
             await this.saveInstallments(response.body.id);
+
+            console.log('Backend response:', response.body);
+
+            if (response.body?.emailSent === true) {
+              alert('Course Admission saved and email sent successfully!');
+            } else {
+              alert('Course Admission saved, but email failed to send.\n\nError: ' + (response.body?.emailError ?? 'No error message received from backend'));
+            }
+
+            
             this.saved.emit(response.body);
             this.dialogRef?.close(response.body);
           }catch (error){
@@ -256,7 +265,7 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   private loadRelationshipOptions(): void {
     this.courseService.query({ page: 0, size: 500 }).subscribe({
       next: (res) => {
-        this.courses = res.body ?? [];
+        this.courses = (res.body ?? []).filter(c => c.active);
         this.form.patchValue({
           courseRef: this.entity?.courseRef ?? null,   
           isSinglePayment: this.entity?.isSinglePayment ?? null,
@@ -268,3 +277,7 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
     });
   }
 }
+
+
+
+

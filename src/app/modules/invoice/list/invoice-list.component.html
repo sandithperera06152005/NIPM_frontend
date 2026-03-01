@@ -1,0 +1,103 @@
+<div class="p-8">
+
+  <h2 class="text-3xl font-bold mb-6">
+    Invoice Management
+  </h2>
+
+  <!-- Search Bar -->
+  <div class="flex flex-wrap items-center gap-3 mb-6">
+    <mat-form-field class="flex-1 min-w-[250px] max-w-md">
+      <mat-label>Search by Student NIC</mat-label>
+      <input matInput [(ngModel)]="searchNic" (keyup.enter)="searchByNic()" placeholder="Enter NIC">
+    </mat-form-field>
+    <button mat-flat-button color="primary" (click)="searchByNic()">
+      Search
+    </button>
+
+    <button mat-flat-button type="button" class="bg-gray-400 text-white hover:bg-gray-500" (click)="clearSearch()">
+      Clear
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="flex justify-center my-6">
+    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-auto bg-card rounded-lg w-full">
+    <table mat-table [dataSource]="dataSource" matSort class="min-w-full w-full" *ngIf="!isLoading && dataSource.data.length">
+
+      <!-- ID (Auto-increment) -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let element; let i = index">{{ i + 1 }}</td>
+      </ng-container>
+
+      <!-- Invoice No -->
+      <ng-container matColumnDef="invoiceNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Invoice No</th>
+        <td mat-cell *matCellDef="let element">{{ element.invoiceNo }}</td>
+      </ng-container>
+
+      <!-- Issued Date -->
+      <ng-container matColumnDef="issuedDate">
+        <th mat-header-cell *matHeaderCellDef>Issued Date</th>
+        <td mat-cell *matCellDef="let element">{{ element.issuedDate | date:'medium' }}</td>
+      </ng-container>
+
+      <!-- Due Date -->
+      <ng-container matColumnDef="dueDate">
+        <th mat-header-cell *matHeaderCellDef>Due Date</th>
+        <td mat-cell *matCellDef="let element">{{ element.dueDate | date:'yyyy-MM-dd' }}</td>
+      </ng-container>
+
+      <!-- Total Amount -->
+      <ng-container matColumnDef="totalAmount">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.totalAmount | number:'1.2-2' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="paidAmount">
+  <th mat-header-cell *matHeaderCellDef>Paid Amount</th>
+  <td mat-cell *matCellDef="let invoice">
+    <ng-container *ngIf="!isApproved(invoice); else approvedTemplate">
+      <mat-form-field class="w-32 py-2">
+        <input matInput type="number" [(ngModel)]="invoice.paidAmount" class="py-2" min="0" placeholder="Enter amount" />
+      </mat-form-field>
+    </ng-container>
+    <ng-template #approvedTemplate>
+      <span>{{ invoice.paidAmount | number:'1.2-2' }}</span>
+    </ng-template>
+  </td>
+</ng-container>
+
+<ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef>Actions</th>
+  <td mat-cell *matCellDef="let invoice">
+    <button mat-raised-button 
+            [color]="isApproved(invoice) ? 'primary' : 'accent'" 
+            (click)="approvePayment(invoice)"
+            [disabled]="isApproved(invoice)">
+      {{ isApproved(invoice) ? 'Approved' : 'Approve' }}
+    </button>
+  </td>
+</ng-container>
+
+
+      <!-- Header and Rows -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="h-16"></tr>
+
+      <!-- No Data Row -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell text-center py-4" [attr.colspan]="displayedColumns.length">
+          No invoices found for this NIC.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div>

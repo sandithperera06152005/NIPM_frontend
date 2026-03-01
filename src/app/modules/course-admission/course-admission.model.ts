@@ -6,6 +6,8 @@ import { ICourse } from '../course/course.model';
 
 
 export interface ICourseAdmission {
+  emailError: string;
+  emailSent: any;
 
   id?: number;
   
@@ -80,6 +82,7 @@ export interface ICourseAdmission {
   
   
   approval3DateTime?: dayjs.Dayjs | null;
+
 
   courseRef: ICourse | null;
   
