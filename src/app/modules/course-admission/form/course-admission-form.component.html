@@ -10,7 +10,7 @@
   <div class="flex-auto space-y-4 overflow-y-auto pt-6">
 
 <!-- Course select -->
-  <mat-form-field class="w-full">
+  <!-- <mat-form-field class="w-full">
     <mat-label>Course</mat-label>
     <mat-select formControlName="courseRef" [compareWith]="compareEntityById" (selectionChange)="onCourseChange()">
       <mat-option [value]="null">-- Select Course --</mat-option>
@@ -18,7 +18,17 @@
         {{ c.title }}
       </mat-option>
     </mat-select>
-  </mat-form-field>
+  </mat-form-field> -->
+
+<mat-form-field class="w-full">
+    <mat-label>Course</mat-label>
+  <mat-select formControlName="courseRef" required placeholder="Select a course" [compareWith]="compareEntityById"  (selectionChange)="onCourseChange()">
+    <mat-option [value]="null">-- Select a course --</mat-option>
+    <mat-option *ngFor="let course of courses" [value]="course">
+      {{ course.title }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
 
    <div class="mt-4"> 
   <label class="block mb-1 font-medium">Payment Plan</label>

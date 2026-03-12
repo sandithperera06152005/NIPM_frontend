@@ -1,3 +1,4 @@
+import { IDocument } from 'app/entities/document/document.model';
 import dayjs from 'dayjs/esm';
 
 
@@ -39,7 +40,8 @@ export interface IInvoice {
   dueDate?: dayjs.Dayjs | null;
   totalAmount?: number | null;
   paidAmount?: number | null;
-  courseAdmission?: ICourseAdmission; // <--- add this
+  courseAdmission?: ICourseAdmission; 
+  documents?: IDocument[];
 }
 
 export type NewInvoice = Omit<IInvoice, 'id'> & { id: null };

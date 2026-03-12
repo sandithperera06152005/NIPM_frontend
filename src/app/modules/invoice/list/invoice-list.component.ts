@@ -2,7 +2,8 @@ import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { catchError, merge, of, startWith, Subject, switchMap, tap } from 'rxjs';
-
+import { forkJoin } from 'rxjs';
+import { map} from 'rxjs/operators';
 // Angular Material
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -27,6 +28,7 @@ import { IInvoice } from '../invoice.model';
 import { InvoiceService } from '../service/invoice.service';
 import { InvoiceFormComponent } from '../form/invoice-form.component';
 import { ActivatedRoute } from '@angular/router';
+import { DocumentService } from '../../../entities/document/service/document.service';
 
 
 
@@ -113,6 +115,8 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   private readonly dialogRef = inject(MatDialogRef<InvoiceListComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as ParentDialogData | null;
   private readonly fb = inject(FormBuilder);
+  private readonly documentService = inject(DocumentService);
+  
 
   searchNic: string = '';
   isLoading = false;
@@ -184,6 +188,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     'dueDate',
     'totalAmount',
     'paidAmount',
+    'receivedDocument',
     'actions'
   ];
 
@@ -248,6 +253,20 @@ loadData(): void {
         }
       });
     }),
+    switchMap(res => {
+      const invoices = res.body ?? [];
+      // Load documents for all invoices
+        const docCalls = invoices.map(invoice =>
+          invoice.id
+            ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
+                map(docs => { invoice.documents = docs; }),
+                catchError(() => of(null)) 
+              )
+            : of(null)
+        );
+      return forkJoin(docCalls);
+    }),
+    tap(() => this.isLoading = false),
     catchError(() => {
       this.isLoading = false;
       return of(null);
@@ -309,43 +328,76 @@ public isApproved(invoice: IInvoice): boolean {
   return invoice.id != null && this.approvedInvoices.has(invoice.id);
 }
 
-searchByNic(): void {
-  // If search field is empty or length is not 12, clear data
-  //|| this.searchNic.trim().length !== 12
-  if (!this.searchNic ) {
-    this.dataSource.data = [];
-    return;
+// searchByNic(): void {
+//   // If search field is empty or length is not 12, clear data
+//   //|| this.searchNic.trim().length !== 12
+//   if (!this.searchNic ) {
+//     this.dataSource.data = [];
+//     return;
+//   }
+
+//   this.isLoading = true;
+
+//   this.invoiceService.getByNic(this.searchNic).pipe(
+//     catchError(err => {
+//       console.error('Error fetching invoices', err);
+//       this.dataSource.data = [];
+//       this.isLoading = false;
+//       return of([]);
+//     })
+//   ).subscribe((res: IInvoice[]) => {
+//     // Sort ascending by invoiceNo
+//     this.dataSource.data = res.sort((a, b) => {
+//       const getNumber = (inv: string) => {
+//         const match = inv.match(/-(\d+)$/);
+//         return match ? parseInt(match[1], 10) : 0;
+//       };
+//       return getNumber(a.invoiceNo) - getNumber(b.invoiceNo);
+//     });
+
+//     // Mark approved invoices
+//     res.forEach(invoice => {
+//       if (invoice.paidAmount && invoice.paidAmount > 0) {
+//         this.approvedInvoices.add(invoice.id!);
+//       }
+//     });
+
+    
+
+//     this.isLoading = false;
+//   });
+// }
+
+  searchByNic(): void {
+    if (!this.searchNic) { this.dataSource.data = []; return; }
+
+    this.isLoading = true;
+    this.invoiceService.getByNic(this.searchNic).pipe(
+      switchMap((res: IInvoice[]) => {
+        this.dataSource.data = res.sort((a, b) => {
+          const getNum = (inv: string) => (inv.match(/-(\d+)$/) ? parseInt(inv.match(/-(\d+)$/)![1], 10) : 0);
+          return getNum(a.invoiceNo) - getNum(b.invoiceNo);
+        });
+
+        // Mark approved
+        res.forEach(invoice => { if (invoice.paidAmount && invoice.paidAmount > 0) this.approvedInvoices.add(invoice.id!); });
+
+        // Load documents for search results
+        const docCalls = res.map(inv => 
+          inv.id
+            ? this.documentService.getDocumentsByInvoiceId(inv.id).pipe(
+                map(docs => { inv.documents = docs; }),
+                catchError(() => of(null))
+              )
+            : of(null)
+        );
+
+        return forkJoin(docCalls);
+      }),
+      tap(() => this.isLoading = false),
+      catchError(err => { console.error(err); this.isLoading = false; return of(null); })
+    ).subscribe();
   }
-
-  this.isLoading = true;
-
-  this.invoiceService.getByNic(this.searchNic).pipe(
-    catchError(err => {
-      console.error('Error fetching invoices', err);
-      this.dataSource.data = [];
-      this.isLoading = false;
-      return of([]);
-    })
-  ).subscribe((res: IInvoice[]) => {
-    // Sort ascending by invoiceNo
-    this.dataSource.data = res.sort((a, b) => {
-      const getNumber = (inv: string) => {
-        const match = inv.match(/-(\d+)$/);
-        return match ? parseInt(match[1], 10) : 0;
-      };
-      return getNumber(a.invoiceNo) - getNumber(b.invoiceNo);
-    });
-
-    // Mark approved invoices
-    res.forEach(invoice => {
-      if (invoice.paidAmount && invoice.paidAmount > 0) {
-        this.approvedInvoices.add(invoice.id!);
-      }
-    });
-
-    this.isLoading = false;
-  });
-}
 
   getSortParameters(): string[] {
     if (!this.sort || !this.sort.active || this.sort.direction === '') {
@@ -512,7 +564,9 @@ searchByNic(): void {
     return (this as any)[field.enumOptionsKey] ?? [];
   }
 
- 
+  openDocument(url: string): void {
+    window.open(url, '_blank');
+  }
 
 
   clearSearch(): void {
@@ -541,6 +595,8 @@ private buildFiltersForm(): FormGroup {
     const operator = group.get('operator')?.value as string | undefined;
     return field.operators.find(item => item.key === operator);
   }
+
+
 
   
 

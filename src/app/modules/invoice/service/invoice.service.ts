@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import dayjs from 'dayjs/esm';
 
 import { IInvoice, NewInvoice } from '../invoice.model';
+import { IDocument } from 'app/entities/document/document.model';
 
 export type PartialUpdateInvoice = Partial<IInvoice> & Pick<IInvoice, 'id'>;
 
@@ -69,6 +70,12 @@ export class InvoiceService {
   getByNic(nic: string): Observable<IInvoice[]> {
     return this.http.get<IInvoice[]>(`${this.resourceUrl}/by-nic/${nic}`);
   }
+  
+getInvoiceIdByInvoiceNo(invoiceNo: string): Observable<number> {
+  return this.http.get<number>(`/api/invoices/by-invoice-no/${invoiceNo}`);
+}
+
+
 
   // Helper: Convert request object to HttpParams
   protected createRequestOption(req?: any): HttpParams {
