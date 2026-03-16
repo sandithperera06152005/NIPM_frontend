@@ -1,9 +1,14 @@
 export interface ICourseCoordinator {
-  id: number;
+  id?: number;
+
   fullName?: string | null;
+
   teleNo?: string | null;
+
   email?: string | null;
+
   nic?: string | null;
+
   isActive?: boolean | null;
 }
 

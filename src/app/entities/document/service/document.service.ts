@@ -32,9 +32,12 @@ export class DocumentService {
     return this.http.put<IDocument>(`${this.resourceUrl}/${this.getDocumentIdentifier(document)}`, document, { observe: 'response' });
   }
 
-  upload(formData: FormData): Observable<{ fileUrl: string }> {
-    return this.http.post<{ fileUrl: string }>(this.fileUploadUrl, formData);
-  }
+  // upload(formData: FormData): Observable<{ fileUrl: string }> {
+  //   return this.http.post<{ fileUrl: string }>(this.fileUploadUrl, formData);
+  // }
+  upload(formData: FormData): Observable<Document> {
+    return this.http.post<Document>(`${this.resourceUrl}/upload`, formData);
+}
 
   partialUpdate(document: PartialUpdateDocument): Observable<EntityResponseType> {
     return this.http.patch<IDocument>(`${this.resourceUrl}/${this.getDocumentIdentifier(document)}`, document, { observe: 'response' });
@@ -67,6 +70,15 @@ export class DocumentService {
   compareDocument(o1: Pick<IDocument, 'id'> | null, o2: Pick<IDocument, 'id'> | null): boolean {
     return o1 && o2 ? this.getDocumentIdentifier(o1) === this.getDocumentIdentifier(o2) : o1 === o2;
   }
+
+  getDocumentByInvoiceId(invoiceId: number): Observable<IDocument> {
+  return this.http.get<IDocument>(`${this.resourceUrl}/invoice/${invoiceId}`);
+}
+
+getDocumentsByInvoiceId(invoiceId: number): Observable<IDocument[]> {
+  return this.http.get<IDocument[]>(`${this.resourceUrl}/invoice/${invoiceId}`);
+}
+
 
   addDocumentToCollectionIfMissing<Type extends Pick<IDocument, 'id'>>(
     documentCollection: Type[],

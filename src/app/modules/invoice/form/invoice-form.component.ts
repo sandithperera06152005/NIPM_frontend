@@ -14,20 +14,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { finalize } from 'rxjs/operators';
 
-import { ICourseCoordinator, NewCourseCoordinator } from '../course-coordinator.model';
-import { CourseCoordinatorService } from '../service/course-coordinator.service';
-import { CourseCoordinatorFormGroup, CourseCoordinatorFormService } from '../update/course-coordinator.service';
+import { IInvoice, NewInvoice } from '../invoice.model';
+import { InvoiceService } from '../service/invoice.service';
+import { InvoiceFormGroup, InvoiceFormService } from '../update/invoice-form.service';
 
-
-
-type CourseCoordinatorFormDialogData = {
-  entity?: ICourseCoordinator;
-  defaults?: Partial<NewCourseCoordinator>;
+type InvoiceFormDialogData = {
+  entity?: IInvoice;
+  defaults?: Partial<NewInvoice>;
   heading?: string;
 };
 
 @Component({
-  selector: 'app-course-coordinator-form',
+  selector: 'app-invoice-form',
   standalone: true,
   imports: [
     CommonModule,
@@ -42,23 +40,22 @@ type CourseCoordinatorFormDialogData = {
     MatNativeDateModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    CourseCoordinatorFormComponent,
   ],
-  templateUrl: './course-coordinator-form.component.html',
+  templateUrl: './invoice-form.component.html',
 })
-export class CourseCoordinatorFormComponent implements OnInit, OnChanges {
-  private readonly courseCoordinatorService = inject(CourseCoordinatorService);
-  private readonly formService = inject(CourseCoordinatorFormService);
-  private readonly dialogRef = inject(MatDialogRef<CourseCoordinatorFormComponent>, { optional: true });
-  private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as CourseCoordinatorFormDialogData | null;
+export class InvoiceFormComponent implements OnInit, OnChanges {
+  private readonly invoiceService = inject(InvoiceService);
+  private readonly formService = inject(InvoiceFormService);
+  private readonly dialogRef = inject(MatDialogRef<InvoiceFormComponent>, { optional: true });
+  private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as InvoiceFormDialogData | null;
 
-  @Input() entity: ICourseCoordinator | null = null;
+  @Input() entity: IInvoice | null = null;
   @Input() heading?: string;
 
-  @Output() saved = new EventEmitter<ICourseCoordinator>();
+  @Output() saved = new EventEmitter<IInvoice>();
   @Output() cancelled = new EventEmitter<void>();
 
-  form: CourseCoordinatorFormGroup = this.formService.createCourseCoordinatorFormGroup();
+  form: InvoiceFormGroup = this.formService.createInvoiceFormGroup();
   isSaving = false;
   isInitialized = false;
   errorMessage: string | null = null;
@@ -78,7 +75,7 @@ export class CourseCoordinatorFormComponent implements OnInit, OnChanges {
       return;
     }
     if (changes['entity'] && changes['entity'].currentValue) {
-      this.formService.resetForm(this.form, { ...(changes['entity'].currentValue as ICourseCoordinator) });
+      this.formService.resetForm(this.form, { ...(changes['entity'].currentValue as IInvoice) });
     }
   }
 
@@ -90,11 +87,11 @@ export class CourseCoordinatorFormComponent implements OnInit, OnChanges {
 
     this.errorMessage = null;
     this.isSaving = true;
-    const payload = this.formService.getCourseCoordinator(this.form);
+    const payload = this.formService.getInvoice(this.form);
     const isUpdate = payload.id !== null;
     const request$ = isUpdate
-      ? this.courseCoordinatorService.update(payload as ICourseCoordinator)
-      : this.courseCoordinatorService.create(payload as NewCourseCoordinator);
+      ? this.invoiceService.update(payload as IInvoice)
+      : this.invoiceService.create(payload as NewInvoice);
 
     request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: response => {
@@ -130,7 +127,7 @@ export class CourseCoordinatorFormComponent implements OnInit, OnChanges {
     if (entity) {
       this.formService.resetForm(this.form, entity);
     } else {
-      this.formService.resetForm(this.form, { id: null, ...defaults } as Partial<NewCourseCoordinator>);
+      this.formService.resetForm(this.form, { id: null, ...defaults } as Partial<NewInvoice>);
     }
   }
 

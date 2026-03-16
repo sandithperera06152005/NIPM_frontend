@@ -11,6 +11,7 @@ export interface IPayment {
   paymentDate?: dayjs.Dayjs | null;
   paymentStatus?: keyof typeof PaymentStatus | null;
   applicant?: Pick<IApplicant, 'id'> | null;
+  invoiceId?: number | null;
 }
 
 export type NewPayment = Omit<IPayment, 'id'> & { id: null };

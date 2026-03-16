@@ -64,6 +64,10 @@ export class CourseAdmissionService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
+  sendInvoiceEmail(admissionId: number) {
+    return this.http.post<any>(`${this.resourceUrl}/${admissionId}/send-invoice-email`,{});
+  }
+
   protected createRequestOption(req?: any): HttpParams {
     let options: HttpParams = new HttpParams();
     if (req) {

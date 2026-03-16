@@ -12,6 +12,7 @@ import { ApplicationConfigService } from 'app/core/config/application-config.ser
 import { createRequestOption } from 'app/core/request/request-util';
 import { SearchWithPagination } from 'app/core/request/request.model';
 import { IPayment, NewPayment } from '../payment.model';
+import { IInvoice } from 'app/modules/invoice/invoice.model';
 
 export type PartialUpdatePayment = Partial<IPayment> & Pick<IPayment, 'id'>;
 
@@ -30,6 +31,7 @@ export type EntityArrayResponseType = HttpResponse<IPayment[]>;
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
+
   protected readonly http = inject(HttpClient);
   protected readonly applicationConfigService = inject(ApplicationConfigService);
 
@@ -110,6 +112,8 @@ export class PaymentService {
     }
     return paymentCollection;
   }
+
+  
 
   protected convertDateFromClient<T extends IPayment | NewPayment | PartialUpdatePayment>(payment: T): RestOf<T> {
     return {

@@ -1,34 +1,34 @@
-// This is an EJS template. It generates the list component TypeScript file.
 import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, startWith, Subject, catchError, switchMap, tap } from 'rxjs';
-
-// Angular Material & Fuse
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { catchError, merge, of, startWith, Subject, switchMap, tap } from 'rxjs';
+import { forkJoin } from 'rxjs';
+import { map} from 'rxjs/operators';
+// Angular Material
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ReactiveFormsModule } from '@angular/forms';
+
 
 // Application Imports
-import { ICourseRegForm } from '../course-reg-form.model';
-import { CourseRegFormService } from '../service/course-reg-form.service';
-import { CourseRegFormFormComponent } from '../form/course-reg-form-form.component';
-
-
-
+import { IInvoice } from '../invoice.model';
+import { InvoiceService } from '../service/invoice.service';
+import { InvoiceFormComponent } from '../form/invoice-form.component';
+import { ActivatedRoute } from '@angular/router';
+import { DocumentService } from '../../../entities/document/service/document.service';
 
 
 
@@ -87,76 +87,88 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
 };
 
 @Component({
-  selector: 'app-course-reg-form-list',
+  selector: 'app-invoice-list',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    FormsModule,
     MatTableModule,
     MatSortModule,
-    MatSidenavModule,
+    MatPaginatorModule,
     MatProgressSpinnerModule,
     MatButtonModule,
     MatIconModule,
-    MatTooltipModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    CourseRegFormFormComponent,
+    InvoiceFormComponent,
+    ReactiveFormsModule, 
+    MatSidenavModule,
   ],
-  templateUrl: './course-reg-form-list.component.html',
+
+  templateUrl: './invoice-list.component.html',
 })
-export class CourseRegFormListComponent implements AfterViewInit, OnInit {
-  // --- Injected Services ---
-  private readonly courseRegFormService = inject(CourseRegFormService);
+export class InvoiceListComponent implements AfterViewInit, OnInit {
+  private readonly invoiceService = inject(InvoiceService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
-  private readonly dialogRef = inject(MatDialogRef<CourseRegFormListComponent>, { optional: true });
+  private readonly dialogRef = inject(MatDialogRef<InvoiceListComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as ParentDialogData | null;
   private readonly fb = inject(FormBuilder);
+  private readonly documentService = inject(DocumentService);
+  
 
-  // --- State & Triggers ---
-  isLoading = true;
+  searchNic: string = '';
+  isLoading = false;
   totalItems = 0;
   itemsPerPage = 10;
   private readonly refreshTrigger = new Subject<void>();
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
 
-  selectedCourseRegForm: ICourseRegForm | null = null;
+  selectedInvoice: IInvoice | null = null;
   drawerMode: 'new' | 'edit' = 'new';
 
-  
-
-  // --- Filter configuration ---
   filterFields: FilterField[] = [
     
     {
-      key: 'formName',
-      label: 'FormName',
+      key: 'invoiceNo',
+      label: 'InvoiceNo',
       valueType: 'string' as FilterValueType,
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
     
     {
-      key: 'fileUploadPath',
-      label: 'FileUploadPath',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
+      key: 'issuedDate',
+      label: 'IssuedDate',
+      valueType: 'date' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['date'],
+      rawFieldType: 'Instant'
     },
     
     {
-      key: 'formPath',
-      label: 'FormPath',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
+      key: 'dueDate',
+      label: 'DueDate',
+      valueType: 'date' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['date'],
+      rawFieldType: 'Instant'
+    },
+    
+    {
+      key: 'totalAmount',
+      label: 'TotalAmount',
+      valueType: 'number' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['number'],
+      rawFieldType: 'BigDecimal'
+    },
+    
+    {
+      key: 'paidAmount',
+      label: 'PaidAmount',
+      valueType: 'number' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['number'],
+      rawFieldType: 'BigDecimal'
     },
     
     
@@ -164,14 +176,23 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
 
   filtersForm: FormGroup = this.buildFiltersForm();
 
-  // --- Table & Drawer ---
   @ViewChild('filterDrawer') filterDrawer!: MatDrawer;
   @ViewChild('formDrawer') formDrawer!: MatDrawer;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
+  @ViewChild(MatSort, { static: false }) sort!: MatSort;
 
-  displayedColumns: string[] = ['id', 'formName', 'fileUploadPath', 'formPath',  'actions'];
-  dataSource = new MatTableDataSource<ICourseRegForm>();
+  displayedColumns: string[] = [
+    'id',
+    'invoiceNo',
+    'issuedDate',
+    'dueDate',
+    'totalAmount',
+    'paidAmount',
+    'receivedDocument',
+    'actions'
+  ];
+
+  dataSource = new MatTableDataSource<IInvoice>();
 
   ngOnInit(): void {
     if (this.dialogData?.parentFilters) {
@@ -180,9 +201,7 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    const sortChange$ = this.sort ? this.sort.sortChange : of({});
-    const page$ = this.paginator ? this.paginator.page : of({});
-    const triggers$ = merge(sortChange$, page$, this.refreshTrigger).pipe(startWith({}));
+    const triggers$ = merge(this.sort.sortChange, this.paginator.page, this.refreshTrigger).pipe(startWith({}));
 
     if (this.dialogData?.parentFilters) {
       triggers$.subscribe(() => this.loadData());
@@ -205,30 +224,178 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
     this.loadData();
   }
 
-  loadData(): void {
-    if (!this.paginator) {
-      return;
+ approvedInvoices: Set<number> = new Set<number>();
+
+loadData(): void {
+  if (!this.paginator) {
+    return;
+  }
+
+  this.isLoading = true;
+  const req = {
+    page: this.paginator.pageIndex,
+    size: this.paginator.pageSize,
+    sort: this.getSortParameters(),
+    ...this.baseParentFilters,
+    ...this.activeFilters,
+  };
+
+  this.invoiceService.query(req).pipe(
+    tap(res => {
+      this.isLoading = false;
+      this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
+      this.dataSource.data = res.body ?? [];
+
+      // Automatically mark invoices with paidAmount > 0 as approved
+      res.body?.forEach(invoice => {
+        if (invoice.paidAmount && invoice.paidAmount > 0) {
+          this.approvedInvoices.add(invoice.id!);
+        }
+      });
+    }),
+    switchMap(res => {
+      const invoices = res.body ?? [];
+      // Load documents for all invoices
+        const docCalls = invoices.map(invoice =>
+          invoice.id
+            ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
+                map(docs => { invoice.documents = docs; }),
+                catchError(() => of(null)) 
+              )
+            : of(null)
+        );
+      return forkJoin(docCalls);
+    }),
+    tap(() => this.isLoading = false),
+    catchError(() => {
+      this.isLoading = false;
+      return of(null);
+    })
+  ).subscribe();
+}
+
+approvePayment(invoice: IInvoice): void {
+  if (!invoice.id) {
+    alert('Invoice ID is missing!');
+    return;
+  }
+
+  const paidAmount = Number(invoice.paidAmount);
+  if (!paidAmount || paidAmount <= 0) {
+    alert('Please enter a valid paid amount before approving.');
+    return;
+  }
+
+  // Step 1: fetch the full invoice from backend
+  this.invoiceService.find(invoice.id).subscribe({
+    next: (res) => {
+      const fullInvoice = res.body;
+      if (!fullInvoice) {
+        alert('Invoice not found on backend');
+        return;
+      }
+
+      // Step 2: update only paidAmount
+      fullInvoice.paidAmount = paidAmount;
+
+      // Step 3: send full invoice back to backend via update (PUT)
+      this.invoiceService.update(fullInvoice).subscribe({
+        next: (updated) => {
+          this.approvedInvoices.add(invoice.id!);
+          alert('Payment approved and saved!');
+
+          // Update table locally
+          const idx = this.dataSource.data.findIndex(inv => inv.id === invoice.id);
+          if (idx !== -1) {
+            this.dataSource.data[idx].paidAmount = paidAmount;
+            this.dataSource._updateChangeSubscription();
+          }
+        },
+        error: (err) => {
+          console.error('Failed to update invoice', err);
+          alert('Failed to save paid amount');
+        }
+      });
+    },
+    error: (err) => {
+      console.error('Failed to fetch invoice', err);
+      alert('Cannot fetch invoice from backend');
     }
+  });
+}
+
+public isApproved(invoice: IInvoice): boolean {
+  return invoice.id != null && this.approvedInvoices.has(invoice.id);
+}
+
+// searchByNic(): void {
+//   // If search field is empty or length is not 12, clear data
+//   //|| this.searchNic.trim().length !== 12
+//   if (!this.searchNic ) {
+//     this.dataSource.data = [];
+//     return;
+//   }
+
+//   this.isLoading = true;
+
+//   this.invoiceService.getByNic(this.searchNic).pipe(
+//     catchError(err => {
+//       console.error('Error fetching invoices', err);
+//       this.dataSource.data = [];
+//       this.isLoading = false;
+//       return of([]);
+//     })
+//   ).subscribe((res: IInvoice[]) => {
+//     // Sort ascending by invoiceNo
+//     this.dataSource.data = res.sort((a, b) => {
+//       const getNumber = (inv: string) => {
+//         const match = inv.match(/-(\d+)$/);
+//         return match ? parseInt(match[1], 10) : 0;
+//       };
+//       return getNumber(a.invoiceNo) - getNumber(b.invoiceNo);
+//     });
+
+//     // Mark approved invoices
+//     res.forEach(invoice => {
+//       if (invoice.paidAmount && invoice.paidAmount > 0) {
+//         this.approvedInvoices.add(invoice.id!);
+//       }
+//     });
+
+    
+
+//     this.isLoading = false;
+//   });
+// }
+
+  searchByNic(): void {
+    if (!this.searchNic) { this.dataSource.data = []; return; }
 
     this.isLoading = true;
-    const req = {
-      page: this.paginator.pageIndex,
-      size: this.paginator.pageSize,
-      sort: this.getSortParameters(),
-      ...this.baseParentFilters,
-      ...this.activeFilters,
-    };
+    this.invoiceService.getByNic(this.searchNic).pipe(
+      switchMap((res: IInvoice[]) => {
+        this.dataSource.data = res.sort((a, b) => {
+          const getNum = (inv: string) => (inv.match(/-(\d+)$/) ? parseInt(inv.match(/-(\d+)$/)![1], 10) : 0);
+          return getNum(a.invoiceNo) - getNum(b.invoiceNo);
+        });
 
-    this.courseRegFormService.query(req).pipe(
-      tap(res => {
-        this.isLoading = false;
-        this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
-        this.dataSource.data = res.body ?? [];
+        // Mark approved
+        res.forEach(invoice => { if (invoice.paidAmount && invoice.paidAmount > 0) this.approvedInvoices.add(invoice.id!); });
+
+        // Load documents for search results
+        const docCalls = res.map(inv => 
+          inv.id
+            ? this.documentService.getDocumentsByInvoiceId(inv.id).pipe(
+                map(docs => { inv.documents = docs; }),
+                catchError(() => of(null))
+              )
+            : of(null)
+        );
+
+        return forkJoin(docCalls);
       }),
-      catchError(() => {
-        this.isLoading = false;
-        return of(null);
-      })
+      tap(() => this.isLoading = false),
+      catchError(err => { console.error(err); this.isLoading = false; return of(null); })
     ).subscribe();
   }
 
@@ -239,21 +406,18 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
-   openFormDrawer(id?: number): void {
+  openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
-      this.courseRegFormService.find(id).subscribe({
-        next: (res: ICourseRegForm) => {
-          this.selectedCourseRegForm = res;
+      this.invoiceService.find(id).subscribe(response => {
+        if (response.body) {
+          this.selectedInvoice = response.body;
           this.formDrawer.open();
-        },
-        error: (err) => {
-          console.error('Error fetching course coordinator:', err);
         }
       });
     } else {
       this.drawerMode = 'new';
-      this.selectedCourseRegForm = null;
+      this.selectedInvoice = null;
       this.formDrawer.open();
     }
   }
@@ -279,14 +443,14 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
 
   delete(id: number): void {
     const confirmation = this.fuseConfirmationService.open({
-      title: 'Delete CourseRegForm',
+      title: 'Delete Invoice',
       message: 'Are you sure you want to delete this? This action cannot be undone.',
       actions: { confirm: { label: 'Delete' } },
     });
 
     confirmation.afterClosed().subscribe(result => {
       if (result === 'confirmed') {
-        this.courseRegFormService.delete(id).subscribe(() => {
+        this.invoiceService.delete(id).subscribe(() => {
           this.refreshTrigger.next();
           this.loadData();
         });
@@ -400,9 +564,19 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
     return (this as any)[field.enumOptionsKey] ?? [];
   }
 
-  
+  openDocument(url: string): void {
+    window.open(url, '_blank');
+  }
 
-  private buildFiltersForm(): FormGroup {
+
+  clearSearch(): void {
+    this.searchNic = '';
+    this.dataSource.data = [];
+  }
+
+
+
+private buildFiltersForm(): FormGroup {
     const groupConfig = this.filterFields.reduce((acc, field) => {
       acc[field.key] = this.fb.group({
         operator: [''],
@@ -421,4 +595,9 @@ export class CourseRegFormListComponent implements AfterViewInit, OnInit {
     const operator = group.get('operator')?.value as string | undefined;
     return field.operators.find(item => item.key === operator);
   }
+
+
+
+  
+
 }

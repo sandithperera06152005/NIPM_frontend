@@ -380,6 +380,12 @@
             <input matInput formControlName="referenceNumber" placeholder="Bank reference / transaction ID">
           </mat-form-field>
 
+          <!-- Invoice Number -->
+          <mat-form-field class="w-full md:col-span-2">
+            <mat-label>Invoice Number</mat-label>
+            <input matInput formControlName="invoiceNo" placeholder="Invoice Number">
+          </mat-form-field>
+
           <!-- Bank Slip Upload (ONLY if BANK_TRANSFER) -->
           <div *ngIf="form.get('payment.paymentMethod')?.value === 'BANK_TRANSFER'" class="md:col-span-2">
 
