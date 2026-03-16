@@ -50,6 +50,8 @@
     </div>
   </form>
 
+  <jhi-filter [filters]="filters" />
+
   @if (payments().length === 0) {
     <div class="alert alert-warning" id="no-result">
       <span>No Payments found</span>
@@ -62,6 +64,13 @@
             <th scope="col" jhiSortBy="id">
               <div class="d-flex">
                 <span>Id</span>
+
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="memberID">
+              <div class="d-flex">
+                <span>Member ID</span>
 
                 <fa-icon class="p-1" icon="sort"></fa-icon>
               </div>
@@ -104,6 +113,12 @@
                 }
               </div>
             </th>
+            <th scope="col" jhiSortBy="membershipAdmission.id">
+              <div class="d-flex">
+                <span>Membership Admission</span>
+                <fa-icon class="p-1" icon="sort"></fa-icon>
+              </div>
+            </th>
             <th scope="col" jhiSortBy="applicant.id">
               <div class="d-flex">
                 <span>Applicant</span>
@@ -119,11 +134,21 @@
               <td>
                 <a [routerLink]="['/payment', payment.id, 'view']">{{ payment.id }}</a>
               </td>
+              <td>{{ payment.memberID }}</td>
               <td>{{ { null: '', CASH: 'CASH', BANK_TRANSFER: 'BANK_TRANSFER', ONLINE: 'ONLINE' }[payment.paymentMethod ?? 'null'] }}</td>
               <td>{{ payment.amount }}</td>
               <td>{{ payment.referenceNumber }}</td>
               <td>{{ payment.paymentDate | formatMediumDate }}</td>
               <td>{{ { null: '', PENDING: 'PENDING', COMPLETED: 'COMPLETED', FAILED: 'FAILED' }[payment.paymentStatus ?? 'null'] }}</td>
+              <td>
+                @if (payment.membershipAdmission) {
+                  <div>
+                    <a [routerLink]="['/membership-admission', payment.membershipAdmission.id, 'view']">{{
+                      payment.membershipAdmission.id
+                    }}</a>
+                  </div>
+                }
+              </td>
               <td>
                 @if (payment.applicant) {
                   <div>
@@ -133,6 +158,16 @@
               </td>
               <td class="text-end">
                 <div class="btn-group">
+                  <button
+                    type="submit"
+                    [routerLink]="['/document']"
+                    [queryParams]="{ 'filter[paymentId.in]': payment.id }"
+                    class="btn btn-info btn-sm"
+                    data-cy="filterOtherEntityButton"
+                  >
+                    <fa-icon icon="eye"></fa-icon>
+                    <span class="d-none d-md-inline">Show Document</span>
+                  </button>
                   <a [routerLink]="['/payment', payment.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
                     <fa-icon icon="eye"></fa-icon>
                     <span class="d-none d-md-inline">View</span>

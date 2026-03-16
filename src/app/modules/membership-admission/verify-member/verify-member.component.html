@@ -1,0 +1,215 @@
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-semibold">Verify Member Details</h2>
+        <button mat-icon-button (click)="onCancel()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+        <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading && membershipAdmission" class="max-h-[60vh] overflow-y-auto">
+        <!-- Member Details in 3 Columns -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <!-- Column 1: Personal Information -->
+            <div class="col-span-1 space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Personal Information</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-500">Full Name</label>
+                            <p class="font-medium">{{ membershipAdmission.fullName || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Name with Initials</label>
+                            <p class="font-medium">{{ membershipAdmission.nameWithInitials || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Date of Birth</label>
+                            <p class="font-medium">{{ membershipAdmission.dateOfBirth | date: 'mediumDate' || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">NIC</label>
+                            <p class="font-medium">{{ membershipAdmission.nic || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Email</label>
+                            <p class="font-medium">{{ membershipAdmission.email || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Contact Information</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-500">Permanent Address</label>
+                            <p class="font-medium">{{ membershipAdmission.permanentAddress || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Telephone No</label>
+                            <p class="font-medium">{{ membershipAdmission.teleNo || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Mobile No</label>
+                            <p class="font-medium">{{ membershipAdmission.mobileNo || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">WhatsApp No</label>
+                            <p class="font-medium">{{ membershipAdmission.whatsAppNo || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Eligibility Criteria -->
+            <div class="col-span-1 space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Eligibility Criteria</h3>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm text-gray-500">Member of CIP</label>
+                            <span class="font-medium" [class.text-green-600]="membershipAdmission.memberOfCIP"
+                                [class.text-red-600]="!membershipAdmission.memberOfCIP">
+                                {{ membershipAdmission.memberOfCIP ? 'Yes' : 'No' }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm text-gray-500">Unsound Mind</label>
+                            <span class="font-medium" [class.text-red-600]="membershipAdmission.unsoundMind"
+                                [class.text-green-600]="!membershipAdmission.unsoundMind">
+                                {{ membershipAdmission.unsoundMind ? 'Yes' : 'No' }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm text-gray-500">Insolvent/Bankrupt</label>
+                            <span class="font-medium" [class.text-red-600]="membershipAdmission.insolventOrBankrupt"
+                                [class.text-green-600]="!membershipAdmission.insolventOrBankrupt">
+                                {{ membershipAdmission.insolventOrBankrupt ? 'Yes' : 'No' }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm text-gray-500">Convicted by Court</label>
+                            <span class="font-medium" [class.text-red-600]="membershipAdmission.convictedByCourt"
+                                [class.text-green-600]="!membershipAdmission.convictedByCourt">
+                                {{ membershipAdmission.convictedByCourt ? 'Yes' : 'No' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Application Status</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-500">Current Status</label>
+                            <p class="font-medium">
+                                <span class="px-2 py-1 rounded text-sm"
+                                    [class.bg-yellow-100]="membershipAdmission.status === applicationStatus.PENDING"
+                                    [class.bg-green-100]="membershipAdmission.status === applicationStatus.APPROVED"
+                                    [class.bg-red-100]="membershipAdmission.status === applicationStatus.REJECTED"
+                                    [class.bg-blue-100]="membershipAdmission.status === applicationStatus.SUBMITTED">
+                                    {{ membershipAdmission.status || 'N/A' }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Applied Date</label>
+                            <p class="font-medium">{{ membershipAdmission.appliedDateTime | date: 'medium' || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3: Referees -->
+            <div class="col-span-1 space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Referee 1</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-500">Name</label>
+                            <p class="font-medium">{{ membershipAdmission.referees1Name || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Designation</label>
+                            <p class="font-medium">{{ membershipAdmission.referees1Designation || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Address</label>
+                            <p class="font-medium">{{ membershipAdmission.referees1Address || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Referee 2</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-500">Name</label>
+                            <p class="font-medium">{{ membershipAdmission.referees2Name || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Designation</label>
+                            <p class="font-medium">{{ membershipAdmission.referees2Designation || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Address</label>
+                            <p class="font-medium">{{ membershipAdmission.referees2Address || '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Data Message -->
+    <div *ngIf="!isLoading && !membershipAdmission" class="text-center py-12 text-gray-500">
+        No membership admission data found.
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
+        <button mat-button (click)="onCancel()">Cancel</button>
+
+        <!-- Send Payment Email Button (only shown when status is APPROVED) -->
+        <button *ngIf="canSendPaymentEmail" mat-flat-button color="accent" (click)="sendPaymentEmail()"
+            [disabled]="isLoading || isSendingEmail">
+            <mat-icon>email</mat-icon>
+            <span class="ml-2">{{ isSendingEmail ? 'Sending...' : 'Send Payment Email' }}</span>
+        </button>
+
+        <!-- Send for Approval Button (shown when status is PENDING or SUBMITTED) -->
+        <button *ngIf="!canSendPaymentEmail" mat-flat-button color="primary" (click)="sendForApproval()"
+            [disabled]="isLoading || !membershipAdmission">
+            <mat-icon>send</mat-icon>
+            <span class="ml-2">Send for Approval</span>
+        </button>
+    </div>
+</div>

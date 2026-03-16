@@ -4,10 +4,12 @@ import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, from, of } from 'rxjs';
 
+import { IMembershipAdmission } from 'app/entities/membership-admission/membership-admission.model';
+import { MembershipAdmissionService } from 'app/entities/membership-admission/service/membership-admission.service';
 import { IApplicant } from 'app/entities/applicant/applicant.model';
 import { ApplicantService } from 'app/entities/applicant/service/applicant.service';
-import { PaymentService } from '../service/payment.service';
 import { IPayment } from '../payment.model';
+import { PaymentService } from '../service/payment.service';
 import { PaymentFormService } from './payment-form.service';
 
 import { PaymentUpdateComponent } from './payment-update.component';
@@ -18,6 +20,7 @@ describe('Payment Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let paymentFormService: PaymentFormService;
   let paymentService: PaymentService;
+  let membershipAdmissionService: MembershipAdmissionService;
   let applicantService: ApplicantService;
 
   beforeEach(() => {
@@ -41,12 +44,35 @@ describe('Payment Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     paymentFormService = TestBed.inject(PaymentFormService);
     paymentService = TestBed.inject(PaymentService);
+    membershipAdmissionService = TestBed.inject(MembershipAdmissionService);
     applicantService = TestBed.inject(ApplicantService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
+    it('should call MembershipAdmission query and add missing value', () => {
+      const payment: IPayment = { id: 31232 };
+      const membershipAdmission: IMembershipAdmission = { id: 32173 };
+      payment.membershipAdmission = membershipAdmission;
+
+      const membershipAdmissionCollection: IMembershipAdmission[] = [{ id: 32173 }];
+      jest.spyOn(membershipAdmissionService, 'query').mockReturnValue(of(new HttpResponse({ body: membershipAdmissionCollection })));
+      const additionalMembershipAdmissions = [membershipAdmission];
+      const expectedCollection: IMembershipAdmission[] = [...additionalMembershipAdmissions, ...membershipAdmissionCollection];
+      jest.spyOn(membershipAdmissionService, 'addMembershipAdmissionToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+      activatedRoute.data = of({ payment });
+      comp.ngOnInit();
+
+      expect(membershipAdmissionService.query).toHaveBeenCalled();
+      expect(membershipAdmissionService.addMembershipAdmissionToCollectionIfMissing).toHaveBeenCalledWith(
+        membershipAdmissionCollection,
+        ...additionalMembershipAdmissions.map(expect.objectContaining),
+      );
+      expect(comp.membershipAdmissionsSharedCollection).toEqual(expectedCollection);
+    });
+
     it('should call Applicant query and add missing value', () => {
       const payment: IPayment = { id: 31232 };
       const applicant: IApplicant = { id: 12167 };
@@ -71,12 +97,15 @@ describe('Payment Management Update Component', () => {
 
     it('should update editForm', () => {
       const payment: IPayment = { id: 31232 };
+      const membershipAdmission: IMembershipAdmission = { id: 32173 };
+      payment.membershipAdmission = membershipAdmission;
       const applicant: IApplicant = { id: 12167 };
       payment.applicant = applicant;
 
       activatedRoute.data = of({ payment });
       comp.ngOnInit();
 
+      expect(comp.membershipAdmissionsSharedCollection).toContainEqual(membershipAdmission);
       expect(comp.applicantsSharedCollection).toContainEqual(applicant);
       expect(comp.payment).toEqual(payment);
     });
@@ -151,6 +180,16 @@ describe('Payment Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
+    describe('compareMembershipAdmission', () => {
+      it('should forward to membershipAdmissionService', () => {
+        const entity = { id: 32173 };
+        const entity2 = { id: 35 };
+        jest.spyOn(membershipAdmissionService, 'compareMembershipAdmission');
+        comp.compareMembershipAdmission(entity, entity2);
+        expect(membershipAdmissionService.compareMembershipAdmission).toHaveBeenCalledWith(entity, entity2);
+      });
+    });
+
     describe('compareApplicant', () => {
       it('should forward to applicantService', () => {
         const entity = { id: 12167 };

@@ -1,0 +1,342 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
+
+    <!-- Header -->
+    <div
+        class="bg-default dark:bg-transparent flex flex-0 flex-col p-6 pb-22 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-28 sm:pt-12">
+
+        <div class="min-w-0 flex-1">
+            <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
+                Approvals
+            </h2>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex shrink-0 items-center gap-3 sm:ml-4 sm:mt-0">
+            <!-- Search Bar -->
+            <mat-form-field appearance="outline" class="w-64">
+                <mat-label>Search by Full Name</mat-label>
+                <mat-icon matPrefix [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                <input matInput [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)"
+                    placeholder="Type to search...">
+                <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+                    <mat-icon [svgIcon]="'heroicons_mini:x-mark'"></mat-icon>
+                </button>
+            </mat-form-field>
+            <!-- <button mat-flat-button color="primary" (click)="refreshAll()">
+                <mat-icon>refresh</mat-icon>
+                <span class="ml-2">Refresh</span>
+            </button> -->
+        </div>
+
+    </div>
+
+    <!-- Tabs - Make this take remaining space -->
+    <mat-tab-group animationDuration="200ms" class="-mt-16 flex-1 flex flex-col overflow-hidden">
+
+        <!-- ================= SUBMITTED TAB ================= -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-2">hourglass_empty</mat-icon>
+                Submitted for Approvals
+            </ng-template>
+
+            <!-- Container that handles scrolling and pagination - fixed height -->
+            <div class="flex flex-col" style="height: calc(100vh - 280px);">
+
+                <!-- Table Container with Scrollable Area -->
+                <div class="flex-1 overflow-auto bg-card rounded-t-2xl" style="overflow-x: auto;">
+
+                    <!-- Loading -->
+                    <div *ngIf="submittedIsLoading" class="flex items-center justify-center p-12">
+                        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                    </div>
+
+                    <!-- Table - Remove overflow styles from parent, let this scroll naturally -->
+                    <table mat-table [dataSource]="filteredSubmittedDataSource" matSort
+                        (matSortChange)="loadSubmittedData()" class="w-full min-w-[1100px]" *ngIf="!submittedIsLoading">
+
+                        <!-- ID -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+                        </ng-container>
+
+                        <!-- Full Name -->
+                        <ng-container matColumnDef="fullName">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Full Name</th>
+                            <td mat-cell *matCellDef="let element">{{ element.fullName }}</td>
+                        </ng-container>
+
+                        <!-- Address -->
+                        <ng-container matColumnDef="permanentAddress">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+                            <td mat-cell *matCellDef="let element">{{ element.permanentAddress }}</td>
+                        </ng-container>
+
+                        <!-- Telephone -->
+                        <ng-container matColumnDef="teleNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Telephone</th>
+                            <td mat-cell *matCellDef="let element">{{ element.teleNo }}</td>
+                        </ng-container>
+
+                        <!-- Mobile -->
+                        <ng-container matColumnDef="mobileNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</th>
+                            <td mat-cell *matCellDef="let element">{{ element.mobileNo }}</td>
+                        </ng-container>
+
+                        <!-- Email -->
+                        <ng-container matColumnDef="email">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+                            <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+                        </ng-container>
+
+                        <!-- NIC -->
+                        <ng-container matColumnDef="nic">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>NIC</th>
+                            <td mat-cell *matCellDef="let element">{{ element.nic }}</td>
+                        </ng-container>
+
+                        <!-- Status -->
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                                    [class.bg-yellow-100]="element.status === applicationStatus.SUBMITTED"
+                                    [class.text-yellow-800]="element.status === applicationStatus.SUBMITTED"
+                                    [class.bg-green-100]="element.status === applicationStatus.APPROVED"
+                                    [class.text-green-800]="element.status === applicationStatus.APPROVED">
+                                    {{ element.status }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Actions -->
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>Actions</th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button (click)="openVerifyDialog(element.id)"
+                                    matTooltip="View Details">
+                                    <mat-icon svgIcon="heroicons_outline:eye"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center py-6 text-gray-500"
+                                [attr.colspan]="displayedColumns.length">
+                                No submitted applications found.
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+
+                <!-- Paginator - Sticks to bottom -->
+                <mat-paginator class="shrink-0 border-t bg-card" [length]="submittedTotalItems"
+                    [pageSize]="submittedItemsPerPage" [pageSizeOptions]="[10, 25, 50, 100]"
+                    (page)="loadSubmittedData()">
+                </mat-paginator>
+            </div>
+        </mat-tab>
+
+        <!-- ================= APPROVED TAB ================= -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-2">check_circle</mat-icon>
+                Approved
+            </ng-template>
+
+            <!-- Container that handles scrolling and pagination - fixed height -->
+            <div class="flex flex-col" style="height: calc(100vh - 280px);">
+
+                <!-- Table Container with Scrollable Area -->
+                <div class="flex-1 overflow-auto bg-card rounded-t-2xl" style="overflow-x: auto;">
+
+                    <!-- Loading -->
+                    <div *ngIf="approvedIsLoading" class="flex items-center justify-center p-12">
+                        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                    </div>
+
+                    <!-- Table -->
+                    <table mat-table [dataSource]="filteredApprovedDataSource" matSort
+                        (matSortChange)="loadApprovedData()" class="w-full min-w-[1100px]" *ngIf="!approvedIsLoading">
+
+                        <!-- Same columns as above -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="fullName">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Full Name</th>
+                            <td mat-cell *matCellDef="let element">{{ element.fullName }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="permanentAddress">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+                            <td mat-cell *matCellDef="let element">{{ element.permanentAddress }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="teleNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Telephone</th>
+                            <td mat-cell *matCellDef="let element">{{ element.teleNo }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="mobileNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</th>
+                            <td mat-cell *matCellDef="let element">{{ element.mobileNo }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="email">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+                            <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="nic">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>NIC</th>
+                            <td mat-cell *matCellDef="let element">{{ element.nic }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                    {{ element.status }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>Actions</th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button (click)="openVerifyDialog(element.id)"
+                                    matTooltip="View Details">
+                                    <mat-icon svgIcon="heroicons_outline:eye"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center py-6 text-gray-500"
+                                [attr.colspan]="displayedColumns.length">
+                                No approved applications found.
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+
+                <!-- Paginator - Sticks to bottom -->
+                <mat-paginator class="shrink-0 border-t bg-card" [length]="approvedTotalItems"
+                    [pageSize]="approvedItemsPerPage" [pageSizeOptions]="[10, 25, 50, 100]" (page)="loadApprovedData()">
+                </mat-paginator>
+            </div>
+        </mat-tab>
+
+        <!-- ================= REJECTED TAB ================= -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="mr-2">cancel</mat-icon>
+                Rejected
+            </ng-template>
+
+            <!-- Container that handles scrolling and pagination - fixed height -->
+            <div class="flex flex-col" style="height: calc(100vh - 280px);">
+
+                <!-- Table Container with Scrollable Area -->
+                <div class="flex-1 overflow-auto bg-card rounded-t-2xl" style="overflow-x: auto;">
+
+                    <!-- Loading -->
+                    <div *ngIf="rejectedIsLoading" class="flex items-center justify-center p-12">
+                        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                    </div>
+
+                    <!-- Table -->
+                    <table mat-table [dataSource]="filteredRejectedDataSource" matSort
+                        (matSortChange)="loadRejectedData()" class="w-full min-w-[1100px]" *ngIf="!rejectedIsLoading">
+
+                        <!-- Same columns as above -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+                            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="fullName">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Full Name</th>
+                            <td mat-cell *matCellDef="let element">{{ element.fullName }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="permanentAddress">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+                            <td mat-cell *matCellDef="let element">{{ element.permanentAddress }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="teleNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Telephone</th>
+                            <td mat-cell *matCellDef="let element">{{ element.teleNo }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="mobileNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Mobile</th>
+                            <td mat-cell *matCellDef="let element">{{ element.mobileNo }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="email">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+                            <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="nic">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>NIC</th>
+                            <td mat-cell *matCellDef="let element">{{ element.nic }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="status">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                            <td mat-cell *matCellDef="let element">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                    {{ element.status }}
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="actions">
+                            <th mat-header-cell *matHeaderCellDef>Actions</th>
+                            <td mat-cell *matCellDef="let element">
+                                <button mat-icon-button (click)="openVerifyDialog(element.id)"
+                                    matTooltip="View Details">
+                                    <mat-icon svgIcon="heroicons_outline:eye"></mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                        <tr class="mat-row" *matNoDataRow>
+                            <td class="mat-cell text-center py-6 text-gray-500"
+                                [attr.colspan]="displayedColumns.length">
+                                No rejected applications found.
+                            </td>
+                        </tr>
+
+                    </table>
+                </div>
+
+                <!-- Paginator - Sticks to bottom -->
+                <mat-paginator class="shrink-0 border-t bg-card" [length]="rejectedTotalItems"
+                    [pageSize]="rejectedItemsPerPage" [pageSizeOptions]="[10, 25, 50, 100]" (page)="loadRejectedData()">
+                </mat-paginator>
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
+
+</div>

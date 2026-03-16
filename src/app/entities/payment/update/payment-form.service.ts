@@ -18,11 +18,13 @@ type PaymentFormDefaults = Pick<NewPayment, 'id'>;
 
 type PaymentFormGroupContent = {
   id: FormControl<IPayment['id'] | NewPayment['id']>;
+  memberID: FormControl<IPayment['memberID']>;
   paymentMethod: FormControl<IPayment['paymentMethod']>;
   amount: FormControl<IPayment['amount']>;
   referenceNumber: FormControl<IPayment['referenceNumber']>;
   paymentDate: FormControl<IPayment['paymentDate']>;
   paymentStatus: FormControl<IPayment['paymentStatus']>;
+  membershipAdmission: FormControl<IPayment['membershipAdmission']>;
   applicant: FormControl<IPayment['applicant']>;
 };
 
@@ -43,11 +45,13 @@ export class PaymentFormService {
           validators: [Validators.required],
         },
       ),
+      memberID: new FormControl(paymentRawValue.memberID),
       paymentMethod: new FormControl(paymentRawValue.paymentMethod),
       amount: new FormControl(paymentRawValue.amount),
       referenceNumber: new FormControl(paymentRawValue.referenceNumber),
       paymentDate: new FormControl(paymentRawValue.paymentDate),
       paymentStatus: new FormControl(paymentRawValue.paymentStatus),
+      membershipAdmission: new FormControl(paymentRawValue.membershipAdmission),
       applicant: new FormControl(paymentRawValue.applicant),
     });
   }

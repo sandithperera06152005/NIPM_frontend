@@ -13,11 +13,11 @@ export type PartialUpdateMembershipAdmission = Partial<IMembershipAdmission> & P
 
 // --- Define REST-safe types by converting Dayjs objects to strings ---
 type RestOf<T extends IMembershipAdmission | NewMembershipAdmission | PartialUpdateMembershipAdmission> = Omit<T, 'dateOfBirth' | 'appliedDateTime'> & {
-  
+
   dateOfBirth?: string | null;
-  
+
   appliedDateTime?: string | null;
-  
+
 };
 
 export type RestMembershipAdmission = RestOf<IMembershipAdmission>;
@@ -58,6 +58,10 @@ export class MembershipAdmissionService {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
+  sendPaymentEmail(id: number): Observable<HttpResponse<{}>> {
+    return this.http.post(`${this.resourceUrl}/${id}/send-payment-email`, {}, { observe: 'response' });
+  }
+
   protected createRequestOption(req?: any): HttpParams {
     let options: HttpParams = new HttpParams();
     if (req) {
@@ -73,32 +77,32 @@ export class MembershipAdmissionService {
   // --- Date Conversion Helpers ---
   protected convertDateFromClient<T extends IMembershipAdmission | NewMembershipAdmission | PartialUpdateMembershipAdmission>(entity: T): RestOf<T> {
     const copy: any = { ...entity };
-    
+
     if (dayjs.isDayjs(entity.dateOfBirth)) {
       copy.dateOfBirth = entity.dateOfBirth.toJSON();
     }
-    
+
     if (dayjs.isDayjs(entity.appliedDateTime)) {
       copy.appliedDateTime = entity.appliedDateTime.toJSON();
     }
-    
+
     return copy;
   }
 
   protected convertDateFromServer(restEntity: RestMembershipAdmission): IMembershipAdmission {
     const entity: any = { ...restEntity };
-    
+
     if (entity.dateOfBirth) {
-        entity.dateOfBirth = dayjs(entity.dateOfBirth);
+      entity.dateOfBirth = dayjs(entity.dateOfBirth);
     }
-    
+
     if (entity.appliedDateTime) {
-        entity.appliedDateTime = dayjs(entity.appliedDateTime);
+      entity.appliedDateTime = dayjs(entity.appliedDateTime);
     }
-    
+
     return entity;
   }
-  
+
   protected convertResponseFromServer(res: HttpResponse<RestMembershipAdmission>): HttpResponse<IMembershipAdmission> {
     return res.clone({ body: res.body ? this.convertDateFromServer(res.body) : null });
   }

@@ -7,6 +7,8 @@ import { finalize, map } from 'rxjs/operators';
 import SharedModule from 'app/shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { IMembershipAdmission } from 'app/entities/membership-admission/membership-admission.model';
+import { MembershipAdmissionService } from 'app/entities/membership-admission/service/membership-admission.service';
 import { IApplicant } from 'app/entities/applicant/applicant.model';
 import { ApplicantService } from 'app/entities/applicant/service/applicant.service';
 import { PaymentMethod } from 'app/entities/enumerations/payment-method.model';
@@ -26,15 +28,20 @@ export class PaymentUpdateComponent implements OnInit {
   paymentMethodValues = Object.keys(PaymentMethod);
   paymentStatusValues = Object.keys(PaymentStatus);
 
+  membershipAdmissionsSharedCollection: IMembershipAdmission[] = [];
   applicantsSharedCollection: IApplicant[] = [];
 
   protected paymentService = inject(PaymentService);
   protected paymentFormService = inject(PaymentFormService);
+  protected membershipAdmissionService = inject(MembershipAdmissionService);
   protected applicantService = inject(ApplicantService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: PaymentFormGroup = this.paymentFormService.createPaymentFormGroup();
+
+  compareMembershipAdmission = (o1: IMembershipAdmission | null, o2: IMembershipAdmission | null): boolean =>
+    this.membershipAdmissionService.compareMembershipAdmission(o1, o2);
 
   compareApplicant = (o1: IApplicant | null, o2: IApplicant | null): boolean => this.applicantService.compareApplicant(o1, o2);
 
@@ -86,6 +93,11 @@ export class PaymentUpdateComponent implements OnInit {
     this.payment = payment;
     this.paymentFormService.resetForm(this.editForm, payment);
 
+    this.membershipAdmissionsSharedCollection =
+      this.membershipAdmissionService.addMembershipAdmissionToCollectionIfMissing<IMembershipAdmission>(
+        this.membershipAdmissionsSharedCollection,
+        payment.membershipAdmission,
+      );
     this.applicantsSharedCollection = this.applicantService.addApplicantToCollectionIfMissing<IApplicant>(
       this.applicantsSharedCollection,
       payment.applicant,
@@ -93,6 +105,19 @@ export class PaymentUpdateComponent implements OnInit {
   }
 
   protected loadRelationshipsOptions(): void {
+    this.membershipAdmissionService
+      .query()
+      .pipe(map((res: HttpResponse<IMembershipAdmission[]>) => res.body ?? []))
+      .pipe(
+        map((membershipAdmissions: IMembershipAdmission[]) =>
+          this.membershipAdmissionService.addMembershipAdmissionToCollectionIfMissing<IMembershipAdmission>(
+            membershipAdmissions,
+            this.payment?.membershipAdmission,
+          ),
+        ),
+      )
+      .subscribe((membershipAdmissions: IMembershipAdmission[]) => (this.membershipAdmissionsSharedCollection = membershipAdmissions));
+
     this.applicantService
       .query()
       .pipe(map((res: HttpResponse<IApplicant[]>) => res.body ?? []))

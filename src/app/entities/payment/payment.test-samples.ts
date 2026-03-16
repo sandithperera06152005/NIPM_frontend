@@ -7,16 +7,17 @@ export const sampleWithRequiredData: IPayment = {
 };
 
 export const sampleWithPartialData: IPayment = {
-  id: 27804,
-  amount: 26156.82,
-  paymentStatus: 'FAILED',
+  id: 26157,
+  paymentMethod: 'ONLINE',
+  paymentDate: dayjs('2026-01-22'),
 };
 
 export const sampleWithFullData: IPayment = {
   id: 28239,
+  memberID: 11240,
   paymentMethod: 'BANK_TRANSFER',
-  amount: 14590.51,
-  referenceNumber: 'ouch out',
+  amount: 12086.74,
+  referenceNumber: 'refute what pupil',
   paymentDate: dayjs('2026-01-22'),
   paymentStatus: 'FAILED',
 };

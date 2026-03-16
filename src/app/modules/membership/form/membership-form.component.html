@@ -1,5 +1,5 @@
 <!-- Reusable form component template -->
-<form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
+<form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!showSuccess">
   <div class="flex items-center justify-between border-b pb-4">
     <h2 class="text-2xl font-bold">
       {{ heading || (isEditMode ? 'Edit Membership' : 'New Membership') }}
@@ -8,33 +8,33 @@
   </div>
 
   <div class="flex-auto space-y-4 overflow-y-auto pt-6">
-    
-      
+
+
     <mat-form-field class="w-full">
       <mat-label>MembershipNumber</mat-label>
-      <input matInput formControlName="membershipNumber" >
+      <input matInput formControlName="membershipNumber">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>StartDate</mat-label>
       <input matInput [matDatepicker]="pickerstartDate" formControlName="startDate">
       <mat-datepicker-toggle matSuffix [for]="pickerstartDate"></mat-datepicker-toggle>
       <mat-datepicker #pickerstartDate></mat-datepicker>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>EndDate</mat-label>
       <input matInput [matDatepicker]="pickerendDate" formControlName="endDate">
       <mat-datepicker-toggle matSuffix [for]="pickerendDate"></mat-datepicker-toggle>
       <mat-datepicker #pickerendDate></mat-datepicker>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Status</mat-label>
       <mat-select formControlName="status">
@@ -43,11 +43,11 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-      
-    
 
-    
-    
+
+
+
+
   </div>
 
   <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">
@@ -62,3 +62,18 @@
     </button>
   </div>
 </form>
+
+<!-- Success Message Overlay -->
+<div *ngIf="showSuccess" class="flex h-full flex-col items-center justify-center text-center">
+  <div class="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+    <mat-icon class="text-5xl text-green-600">check_circle</mat-icon>
+  </div>
+  <h2 class="mb-4 text-2xl font-bold text-green-700">Payment Submitted Successfully!</h2>
+  <p class="mb-6 max-w-md text-gray-600">
+    Your payment has been submitted successfully and we will get back to you very soon.
+  </p>
+  <button type="button" mat-flat-button color="primary" (click)="goBackToForm()">
+    <mat-icon class="mr-2">edit</mat-icon>
+    Go Back to Form
+  </button>
+</div>

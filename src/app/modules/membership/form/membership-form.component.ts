@@ -64,12 +64,13 @@ export class MembershipFormComponent implements OnInit, OnChanges {
   isSaving = false;
   isInitialized = false;
   errorMessage: string | null = null;
+  showSuccess = false;
 
-  
+
   readonly membershipStatusOptions = Object.keys(MembershipStatus);
-  
 
-  
+
+
 
   ngOnInit(): void {
     this.initializeFormFromInputs();
@@ -104,7 +105,8 @@ export class MembershipFormComponent implements OnInit, OnChanges {
       next: response => {
         if (response.body) {
           this.saved.emit(response.body);
-          this.dialogRef?.close(response.body);
+          // Show success message instead of closing immediately
+          this.showSuccess = true;
         }
       },
       error: () => {
@@ -116,6 +118,10 @@ export class MembershipFormComponent implements OnInit, OnChanges {
   onCancel(): void {
     this.cancelled.emit();
     this.dialogRef?.close();
+  }
+
+  goBackToForm(): void {
+    this.showSuccess = false;
   }
 
   get isEditMode(): boolean {
@@ -139,6 +145,6 @@ export class MembershipFormComponent implements OnInit, OnChanges {
   }
 
   private loadRelationshipOptions(): void {
-    
+
   }
 }

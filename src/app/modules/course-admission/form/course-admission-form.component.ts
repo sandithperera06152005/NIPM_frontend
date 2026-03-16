@@ -254,7 +254,7 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   }
 
   private loadRelationshipOptions(): void {
-    this.courseService.query({ page: 0, size: 500 }).subscribe({
+    this.courseService.query({ page: 0, size: 1000 }).subscribe({
       next: (res) => {
         this.courses = res.body ?? [];
         this.form.patchValue({

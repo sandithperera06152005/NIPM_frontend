@@ -21,13 +21,25 @@ export const appRoutes: Route[] = [
   // Auth routes for guests
   {
     path: "",
-    canActivate: [NoAuthGuard],
-    canActivateChild: [NoAuthGuard],
     component: LayoutComponent,
     data: {
       layout: "empty",
     },
     children: [
+      // {
+      //   path: "membership-form",
+      //   loadChildren: () =>
+      //     import(
+      //       "app/modules/membership-public/membership-public.routes"
+      //     ),
+      // },
+      {
+        path: "membership-admission/form",
+        loadChildren: () =>
+          import(
+            "app/modules/membership-admission/membership-admission.routes"
+          ),
+      },
       {
         path: "confirmation-required",
         loadChildren: () =>
@@ -126,6 +138,11 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import("app/modules/student-application-form/student-application-form.routes"),
       },
+      // {
+      //   path: "membership-admission/form",
+      //   loadChildren: () =>
+      //     import("app/modules/membership-admission/membership-admission.routes"),
+      // },
       {
         path: "student-profile",
         loadChildren: () =>
@@ -194,12 +211,26 @@ export const appRoutes: Route[] = [
           ),
       },
       {
-        path: "membership-application",
+        path: "membership-admission",
         loadChildren: () =>
           import(
-            "app/modules/membership-application/membership-application.routes"
+            "app/modules/membership-admission/membership-admission.routes"
           ),
       },
+      {
+        path: "approvals",
+        loadChildren: () =>
+          import(
+            "app/modules/approvals/approvals.routes"
+          ),
+      },
+      // {
+      //   path: "approvals",
+      //   loadChildren: () =>
+      //     import(
+      //       "app/modules/membership-admission/approvals/approvals.routes"
+      //     ),
+      // },
       {
         path: "finance-management",
         loadChildren: () =>

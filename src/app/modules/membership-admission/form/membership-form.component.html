@@ -1,0 +1,250 @@
+<div class="h-full overflow-y-auto bg-gray-50 p-6" *ngIf="!showSuccess">
+    <div class="mx-auto w-full max-w-screen-2xl px-6">
+        <div class="mb-6 flex items-center justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    Membership Admission Form
+                </h1>
+                <p class="mt-2 text-gray-600">
+                    Please fill out all the required information below to apply for membership.
+                </p>
+            </div>
+
+            <div class="w-20 shrink-0">
+                <img src="images/logo/NIPM_Main_Logo(without bg).png" alt="NIPM Logo" class="w-full object-contain" />
+            </div>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <!-- Personal Details -->
+            <mat-expansion-panel class="mb-4" expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon class="mr-2">person</mat-icon>
+                        Personal Details
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <mat-form-field class="w-full">
+                        <mat-label>Full Name</mat-label>
+                        <input matInput formControlName="fullName" placeholder="Enter your full name">
+                        <mat-error *ngIf="form.get('fullName')?.hasError('required')">Full name is required</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Name with Initials</mat-label>
+                        <input matInput formControlName="nameWithInitials" placeholder="Enter your name with initials">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full md:col-span-2">
+                        <mat-label>Contact Address</mat-label>
+                        <textarea matInput formControlName="permanentAddress" rows="2"
+                            placeholder="Enter your contact address"></textarea>
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Telephone Number</mat-label>
+                        <input matInput formControlName="teleNo" placeholder="Enter your telephone number">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Email</mat-label>
+                        <input matInput type="email" formControlName="email" placeholder="Enter your email">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Date of Birth</mat-label>
+                        <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth"
+                            placeholder="Select date of birth">
+                        <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #dobPicker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>NIC Number</mat-label>
+                        <input matInput formControlName="nic" placeholder="Enter your NIC number">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Mobile Number</mat-label>
+                        <input matInput formControlName="mobileNo" placeholder="Enter your mobile number">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>WhatsApp Number</mat-label>
+                        <input matInput formControlName="whatsAppNo" placeholder="Enter your WhatsApp number">
+                    </mat-form-field>
+                </div>
+            </mat-expansion-panel>
+
+            <!-- Payment Details -->
+            <mat-expansion-panel class="mb-4" expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon class="mr-2">payments</mat-icon>
+                        Payment Details
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+                    <!-- Payment Method -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Payment Method</mat-label>
+                        <mat-select formControlName="paymentMethod">
+                            <mat-option *ngFor="let pm of paymentMethods" [value]="pm">
+                                {{ pm.replace('_', ' ') }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="form.get('paymentMethod')?.invalid">
+                            Payment method is required
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Amount -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Amount (LKR)</mat-label>
+                        <input matInput type="number" formControlName="amount" placeholder="Enter amount">
+                    </mat-form-field>
+
+                    <!-- Reference Number -->
+                    <mat-form-field class="w-full md:col-span-2">
+                        <mat-label>Reference Number</mat-label>
+                        <input matInput formControlName="referenceNumber" placeholder="Bank reference / transaction ID">
+                    </mat-form-field>
+
+                    <!-- Bank Slip Upload (ONLY if BANK_TRANSFER) -->
+                    <div *ngIf="form.get('paymentMethod')?.value === 'BANK_TRANSFER'" class="md:col-span-2">
+
+                        <label class="mb-2 block font-medium text-gray-700">
+                            Upload Bank Deposit Slip (PDF / Image)
+                        </label>
+
+                        <input type="file" accept=".pdf,image/*" (change)="onSlipSelected($event)"
+                            class="block w-full rounded border border-gray-300 p-2" />
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            Accepted formats: PDF, JPG, PNG
+                        </p>
+                    </div>
+
+                </div>
+            </mat-expansion-panel>
+
+            <!-- Eligibility Criteria (Commented out)
+            <ng-container>
+                <mat-expansion-panel class="mb-4" expanded>
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="mr-2">assignment</mat-icon>
+                            Eligibility Criteria
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <mat-checkbox formControlName="memberOfCIP" color="primary">
+                            Are you a member of the Institute of Chemistry (CIP)?
+                        </mat-checkbox>
+
+                        <mat-checkbox formControlName="unsoundMind" color="primary">
+                            I declare that I am not of unsound mind
+                        </mat-checkbox>
+
+                        <mat-checkbox formControlName="insolventOrBankrupt" color="primary">
+                            I declare that I am not insolvent or bankrupt
+                        </mat-checkbox>
+
+                        <mat-checkbox formControlName="convictedByCourt" color="primary">
+                            I declare that I have not been convicted by any court of law
+                        </mat-checkbox>
+                    </div>
+                </mat-expansion-panel>
+            </ng-container> -->
+
+            <!-- Referees (Commented out)
+            <ng-container>
+                <mat-expansion-panel class="mb-4" expanded>
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <mat-icon class="mr-2">people</mat-icon>
+                            Referees
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <div class="space-y-6">
+                        <div class="rounded-lg border border-gray-200 p-4">
+                            <h4 class="mb-3 font-semibold">Referee 1</h4>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Name</mat-label>
+                                    <input matInput formControlName="referees1Name" placeholder="Enter referee name">
+                                </mat-form-field>
+                                <mat-form-field class="w-full">
+                                    <mat-label>Designation</mat-label>
+                                    <input matInput formControlName="referees1Designation" placeholder="Enter designation">
+                                </mat-form-field>
+                                <mat-form-field class="w-full md:col-span-2">
+                                    <mat-label>Address</mat-label>
+                                    <textarea matInput formControlName="referees1Address" rows="2"
+                                        placeholder="Enter address"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg border border-gray-200 p-4">
+                            <h4 class="mb-3 font-semibold">Referee 2</h4>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                <mat-form-field class="w-full">
+                                    <mat-label>Name</mat-label>
+                                    <input matInput formControlName="referees2Name" placeholder="Enter referee name">
+                                </mat-form-field>
+                                <mat-form-field class="w-full">
+                                    <mat-label>Designation</mat-label>
+                                    <input matInput formControlName="referees2Designation" placeholder="Enter designation">
+                                </mat-form-field>
+                                <mat-form-field class="w-full md:col-span-2">
+                                    <mat-label>Address</mat-label>
+                                    <textarea matInput formControlName="referees2Address" rows="2"
+                                        placeholder="Enter address"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </mat-expansion-panel>
+            </ng-container> -->
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="mb-4 rounded bg-red-100 px-4 py-2 text-red-900">
+                {{ errorMessage }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end gap-4">
+                <button mat-button type="button" (click)="printForm()">
+                    <mat-icon>print</mat-icon>
+                    Print
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving">
+                    <mat-icon>send</mat-icon>
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Success Message Overlay -->
+<div *ngIf="showSuccess" class="flex h-full min-h-[80vh] flex-col items-center justify-center text-center">
+    <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100">
+        <mat-icon class="text-6xl text-green-600">check_circle</mat-icon>
+    </div>
+    <h2 class="mb-4 text-3xl font-bold text-green-700">Payment Submitted Successfully!</h2>
+    <p class="mb-8 max-w-lg text-lg text-gray-600">
+        Your payment has been submitted successfully and we will get back to you very soon.
+    </p>
+    <button mat-flat-button color="primary" (click)="goBackToForm()" class="text-lg">
+        <mat-icon class="mr-2">edit</mat-icon>
+        Go Back to Form
+    </button>
+</div>

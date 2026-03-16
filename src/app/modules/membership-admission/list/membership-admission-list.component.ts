@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -26,6 +26,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { IMembershipAdmission } from '../membership-admission.model';
 import { MembershipAdmissionService } from '../service/membership-admission.service';
 import { MembershipAdmissionFormComponent } from '../form/membership-admission-form.component';
+import { VerifyMemberComponent, VerifyMemberDialogData, VerifyMemberDialogResult } from '../verify-member/verify-member.component';
 
 
 
@@ -105,6 +106,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatDialogModule,
     MembershipAdmissionFormComponent,
   ],
   templateUrl: './membership-admission-list.component.html',
@@ -130,13 +132,13 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
   selectedMembershipAdmission: IMembershipAdmission | null = null;
   drawerMode: 'new' | 'edit' = 'new';
 
-  
+
   readonly applicationStatusOptions = Object.keys(ApplicationStatus);
-  
+
 
   // --- Filter configuration ---
   filterFields: FilterField[] = [
-    
+
     {
       key: 'fullName',
       label: 'FullName',
@@ -144,7 +146,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'nameWithInitials',
       label: 'NameWithInitials',
@@ -152,7 +154,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'permanentAddress',
       label: 'PermanentAddress',
@@ -160,7 +162,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'teleNo',
       label: 'TeleNo',
@@ -168,7 +170,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'mobileNo',
       label: 'MobileNo',
@@ -176,7 +178,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'whatsAppNo',
       label: 'WhatsAppNo',
@@ -184,7 +186,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'email',
       label: 'Email',
@@ -192,7 +194,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'nic',
       label: 'Nic',
@@ -200,7 +202,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'dateOfBirth',
       label: 'DateOfBirth',
@@ -208,7 +210,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['date'],
       rawFieldType: 'LocalDate'
     },
-    
+
     {
       key: 'memberOfCIP',
       label: 'MemberOfCip',
@@ -216,7 +218,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['boolean'],
       rawFieldType: 'Boolean'
     },
-    
+
     {
       key: 'unsoundMind',
       label: 'UnsoundMind',
@@ -224,7 +226,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['boolean'],
       rawFieldType: 'Boolean'
     },
-    
+
     {
       key: 'insolventOrBankrupt',
       label: 'InsolventOrBankrupt',
@@ -232,7 +234,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['boolean'],
       rawFieldType: 'Boolean'
     },
-    
+
     {
       key: 'convictedByCourt',
       label: 'ConvictedByCourt',
@@ -240,7 +242,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['boolean'],
       rawFieldType: 'Boolean'
     },
-    
+
     {
       key: 'referees1Name',
       label: 'Referees1Name',
@@ -248,7 +250,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'referees1Designation',
       label: 'Referees1Designation',
@@ -256,7 +258,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'referees1Address',
       label: 'Referees1Address',
@@ -264,7 +266,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'referees2Name',
       label: 'Referees2Name',
@@ -272,7 +274,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'referees2Designation',
       label: 'Referees2Designation',
@@ -280,7 +282,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'referees2Address',
       label: 'Referees2Address',
@@ -288,7 +290,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'status',
       label: 'Status',
@@ -297,7 +299,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       rawFieldType: 'ApplicationStatus',
       enumOptionsKey: 'applicationStatusOptions'
     },
-    
+
     {
       key: 'appliedDateTime',
       label: 'AppliedDateTime',
@@ -305,8 +307,8 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['date'],
       rawFieldType: 'Instant'
     },
-    
-    
+
+
   ];
 
   filtersForm: FormGroup = this.buildFiltersForm();
@@ -317,7 +319,31 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['id', 'fullName', 'nameWithInitials', 'permanentAddress', 'teleNo', 'mobileNo', 'whatsAppNo', 'email', 'nic', 'dateOfBirth', 'memberOfCIP', 'unsoundMind', 'insolventOrBankrupt', 'convictedByCourt', 'referees1Name', 'referees1Designation', 'referees1Address', 'referees2Name', 'referees2Designation', 'referees2Address', 'status', 'appliedDateTime',  'actions'];
+  displayedColumns: string[] = [
+    'id',
+    'fullName',
+    //'nameWithInitials', 
+    'permanentAddress',
+    'teleNo',
+    'mobileNo',
+    'whatsAppNo',
+    'email',
+    'nic',
+    'dateOfBirth',
+    // 'memberOfCIP',
+    // 'unsoundMind', 
+    // 'insolventOrBankrupt', 
+    // 'convictedByCourt', 
+    // 'referees1Name', 
+    // 'referees1Designation', 
+    // 'referees1Address', 
+    // 'referees2Name', 
+    // 'referees2Designation', 
+    // 'referees2Address', 
+    'status',
+    // 'appliedDateTime', 
+    'actions'
+  ];
   dataSource = new MatTableDataSource<IMembershipAdmission>();
 
   ngOnInit(): void {
@@ -327,38 +353,39 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    const triggers$ = merge(this.sort.sortChange, this.paginator.page, this.refreshTrigger).pipe(startWith({}));
+    // Only set up triggers if sort and paginator are available
+    if (this.sort && this.paginator) {
+      const triggers$ = merge(this.sort.sortChange, this.paginator.page, this.refreshTrigger).pipe(startWith({}));
 
-    if (this.dialogData?.parentFilters) {
-      triggers$.subscribe(() => this.loadData());
-    } else {
-      this.route.params
-        .pipe(
-          tap(params => {
-            this.baseParentFilters = {};
-            const parentIdKey = Object.keys(params)[0];
-            if (parentIdKey) {
-              const parentModelName = parentIdKey.replace('Id', '');
-              this.baseParentFilters[`${parentModelName}Id.equals`] = params[parentIdKey];
-            }
-          }),
-          switchMap(() => triggers$)
-        )
-        .subscribe(() => this.loadData());
+      if (this.dialogData?.parentFilters) {
+        triggers$.subscribe(() => this.loadData());
+      } else {
+        this.route.params
+          .pipe(
+            tap(params => {
+              this.baseParentFilters = {};
+              const parentIdKey = Object.keys(params)[0];
+              if (parentIdKey) {
+                const parentModelName = parentIdKey.replace('Id', '');
+                this.baseParentFilters[`${parentModelName}Id.equals`] = params[parentIdKey];
+              }
+            }),
+            switchMap(() => triggers$)
+          )
+          .subscribe(() => this.loadData());
+      }
     }
 
     this.loadData();
   }
 
   loadData(): void {
-    if (!this.paginator) {
-      return;
-    }
-
+    // Allow load even if paginator is not yet available (e.g., during initial loading)
+    // The paginator will be used if available
     this.isLoading = true;
     const req = {
-      page: this.paginator.pageIndex,
-      size: this.paginator.pageSize,
+      page: this.paginator?.pageIndex ?? 0,
+      size: this.paginator?.pageSize ?? this.itemsPerPage,
       sort: this.getSortParameters(),
       ...this.baseParentFilters,
       ...this.activeFilters,
@@ -410,6 +437,21 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
 
   closeFilterDrawer(): void {
     this.filterDrawer.close();
+  }
+
+  openVerifyDialog(id: number): void {
+    const dialogRef = this.dialog.open(VerifyMemberComponent, {
+      width: '900px',
+      maxWidth: '95vw',
+      data: { membershipAdmissionId: id } as VerifyMemberDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result: VerifyMemberDialogResult | undefined) => {
+      if (result?.status === 'approved') {
+        this.refreshTrigger.next();
+        this.loadData();
+      }
+    });
   }
 
   handleFormSaved(): void {
@@ -542,7 +584,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
     return (this as any)[field.enumOptionsKey] ?? [];
   }
 
-  
+
 
   private buildFiltersForm(): FormGroup {
     const groupConfig = this.filterFields.reduce((acc, field) => {

@@ -8,139 +8,139 @@
   </div>
 
   <div class="flex-auto space-y-4 overflow-y-auto pt-6">
-    
-      
+
+
     <mat-form-field class="w-full">
       <mat-label>FullName</mat-label>
-      <input matInput formControlName="fullName" >
+      <input matInput formControlName="fullName" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>NameWithInitials</mat-label>
-      <input matInput formControlName="nameWithInitials" >
+      <input matInput formControlName="nameWithInitials" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>PermanentAddress</mat-label>
-      <input matInput formControlName="permanentAddress" >
+      <input matInput formControlName="permanentAddress" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>TeleNo</mat-label>
-      <input matInput formControlName="teleNo" >
+      <input matInput formControlName="teleNo" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>MobileNo</mat-label>
-      <input matInput formControlName="mobileNo" >
+      <input matInput formControlName="mobileNo" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>WhatsAppNo</mat-label>
-      <input matInput formControlName="whatsAppNo" >
+      <input matInput formControlName="whatsAppNo" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Email</mat-label>
-      <input matInput formControlName="email" >
+      <input matInput formControlName="email" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
-      <mat-label>Nic</mat-label>
-      <input matInput formControlName="nic" >
+      <mat-label>Identification/NIC</mat-label>
+      <input matInput formControlName="nic" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>DateOfBirth</mat-label>
-      <input matInput [matDatepicker]="pickerdateOfBirth" formControlName="dateOfBirth">
+      <input matInput [matDatepicker]="pickerdateOfBirth" formControlName="dateOfBirth" required>
       <mat-datepicker-toggle matSuffix [for]="pickerdateOfBirth"></mat-datepicker-toggle>
       <mat-datepicker #pickerdateOfBirth></mat-datepicker>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-checkbox class="w-full" formControlName="memberOfCIP">
       MemberOfCip
     </mat-checkbox>
-      
-    
-      
+
+
+
     <mat-checkbox class="w-full" formControlName="unsoundMind">
       UnsoundMind
     </mat-checkbox>
-      
-    
-      
+
+
+
     <mat-checkbox class="w-full" formControlName="insolventOrBankrupt">
       InsolventOrBankrupt
     </mat-checkbox>
-      
-    
-      
+
+
+
     <mat-checkbox class="w-full" formControlName="convictedByCourt">
       ConvictedByCourt
     </mat-checkbox>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Referees1Name</mat-label>
-      <input matInput formControlName="referees1Name" >
+      <input matInput formControlName="referees1Name">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Referees1Designation</mat-label>
-      <input matInput formControlName="referees1Designation" >
+      <input matInput formControlName="referees1Designation">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Referees1Address</mat-label>
-      <input matInput formControlName="referees1Address" >
+      <input matInput formControlName="referees1Address">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Referees2Name</mat-label>
-      <input matInput formControlName="referees2Name" >
+      <input matInput formControlName="referees2Name">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Referees2Designation</mat-label>
-      <input matInput formControlName="referees2Designation" >
+      <input matInput formControlName="referees2Designation">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Referees2Address</mat-label>
-      <input matInput formControlName="referees2Address" >
+      <input matInput formControlName="referees2Address">
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Status</mat-label>
       <mat-select formControlName="status">
@@ -149,20 +149,20 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>AppliedDateTime</mat-label>
       <input matInput [matDatepicker]="pickerappliedDateTime" formControlName="appliedDateTime">
       <mat-datepicker-toggle matSuffix [for]="pickerappliedDateTime"></mat-datepicker-toggle>
       <mat-datepicker #pickerappliedDateTime></mat-datepicker>
     </mat-form-field>
-      
-    
 
-    
-    
+
+
+
+
   </div>
 
   <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">

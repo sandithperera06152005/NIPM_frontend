@@ -65,16 +65,19 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   isInitialized = false;
   errorMessage: string | null = null;
 
-  
-  readonly applicationStatusOptions = Object.keys(ApplicationStatus);
-  
 
-  
+  readonly applicationStatusOptions = Object.keys(ApplicationStatus);
+
+
+
 
   ngOnInit(): void {
     this.initializeFormFromInputs();
     this.loadRelationshipOptions();
     this.isInitialized = true;
+
+    // Debug: Log the status options
+    console.log('Application Status Options:', this.applicationStatusOptions);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -94,14 +97,29 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
 
     this.errorMessage = null;
     this.isSaving = true;
-    const payload = this.formService.getMembershipAdmission(this.form);
+    let payload = this.formService.getMembershipAdmission(this.form);
+
+    // Debug: Log the payload to see what's being submitted
+    console.log('Form payload before:', JSON.stringify(payload, null, 2));
+    console.log('Email value:', payload.email);
+    console.log('Status value before:', payload.status);
+
     const isUpdate = payload.id !== null;
+
+    // Set status to PENDING when creating a new membership admission
+    if (!isUpdate) {
+      payload = { ...payload, status: ApplicationStatus.PENDING };
+    }
+
+    console.log('Status value after:', payload.status);
+
     const request$ = isUpdate
       ? this.membershipAdmissionService.update(payload as IMembershipAdmission)
       : this.membershipAdmissionService.create(payload as NewMembershipAdmission);
 
     request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: response => {
+        console.log('Backend response:', JSON.stringify(response.body, null, 2));
         if (response.body) {
           this.saved.emit(response.body);
           this.dialogRef?.close(response.body);
@@ -139,6 +157,6 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   }
 
   private loadRelationshipOptions(): void {
-    
+
   }
 }

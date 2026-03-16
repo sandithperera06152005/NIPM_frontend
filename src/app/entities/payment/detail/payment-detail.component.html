@@ -15,6 +15,10 @@
           <dd>
             <span>{{ paymentRef.id }}</span>
           </dd>
+          <dt><span>Member ID</span></dt>
+          <dd>
+            <span>{{ paymentRef.memberID }}</span>
+          </dd>
           <dt><span>Payment Method</span></dt>
           <dd>
             <span>{{
@@ -38,6 +42,16 @@
             <span>{{
               { null: '', PENDING: 'PENDING', COMPLETED: 'COMPLETED', FAILED: 'FAILED' }[paymentRef.paymentStatus ?? 'null']
             }}</span>
+          </dd>
+          <dt><span>Membership Admission</span></dt>
+          <dd>
+            @if (payment()!.membershipAdmission) {
+              <div>
+                <a [routerLink]="['/membership-admission', payment()!.membershipAdmission?.id, 'view']">{{
+                  paymentRef.membershipAdmission?.id
+                }}</a>
+              </div>
+            }
           </dd>
           <dt><span>Applicant</span></dt>
           <dd>
