@@ -43,12 +43,26 @@ export class DashboardComponent implements OnInit {
   recentCompanies: { name: string; status: string }[] = [];
   recentCourses: { name: string; status: string }[] = [];
   recentCourseAdmissions: { id: string; status: string }[] = [];
+  recentMembershipAdmissions: { id: string; status: string }[] = [];
+  recentApprovals: { title: string }[] = [];
+  recentFinance: { description: string; amount: number }[] = [];
+  recentInvoices: { number: string; status: string }[] = [];
+  recentCoordinators: { name: string }[] = [];
   stats = {
     academicYears: 0,
     appUsers: 0,
     companies: 0,
     courses: 0,
     courseAdmissions: 0,
+    membershipAdmissions: 0,
+    pendingApprovals: 0,
+    financeRecords: 0,
+    invoices: 0,
+    courseCoordinators: 0,
+    totalUsers: 0,
+    todayTransactions: 0,
+    pendingTasks: 0,
+    uptime: 99,
   };
 
   constructor(
@@ -71,6 +85,7 @@ export class DashboardComponent implements OnInit {
     this.loadStudentProfiles();
     this.loadStats();
     this.loadAuditLogs();
+    this.loadMockData();
   }
 
   // ================================
@@ -295,5 +310,60 @@ export class DashboardComponent implements OnInit {
   manageBankAccounts(): void {
     console.log('Manage Bank Accounts clicked');
     this.router.navigate(['/banks']);
+  }
+
+  navigateTo(moduleId: string): void {
+    const routes: { [key: string]: string } = {
+      'student-admission': '/course-admission',
+      'membership-admission': '/membership-admission',
+      'approval': '/approvals',
+      'finance-management': '/finance-management',
+      'company': '/company',
+      'course': '/course',
+      'invoice': '/invoice',
+      'course-coordinator': '/course-coordinator',
+    };
+    const route = routes[moduleId];
+    if (route) {
+      this.router.navigate([route]);
+    }
+  }
+
+  private loadMockData(): void {
+    // Mock data for missing entities
+    this.recentMembershipAdmissions = [
+      { id: '1', status: 'Pending' },
+      { id: '2', status: 'Approved' },
+    ];
+
+    this.recentApprovals = [
+      { title: 'Course Admission #101' },
+      { title: 'Membership #45' },
+    ];
+
+    this.recentFinance = [
+      { description: 'Course Fee Payment', amount: 1500 },
+      { description: 'Membership Fee', amount: 500 },
+    ];
+
+    this.recentInvoices = [
+      { number: 'INV-001', status: 'Paid' },
+      { number: 'INV-002', status: 'Pending' },
+    ];
+
+    this.recentCoordinators = [
+      { name: 'Dr. Smith' },
+      { name: 'Prof. Johnson' },
+    ];
+
+    // Update stats with mock data
+    this.stats.membershipAdmissions = 25;
+    this.stats.pendingApprovals = 8;
+    this.stats.financeRecords = 42;
+    this.stats.invoices = 35;
+    this.stats.courseCoordinators = 5;
+    this.stats.totalUsers = this.stats.appUsers + this.stats.courseAdmissions;
+    this.stats.todayTransactions = 12;
+    this.stats.pendingTasks = this.stats.pendingApprovals + 3;
   }
 }

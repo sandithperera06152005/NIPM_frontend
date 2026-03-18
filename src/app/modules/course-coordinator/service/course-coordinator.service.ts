@@ -3,16 +3,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import dayjs from 'dayjs/esm';
-
 import { ICourseCoordinator, NewCourseCoordinator } from '../course-coordinator.model';
-
-
 
 export type PartialUpdateCourseCoordinator = Partial<ICourseCoordinator> & Pick<ICourseCoordinator, 'id'>;
 
-// --- Define REST-safe types by converting Dayjs objects to strings ---
-type RestOf<T extends ICourseCoordinator | NewCourseCoordinator | PartialUpdateCourseCoordinator> = T;
+type RestOf<T extends ICourseCoordinator | NewCourseCoordinator | PartialUpdateCourseCoordinator> = Omit<T, 'createdAt' | 'lastUpdated'> & {
+  createdAt?: string | null;
+  lastUpdated?: string | null;
+};
 
 export type RestCourseCoordinator = RestOf<ICourseCoordinator>;
 export type NewRestCourseCoordinator = RestOf<NewCourseCoordinator>;
@@ -22,22 +20,14 @@ export type EntityResponseType = HttpResponse<ICourseCoordinator>;
 export type EntityArrayResponseType = HttpResponse<ICourseCoordinator[]>;
 
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class CourseCoordinatorService {
   protected readonly http = inject(HttpClient);
 
   // FIX: Ensure the microservice name from the config is always lowercase in the URL.
   protected resourceUrl = `api/course-coordinators`;
-
-  create(payload: NewCourseCoordinator): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(payload);
-    return this.http.post<RestCourseCoordinator>(this.resourceUrl, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
-  }
-
-  update(payload: ICourseCoordinator): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(payload);
-    return this.http.put<RestCourseCoordinator>(`${this.resourceUrl}/${payload.id}`, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
-  }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<RestCourseCoordinator>(`${this.resourceUrl}/${id}`, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
@@ -46,6 +36,16 @@ export class CourseCoordinatorService {
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = this.createRequestOption(req);
     return this.http.get<RestCourseCoordinator[]>(this.resourceUrl, { params: options, observe: 'response' }).pipe(map(res => this.convertResponseArrayFromServer(res)));
+  }
+
+  create(coordinator: NewCourseCoordinator): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(coordinator);
+    return this.http.post<RestCourseCoordinator>(this.resourceUrl, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
+  }
+
+  update(coordinator: ICourseCoordinator): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(coordinator);
+    return this.http.put<RestCourseCoordinator>(`${this.resourceUrl}/${coordinator.id}`, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -71,17 +71,20 @@ export class CourseCoordinatorService {
     return copy;
   }
 
-  protected convertDateFromServer(restEntity: RestCourseCoordinator): ICourseCoordinator {
+  protected convertDateFromServer(restEntity: ICourseCoordinator): ICourseCoordinator {
     const entity: any = { ...restEntity };
 
     return entity;
   }
 
-  protected convertResponseFromServer(res: HttpResponse<RestCourseCoordinator>): HttpResponse<ICourseCoordinator> {
+  protected convertResponseFromServer(res: HttpResponse<ICourseCoordinator>): HttpResponse<ICourseCoordinator> {
     return res.clone({ body: res.body ? this.convertDateFromServer(res.body) : null });
   }
 
-  protected convertResponseArrayFromServer(res: HttpResponse<RestCourseCoordinator[]>): HttpResponse<ICourseCoordinator[]> {
+  protected convertResponseArrayFromServer(res: HttpResponse<ICourseCoordinator[]>): HttpResponse<ICourseCoordinator[]> {
     return res.clone({ body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null });
   }
+
+
+
 }

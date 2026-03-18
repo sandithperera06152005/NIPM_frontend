@@ -14,6 +14,7 @@ export interface IPayment {
   paymentStatus?: keyof typeof PaymentStatus | null;
   membershipAdmission?: Pick<IMembershipAdmission, 'id'> | null;
   applicant?: Pick<IApplicant, 'id'> | null;
+  invoiceId?: number | null;
 }
 
 export type NewPayment = Omit<IPayment, 'id'> & { id: null };

@@ -137,7 +137,7 @@ export class CourseFormComponent implements OnInit, OnChanges {
   private loadCourseRegForms(): void {
     this.courseRegFormService.query().subscribe({
       next: (forms) => {
-        this.courseRegForms = forms;
+        this.courseRegForms = forms.body ?? [];
         if (this.entity?.courseregform) {
           const selected = this.courseRegForms.find(f => f.id === this.entity!.courseregform!.id) ?? null;
           this.courseRegFormControl.setValue(selected);

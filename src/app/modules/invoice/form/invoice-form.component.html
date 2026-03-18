@@ -2,7 +2,7 @@
 <form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="flex items-center justify-between border-b pb-4">
     <h2 class="text-2xl font-bold">
-      {{ heading || (isEditMode ? 'Edit CourseRegForm' : 'New CourseRegForm') }}
+      {{ heading || (isEditMode ? 'Edit Invoice' : 'New Invoice') }}
     </h2>
     <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
   </div>
@@ -11,22 +11,40 @@
     
       
     <mat-form-field class="w-full">
-      <mat-label>FormName</mat-label>
-      <input matInput formControlName="formName" required>
+      <mat-label>InvoiceNo</mat-label>
+      <input matInput formControlName="invoiceNo" >
     </mat-form-field>
       
     
       
     <mat-form-field class="w-full">
-      <mat-label>FileUploadPath</mat-label>
-      <input matInput formControlName="fileUploadPath" required>
+      <mat-label>IssuedDate</mat-label>
+      <input matInput [matDatepicker]="pickerissuedDate" formControlName="issuedDate">
+      <mat-datepicker-toggle matSuffix [for]="pickerissuedDate"></mat-datepicker-toggle>
+      <mat-datepicker #pickerissuedDate></mat-datepicker>
     </mat-form-field>
       
     
       
     <mat-form-field class="w-full">
-      <mat-label>FormPath</mat-label>
-      <input matInput formControlName="formPath" >
+      <mat-label>DueDate</mat-label>
+      <input matInput [matDatepicker]="pickerdueDate" formControlName="dueDate">
+      <mat-datepicker-toggle matSuffix [for]="pickerdueDate"></mat-datepicker-toggle>
+      <mat-datepicker #pickerdueDate></mat-datepicker>
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>TotalAmount</mat-label>
+      <input matInput formControlName="totalAmount" >
+    </mat-form-field>
+      
+    
+      
+    <mat-form-field class="w-full">
+      <mat-label>PaidAmount</mat-label>
+      <input matInput formControlName="paidAmount" >
     </mat-form-field>
       
     

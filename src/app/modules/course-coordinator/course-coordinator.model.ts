@@ -5,20 +5,15 @@ import dayjs from 'dayjs/esm';
 
 export interface ICourseCoordinator {
   id?: number;
-  
-  
-  fullName?: String | null;
-  
-  
-  teleNo?: String | null;
-  
-  
-  email?: String | null;
-  
-  
-  nic?: String | null;
-  
-  
+
+  fullName?: string | null;
+
+  teleNo?: string | null;
+
+  email?: string | null;
+
+  nic?: string | null;
+
   isActive?: boolean | null;
   
   

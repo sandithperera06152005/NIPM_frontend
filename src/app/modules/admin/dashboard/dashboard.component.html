@@ -1,12 +1,12 @@
-<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden bg-gray-100">
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden bg-green-50">
   <!-- Header -->
   <div class="flex flex-col gap-2 bg-white px-8 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
     <div>
       <h1 class="text-3xl font-bold tracking-tight text-gray-800">
-        NIPM Dashboard
+        NIPM Operations Dashboard
       </h1>
       <p class="text-sm text-gray-500">
-        National Institute of Plantation Management – System Overview
+        National Institute of Plantation Management – System Overview & Quick Access
       </p>
     </div>
   </div>
@@ -17,57 +17,106 @@
     <!-- KPI Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-      <!-- Academic Years -->
-      <div class="rounded-2xl bg-white p-6 shadow">
+      <!-- Student Admissions -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
         <div class="flex items-center gap-4">
-          <div class="rounded-xl bg-indigo-100 p-3 text-indigo-600">
-            <mat-icon svgIcon="heroicons_outline:calendar"></mat-icon>
+          <div class="rounded-xl bg-green-100 p-3 text-green-600">
+            <mat-icon svgIcon="heroicons_outline:user-plus"></mat-icon>
           </div>
           <div>
-            <div class="text-sm text-gray-500">Academic Years</div>
-            <div class="text-3xl font-bold">
-              {{ stats.academicYears }}
-            </div>
-
+            <div class="text-sm text-gray-500">Student Admissions</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.courseAdmissions }}</div>
           </div>
         </div>
       </div>
 
-      <!-- Admission Applications -->
-      <div class="rounded-2xl bg-white p-6 shadow">
+      <!-- Members Admissions -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
         <div class="flex items-center gap-4">
-          <div class="rounded-xl bg-amber-100 p-3 text-amber-600">
-            <mat-icon svgIcon="heroicons_outline:document-text"></mat-icon>
-          </div>
-          <div>
-            <div class="text-sm text-gray-500">Applications</div>
-            <div class="text-3xl font-bold">{{ stats.courseAdmissions }}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- App Users -->
-      <div class="rounded-2xl bg-white p-6 shadow">
-        <div class="flex items-center gap-4">
-          <div class="rounded-xl bg-teal-100 p-3 text-teal-600">
+          <div class="rounded-xl bg-lime-100 p-3 text-lime-600">
             <mat-icon svgIcon="heroicons_outline:user-group"></mat-icon>
           </div>
           <div>
-            <div class="text-sm text-gray-500">App Users</div>
-            <div class="text-3xl font-bold">{{ stats.appUsers }}</div>
+            <div class="text-sm text-gray-500">Members Admissions</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.membershipAdmissions }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approvals -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="rounded-xl bg-emerald-100 p-3 text-emerald-600">
+            <mat-icon svgIcon="heroicons_outline:check-circle"></mat-icon>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Pending Approvals</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.pendingApprovals }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finance Management -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="rounded-xl bg-teal-100 p-3 text-teal-600">
+            <mat-icon svgIcon="heroicons_outline:currency-dollar"></mat-icon>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Finance Records</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.financeRecords }}</div>
           </div>
         </div>
       </div>
 
       <!-- Companies -->
-      <div class="rounded-2xl bg-white p-6 shadow">
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
         <div class="flex items-center gap-4">
-          <div class="rounded-xl bg-rose-100 p-3 text-rose-600">
+          <div class="rounded-xl bg-green-200 p-3 text-green-700">
             <mat-icon svgIcon="heroicons_outline:building-office"></mat-icon>
           </div>
           <div>
             <div class="text-sm text-gray-500">Companies</div>
-            <div class="text-3xl font-bold">{{ stats.companies }}</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.companies }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Courses -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="rounded-xl bg-emerald-200 p-3 text-emerald-700">
+            <mat-icon svgIcon="heroicons_outline:book-open"></mat-icon>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Courses</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.courses }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoices -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="rounded-xl bg-lime-200 p-3 text-lime-700">
+            <mat-icon svgIcon="heroicons_outline:receipt-refund"></mat-icon>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Invoices</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.invoices }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Coordinators -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow">
+        <div class="flex items-center gap-4">
+          <div class="rounded-xl bg-teal-200 p-3 text-teal-700">
+            <mat-icon svgIcon="heroicons_outline:user"></mat-icon>
+          </div>
+          <div>
+            <div class="text-sm text-gray-500">Course Coordinators</div>
+            <div class="text-3xl font-bold text-gray-900">{{ stats.courseCoordinators }}</div>
           </div>
         </div>
       </div>
@@ -80,187 +129,254 @@
       </h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <button (click)="createAcademicYear()" class="rounded-xl bg-indigo-50 p-4 text-indigo-700 hover:bg-indigo-100">
-          + Create Academic Year
+        <button (click)="navigateTo('student-admission')"
+          class="rounded-xl bg-green-50 p-4 text-green-700 hover:bg-green-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:user-plus" class="text-sm"></mat-icon>
+          Admit Student
         </button>
 
-        <button (click)="reviewApplications()" class="rounded-xl bg-amber-50 p-4 text-amber-700 hover:bg-amber-100">
-          Review Applications
+        <button (click)="navigateTo('membership-admission')"
+          class="rounded-xl bg-lime-50 p-4 text-lime-700 hover:bg-lime-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:user-group" class="text-sm"></mat-icon>
+          Admit Member
         </button>
 
-        <button (click)="addAppUser()" class="rounded-xl bg-teal-50 p-4 text-teal-700 hover:bg-teal-100">
-          Add App User
+        <button (click)="navigateTo('approval')"
+          class="rounded-xl bg-emerald-50 p-4 text-emerald-700 hover:bg-emerald-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:check-circle" class="text-sm"></mat-icon>
+          Review Approvals
         </button>
 
+        <button (click)="navigateTo('finance-management')"
+          class="rounded-xl bg-teal-50 p-4 text-teal-700 hover:bg-teal-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:currency-dollar" class="text-sm"></mat-icon>
+          Manage Finance
+        </button>
+
+        <button (click)="navigateTo('company')"
+          class="rounded-xl bg-green-50 p-4 text-green-800 hover:bg-green-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:building-office" class="text-sm"></mat-icon>
+          Manage Companies
+        </button>
+
+        <button (click)="navigateTo('course')"
+          class="rounded-xl bg-emerald-50 p-4 text-emerald-800 hover:bg-emerald-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:book-open" class="text-sm"></mat-icon>
+          Manage Courses
+        </button>
+
+        <button (click)="navigateTo('invoice')"
+          class="rounded-xl bg-lime-50 p-4 text-lime-800 hover:bg-lime-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:receipt-refund" class="text-sm"></mat-icon>
+          View Invoices
+        </button>
+
+        <button (click)="navigateTo('course-coordinator')"
+          class="rounded-xl bg-teal-50 p-4 text-teal-800 hover:bg-teal-100 flex items-center gap-2 transition-colors">
+          <mat-icon svgIcon="heroicons_outline:user" class="text-sm"></mat-icon>
+          Coordinators
+        </button>
       </div>
     </div>
 
-    <!-- Lower Panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Module Overview Panels -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      <!-- Recent Applications -->
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <!-- Header -->
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
-          Academic Years Status
-        </h2>
-
-        <!-- Scrollable Content -->
+      <!-- Student Admissions Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:user-plus" class="text-blue-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Recent Student Admissions</h2>
+        </div>
         <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let app of recentApplications" class="flex justify-between">
-            <span>Academic Year {{ app.id }}</span>
-
+          <div *ngFor="let admission of recentCourseAdmissions.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">Admission #{{ admission.id }}</span>
             <span [ngClass]="{
-          'text-amber-600': app.status === 'Upcoming',
-          'text-green-600': app.status === 'Active',
-          'text-gray-500': app.status === 'Completed'
-        }">
-              {{ app.status }}
+              'text-amber-600 bg-amber-50 px-2 py-1 rounded': admission.status === 'Pending',
+              'text-green-600 bg-green-50 px-2 py-1 rounded': admission.status === 'Approved',
+              'text-red-600 bg-red-50 px-2 py-1 rounded': admission.status === 'Rejected'
+            }" class="text-xs font-medium">
+              {{ admission.status }}
             </span>
           </div>
-
-          <div *ngIf="recentApplications.length === 0" class="text-gray-400">
-            No academic years found
+          <div *ngIf="recentCourseAdmissions.length === 0" class="text-gray-400 text-center py-4">
+            No recent admissions
           </div>
         </div>
       </div>
 
-      <!-- Audit Logs -->
-      <!-- <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
-          Audit Logs
-        </h2>
-
-        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let log of recentAuditLogs" class="flex justify-between">
-            <span>{{ log.action }}</span>
-            <span class="text-gray-500">{{ log.entityName }}</span>
-          </div>
-
-          <div *ngIf="recentAuditLogs.length === 0" class="text-gray-400">
-            No audit logs found
-          </div>
+      <!-- Members Admissions Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:user-group" class="text-green-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Recent Member Admissions</h2>
         </div>
-      </div> -->
-
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
-          Students (Pending)
-        </h2>
-
         <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let student of recentStudents" class="flex justify-between">
-            <span>{{ student.name }}</span>
+          <div *ngFor="let admission of recentMembershipAdmissions.slice(0,5)"
+            class="flex justify-between items-center">
+            <span class="truncate">Member #{{ admission.id }}</span>
             <span [ngClass]="{
-              'text-amber-600': student.status === 'Pending',
-              'text-green-600': student.status === 'Enrolled',
-              'text-red-600': student.status === 'Withdrawn',
-              'text-gray-500': student.status === 'Suspended'
-            }">
-              {{ student.status }}
+              'text-amber-600 bg-amber-50 px-2 py-1 rounded': admission.status === 'Pending',
+              'text-green-600 bg-green-50 px-2 py-1 rounded': admission.status === 'Approved'
+            }" class="text-xs font-medium">
+              {{ admission.status }}
             </span>
           </div>
-
-          <div *ngIf="recentStudents.length === 0" class="text-gray-400">
-            No pending students found
+          <div *ngIf="recentMembershipAdmissions.length === 0" class="text-gray-400 text-center py-4">
+            No recent member admissions
           </div>
         </div>
       </div>
 
-      <!-- App Users -->
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4 shrink-0">
-          App Users
-        </h2>
+      <!-- Approvals Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:check-circle" class="text-yellow-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Pending Approvals</h2>
+        </div>
         <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let user of recentAppUsers" class="flex justify-between">
-            <span>{{ user.name }}</span>
-            <span [ngClass]="{
-          'text-green-600': user.status === 'Active',
-          'text-gray-500': user.status === 'Inactive'
-        }">
-              {{ user.status }}
+          <div *ngFor="let approval of recentApprovals.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">{{ approval.title }}</span>
+            <span class="text-amber-600 bg-amber-50 px-2 py-1 rounded text-xs font-medium">
+              Pending
             </span>
           </div>
-
-          <div *ngIf="recentAppUsers.length === 0" class="text-gray-400">
-            No app users found
+          <div *ngIf="recentApprovals.length === 0" class="text-gray-400 text-center py-4">
+            No pending approvals
           </div>
         </div>
       </div>
 
-
-      <!-- Companies -->
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">
-          Companies
-        </h2>
-
+      <!-- Finance Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:currency-dollar" class="text-emerald-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Recent Finance Activities</h2>
+        </div>
         <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let company of recentCompanies" class="flex justify-between">
-            <span>{{ company.name }}</span>
+          <div *ngFor="let transaction of recentFinance.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">{{ transaction.description }}</span>
+            <span class="text-emerald-600 font-medium">
+              ${{ transaction.amount }}
+            </span>
+          </div>
+          <div *ngIf="recentFinance.length === 0" class="text-gray-400 text-center py-4">
+            No recent finance activities
+          </div>
+        </div>
+      </div>
+
+      <!-- Companies Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:building-office" class="text-rose-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Active Companies</h2>
+        </div>
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let company of recentCompanies.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">{{ company.name }}</span>
             <span [ngClass]="{
-              'text-green-600': company.status === 'Active',
-              'text-gray-500': company.status === 'Inactive'
-            }">
+              'text-green-600 bg-green-50 px-2 py-1 rounded': company.status === 'Active',
+              'text-gray-500 bg-gray-50 px-2 py-1 rounded': company.status === 'Inactive'
+            }" class="text-xs font-medium">
               {{ company.status }}
             </span>
           </div>
-
-          <div *ngIf="recentCompanies.length === 0" class="text-gray-400">
+          <div *ngIf="recentCompanies.length === 0" class="text-gray-400 text-center py-4">
             No companies found
           </div>
         </div>
       </div>
 
-      <!-- Courses -->
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">
-          Courses
-        </h2>
-
+      <!-- Courses Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:book-open" class="text-purple-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Available Courses</h2>
+        </div>
         <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let course of recentCourses" class="flex justify-between">
-            <span>{{ course.name }}</span>
+          <div *ngFor="let course of recentCourses.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">{{ course.name }}</span>
             <span [ngClass]="{
-              'text-green-600': course.status === 'Active',
-              'text-amber-600': course.status === 'Upcoming',
-              'text-gray-500': course.status === 'Completed'
-            }">
+              'text-green-600 bg-green-50 px-2 py-1 rounded': course.status === 'Active',
+              'text-amber-600 bg-amber-50 px-2 py-1 rounded': course.status === 'Upcoming',
+              'text-gray-500 bg-gray-50 px-2 py-1 rounded': course.status === 'Completed'
+            }" class="text-xs font-medium">
               {{ course.status }}
             </span>
           </div>
-
-          <div *ngIf="recentCourses.length === 0" class="text-gray-400">
+          <div *ngIf="recentCourses.length === 0" class="text-gray-400 text-center py-4">
             No courses found
           </div>
         </div>
       </div>
 
-      <!-- Course Admissions -->
-      <div class="rounded-2xl bg-white p-6 shadow h-80 flex flex-col">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">
-          Course Admissions
-        </h2>
-
+      <!-- Invoices Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:receipt-refund" class="text-orange-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Recent Invoices</h2>
+        </div>
         <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
-          <div *ngFor="let admission of recentCourseAdmissions" class="flex justify-between">
-            <span>Admission #{{ admission.id }}</span>
+          <div *ngFor="let invoice of recentInvoices.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">{{ invoice.number }}</span>
             <span [ngClass]="{
-              'text-amber-600': admission.status === 'Pending',
-              'text-green-600': admission.status === 'Approved',
-              'text-red-600': admission.status === 'Rejected'
-            }">
-              {{ admission.status }}
+              'text-green-600 bg-green-50 px-2 py-1 rounded': invoice.status === 'Paid',
+              'text-amber-600 bg-amber-50 px-2 py-1 rounded': invoice.status === 'Pending'
+            }" class="text-xs font-medium">
+              {{ invoice.status }}
             </span>
           </div>
-
-          <div *ngIf="recentCourseAdmissions.length === 0" class="text-gray-400">
-            No course admissions found
+          <div *ngIf="recentInvoices.length === 0" class="text-gray-400 text-center py-4">
+            No recent invoices
           </div>
         </div>
       </div>
 
+      <!-- Course Coordinators Overview -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:user" class="text-indigo-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">Course Coordinators</h2>
+        </div>
+        <div class="flex-1 overflow-y-auto pr-2 space-y-3 text-sm text-gray-600">
+          <div *ngFor="let coordinator of recentCoordinators.slice(0,5)" class="flex justify-between items-center">
+            <span class="truncate">{{ coordinator.name }}</span>
+            <span class="text-green-600 bg-green-50 px-2 py-1 rounded text-xs font-medium">
+              Active
+            </span>
+          </div>
+          <div *ngIf="recentCoordinators.length === 0" class="text-gray-400 text-center py-4">
+            No coordinators found
+          </div>
+        </div>
+      </div>
+
+      <!-- System Health / Quick Stats -->
+      <div class="rounded-2xl bg-white p-6 shadow hover:shadow-lg transition-shadow h-80 flex flex-col">
+        <div class="flex items-center gap-2 mb-4 shrink-0">
+          <mat-icon svgIcon="heroicons_outline:chart-pie" class="text-gray-600"></mat-icon>
+          <h2 class="text-lg font-semibold text-gray-700">System Overview</h2>
+        </div>
+        <div class="flex-1 space-y-4 text-sm text-gray-600">
+          <div class="flex justify-between items-center">
+            <span>Total Active Users</span>
+            <span class="font-semibold text-gray-900">{{ stats.totalUsers }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Today's Transactions</span>
+            <span class="font-semibold text-gray-900">{{ stats.todayTransactions }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Pending Tasks</span>
+            <span class="font-semibold text-amber-600">{{ stats.pendingTasks }}</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>System Uptime</span>
+            <span class="font-semibold text-green-600">{{ stats.uptime }}%</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

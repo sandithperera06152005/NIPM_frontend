@@ -33,8 +33,11 @@ export class CourseInstallmentService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.resourceUrl}/${id}`);
   }
+
   getByCourse(courseId: number): Observable<ICourseInstallment[]> {
     return this.http.get<ICourseInstallment[]>(`${this.resourceUrl}/by-course/${courseId}`);
   }
+
+  
 }
 

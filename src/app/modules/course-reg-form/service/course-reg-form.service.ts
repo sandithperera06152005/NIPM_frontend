@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse,HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { NewCourseRegForm } from '../course-reg-form.model';
 
 export interface ICourseRegForm {
   id?: number;
@@ -21,8 +23,9 @@ export class CourseRegFormService {
 
   constructor() {}
 
-  query(): Observable<ICourseRegForm[]> {
-    return this.http.get<ICourseRegForm[]>(this.resourceUrl);
+  query(req?: any): Observable<EntityArrayResponseType> {
+    const options = this.createRequestOption(req);
+    return this.http.get<ICourseRegForm[]>(this.resourceUrl, { params: options, observe: 'response' }).pipe(map(res => this.convertResponseArrayFromServer(res)));
   }
 
   find(id: number): Observable<ICourseRegForm> {
@@ -43,5 +46,31 @@ export class CourseRegFormService {
 
   getFormIdentifier(form: ICourseRegForm): number | undefined {
     return form.id;
+  }
+
+  protected createRequestOption(req?: any): HttpParams {
+    let options: HttpParams = new HttpParams();
+    if (req) {
+      Object.keys(req).forEach(key => {
+        if (req[key] !== null && req[key] !== undefined) {
+          options = options.set(key, req[key]);
+        }
+      });
+    }
+    return options;
+  };
+
+  protected convertDateFromServer(restEntity: ICourseRegForm): ICourseRegForm {
+    const entity: any = { ...restEntity };
+    
+    return entity;
+  }
+  
+  protected convertResponseFromServer(res: HttpResponse<ICourseRegForm>): HttpResponse<ICourseRegForm> {
+    return res.clone({ body: res.body ? this.convertDateFromServer(res.body) : null });
+  }
+
+  protected convertResponseArrayFromServer(res: HttpResponse<ICourseRegForm[]>): HttpResponse<ICourseRegForm[]> {
+    return res.clone({ body: res.body ? res.body.map(item => this.convertDateFromServer(item)) : null });
   }
 }

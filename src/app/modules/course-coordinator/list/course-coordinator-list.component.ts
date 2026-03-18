@@ -1,9 +1,8 @@
-// This is an EJS template. It generates the list component TypeScript file.
 import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, startWith, Subject, catchError, switchMap, tap } from 'rxjs';
+import { merge, of, startWith, Subject, catchError, tap, switchMap } from 'rxjs';
 
 // Angular Material & Fuse
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -24,13 +23,8 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 // Application Imports
 import { ICourseCoordinator } from '../course-coordinator.model';
-import { CourseCoordinatorService } from '../service/course-coordinator.service';
+import { CourseCoordinatorService, EntityResponseType, EntityArrayResponseType } from '../service/course-coordinator.service';
 import { CourseCoordinatorFormComponent } from '../form/course-coordinator-form.component';
-
-
-
-
-
 
 type ParentDialogData = {
   parentFilters?: Record<string, string | number>;
@@ -110,7 +104,6 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
   templateUrl: './course-coordinator-list.component.html',
 })
 export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
-  // --- Injected Services ---
   private readonly courseCoordinatorService = inject(CourseCoordinatorService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
   private readonly route = inject(ActivatedRoute);
@@ -119,8 +112,7 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as ParentDialogData | null;
   private readonly fb = inject(FormBuilder);
 
-  // --- State & Triggers ---
-  isLoading = false;
+  isLoading = true;
   totalItems = 0;
   itemsPerPage = 10;
   private readonly refreshTrigger = new Subject<void>();
@@ -130,57 +122,16 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   selectedCourseCoordinator: ICourseCoordinator | null = null;
   drawerMode: 'new' | 'edit' = 'new';
 
-
-
-  // --- Filter configuration ---
   filterFields: FilterField[] = [
-
-    {
-      key: 'fullName',
-      label: 'FullName',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'teleNo',
-      label: 'TeleNo',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'email',
-      label: 'Email',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'nic',
-      label: 'Nic',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'isActive',
-      label: 'IsActive',
-      valueType: 'boolean' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['boolean'],
-      rawFieldType: 'Boolean'
-    },
-
-
+    { key: 'fullName', label: 'FullName', valueType: 'string', operators: FILTER_OPERATOR_LIBRARY.string, rawFieldType: 'String' },
+    { key: 'teleNo', label: 'TeleNo', valueType: 'string', operators: FILTER_OPERATOR_LIBRARY.string, rawFieldType: 'String' },
+    { key: 'email', label: 'Email', valueType: 'string', operators: FILTER_OPERATOR_LIBRARY.string, rawFieldType: 'String' },
+    { key: 'nic', label: 'Nic', valueType: 'string', operators: FILTER_OPERATOR_LIBRARY.string, rawFieldType: 'String' },
+    { key: 'isActive', label: 'IsActive', valueType: 'boolean', operators: FILTER_OPERATOR_LIBRARY.boolean, rawFieldType: 'Boolean' },
   ];
 
   filtersForm: FormGroup = this.buildFiltersForm();
 
-  // --- Table & Drawer ---
   @ViewChild('filterDrawer') filterDrawer!: MatDrawer;
   @ViewChild('formDrawer') formDrawer!: MatDrawer;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -192,16 +143,21 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {
     if (this.dialogData?.parentFilters) {
       this.baseParentFilters = { ...this.dialogData.parentFilters };
+    } else {
+      // Handle route params for parent filters
+      const params = this.route.snapshot.params;
+      const parentIdKey = Object.keys(params)[0];
+      if (parentIdKey) {
+        const parentModelName = parentIdKey.replace('Id', '');
+        this.baseParentFilters[`${parentModelName}Id.equals`] = params[parentIdKey];
+      }
     }
   }
 
   ngAfterViewInit(): void {
-    // Set up the triggers observable - sort, paginator, and manual refresh
-    // Using startWith on each to ensure triggers$ emits immediately
-    const sortChange$ = this.sort ? this.sort.sortChange.pipe(startWith(null)) : of(null);
-    const page$ = this.paginator ? this.paginator.page.pipe(startWith(null)) : of(null);
-
-    const triggers$ = merge(sortChange$, page$, this.refreshTrigger);
+    const sortChange$ = this.sort ? this.sort.sortChange : of({});
+    const page$ = this.paginator ? this.paginator.page : of({});
+    const triggers$ = merge(sortChange$, page$, this.refreshTrigger).pipe(startWith({}));
 
     if (this.dialogData?.parentFilters) {
       triggers$.subscribe(() => this.loadData());
@@ -220,8 +176,9 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
         )
         .subscribe(() => this.loadData());
     }
-  }
 
+    this.loadData();
+  }
   loadData(): void {
     if (!this.paginator) {
       return;
@@ -250,19 +207,20 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   }
 
   getSortParameters(): string[] {
-    if (!this.sort || !this.sort.active || this.sort.direction === '') {
-      return ['id,asc'];
-    }
+    if (!this.sort || !this.sort.active || this.sort.direction === '') return ['id,asc'];
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
-      this.courseCoordinatorService.find(id).subscribe(response => {
-        if (response.body) {
-          this.selectedCourseCoordinator = response.body;
+      this.courseCoordinatorService.find(id).subscribe({
+        next: (res) => {
+          this.selectedCourseCoordinator = res.body;
           this.formDrawer.open();
+        },
+        error: (err) => {
+          console.error('Error fetching course coordinator:', err);
         }
       });
     } else {
@@ -272,17 +230,10 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
     }
   }
 
-  closeFormDrawer(): void {
-    this.formDrawer.close();
-  }
 
-  openFilterDrawer(): void {
-    this.filterDrawer.open();
-  }
-
-  closeFilterDrawer(): void {
-    this.filterDrawer.close();
-  }
+  closeFormDrawer(): void { this.formDrawer.close(); }
+  openFilterDrawer(): void { this.filterDrawer.open(); }
+  closeFilterDrawer(): void { this.filterDrawer.close(); }
 
   handleFormSaved(): void {
     this.closeFormDrawer();
@@ -310,83 +261,42 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
 
   applyFilters(): void {
     const filters: Record<string, string> = {};
-
     this.filterFields.forEach(field => {
       const group = this.fieldGroup(field.key);
       const operator = group?.get('operator')?.value as string | undefined;
-      if (!operator) {
-        return;
-      }
-      const operatorConfig = field.operators.find(item => item.key === operator);
-      if (!operatorConfig) {
-        return;
-      }
-      const rawValue = group.get('value')?.value;
-      if (operatorConfig.requiresValue) {
-        if (rawValue === null || rawValue === '' || (Array.isArray(rawValue) && rawValue.length === 0)) {
-          return;
-        }
-      }
+      if (!operator) return;
+
+      const operatorConfig = field.operators.find(o => o.key === operator);
+      if (!operatorConfig) return;
 
       let paramValue: string | null = null;
+      const rawValue = group.get('value')?.value;
+
+      if (operatorConfig.requiresValue) {
+        if (rawValue === null || rawValue === '' || (Array.isArray(rawValue) && rawValue.length === 0)) return;
+      }
+
       switch (operatorConfig.valueType) {
-        case 'boolean': {
-          const boolValue = rawValue === true || rawValue === 'true';
-          paramValue = boolValue ? 'true' : 'false';
-          break;
-        }
-        case 'number': {
-          const numeric = typeof rawValue === 'number' ? rawValue : Number(rawValue);
-          if (Number.isNaN(numeric)) {
-            return;
-          }
-          paramValue = String(numeric);
-          break;
-        }
-        case 'date': {
-          if (rawValue instanceof Date) {
-            if (field.rawFieldType === 'LocalDate') {
-              const iso = rawValue.toISOString();
-              paramValue = iso.split('T')[0];
-            } else {
-              paramValue = rawValue.toISOString();
-            }
-          } else if (typeof rawValue === 'string' && rawValue) {
-            paramValue = rawValue;
-          }
-          break;
-        }
-        default: {
-          if (rawValue !== null && rawValue !== undefined) {
-            paramValue = String(rawValue);
-          }
-        }
+        case 'boolean': paramValue = rawValue === true || rawValue === 'true' ? 'true' : 'false'; break;
+        case 'number': const numeric = Number(rawValue); if (!Number.isNaN(numeric)) paramValue = String(numeric); break;
+        case 'date': if (rawValue instanceof Date) paramValue = rawValue.toISOString(); else if (typeof rawValue === 'string') paramValue = rawValue; break;
+        default: if (rawValue !== null && rawValue !== undefined) paramValue = String(rawValue);
       }
 
-      if (paramValue === null) {
-        return;
-      }
-
-      filters[`${field.key}.${operator}`] = paramValue;
+      if (paramValue !== null) filters[`${field.key}.${operator}`] = paramValue;
     });
 
     this.activeFilters = filters;
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.paginator?.firstPage();
     this.refreshTrigger.next();
-    this.loadData();
     this.closeFilterDrawer();
   }
 
   clearFilters(): void {
-    this.filterFields.forEach(field => this.clearField(field.key));
+    this.filterFields.forEach(f => this.clearField(f.key));
     this.activeFilters = {};
-    if (this.paginator) {
-      this.paginator.firstPage();
-    }
+    this.paginator?.firstPage();
     this.refreshTrigger.next();
-    this.loadData();
   }
 
   clearField(key: string): void {
@@ -399,29 +309,16 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   }
 
   operatorRequiresInput(field: FilterField): boolean {
-    const config = this.currentOperatorConfig(field);
-    return !!config?.requiresValue;
+    return !!this.currentOperatorConfig(field)?.requiresValue;
   }
 
   currentOperatorValueType(field: FilterField): FilterValueType {
     return this.currentOperatorConfig(field)?.valueType ?? field.valueType;
   }
 
-  getEnumOptions(field: FilterField): string[] {
-    if (!field.enumOptionsKey) {
-      return [];
-    }
-    return (this as any)[field.enumOptionsKey] ?? [];
-  }
-
-
-
   private buildFiltersForm(): FormGroup {
     const groupConfig = this.filterFields.reduce((acc, field) => {
-      acc[field.key] = this.fb.group({
-        operator: [''],
-        value: [null],
-      });
+      acc[field.key] = this.fb.group({ operator: [''], value: [null] });
       return acc;
     }, {} as Record<string, FormGroup>);
     return this.fb.group(groupConfig);
@@ -429,10 +326,7 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
 
   private currentOperatorConfig(field: FilterField): FilterFieldOperator | undefined {
     const group = this.fieldGroup(field.key);
-    if (!group) {
-      return undefined;
-    }
-    const operator = group.get('operator')?.value as string | undefined;
-    return field.operators.find(item => item.key === operator);
+    const operator = group?.get('operator')?.value as string | undefined;
+    return field.operators.find(o => o.key === operator);
   }
 }

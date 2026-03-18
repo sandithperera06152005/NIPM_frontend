@@ -160,7 +160,6 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
       CourseAdmissionFormService.totalInstallmentsValidator(this.courseFee)
     );
 
-    // Validation
     this.installments.controls.forEach((group: FormGroup) => {
       group.get('installmentFee')?.valueChanges.subscribe(() => {
         this.installments.updateValueAndValidity({ onlySelf: true });
@@ -196,34 +195,45 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.errorMessage = null;
-    this.isSaving = true;
+  this.errorMessage = null;
+  this.isSaving = true;
 
-    const payload = this.formService.getCourseAdmission(this.form);
-    
-    const isUpdate = payload.id !== null;
+  const payload = this.formService.getCourseAdmission(this.form);
 
-    const request$ = isUpdate
-      ? this.courseAdmissionService.update(payload)
-      :  this.courseAdmissionService.create(payload as NewCourseAdmission); 
+  const isUpdate = payload.id !== null;
 
-    request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
-      next: async response => {
-        if (response.body) {
-          try{
-            await this.saveInstallments(response.body.id);
-            this.saved.emit(response.body);
-            this.dialogRef?.close(response.body);
-          }catch (error){
-            this.errorMessage = 'Course Admission saved, but failed to save invoices.';
-          }
+  const request$ = isUpdate
+    ? this.courseAdmissionService.update(payload)
+    : this.courseAdmissionService.create(payload as NewCourseAdmission);
+
+  request$.pipe(finalize(() => (this.isSaving = false))).subscribe({
+    next: async response => {
+      if (response.body) {
+        try {
+          const admissionId = response.body.id;
+
+          await this.saveInstallments(admissionId);
+
+          this.courseAdmissionService.sendInvoiceEmail(admissionId).subscribe(emailRes => {
+            if (emailRes.emailSent) {
+              alert('Course Admission saved and invoice email sent!');
+            } else {
+              alert('Course Admission saved, but email failed.\n\nError: ' + (emailRes.error ?? 'Unknown error'));
+            }
+          });
+          this.saved.emit(response.body);
+          this.dialogRef?.close(response.body);
+
+        } catch (error) {
+          this.errorMessage = 'Course Admission saved, but failed to save invoices.';
         }
-      },
-      error: () => {
-        this.errorMessage = 'Unable to save record. Please try again.';
-      },
-    });
-  }
+      }
+    },
+    error: () => {
+      this.errorMessage = 'Unable to save record. Please try again.';
+    },
+  });
+}
 
   onCancel(): void {
     this.cancelled.emit();
@@ -253,10 +263,10 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
      this.updateCourseMeta();
   }
 
-  private loadRelationshipOptions(): void {
-    this.courseService.query({ page: 0, size: 1000 }).subscribe({
+private loadRelationshipOptions(): void {
+    this.courseService.query({ page: 0, size: 500 }).subscribe({
       next: (res) => {
-        this.courses = res.body ?? [];
+        this.courses = (res.body ?? []).filter(c => c.active);
         this.form.patchValue({
           courseRef: this.entity?.courseRef ?? null,   
           isSinglePayment: this.entity?.isSinglePayment ?? null,
@@ -266,5 +276,10 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
         this.errorMessage = 'Unable to load data relationships. Please try again.';
       },       
     });
-  }
+  
 }
+}
+
+
+
+

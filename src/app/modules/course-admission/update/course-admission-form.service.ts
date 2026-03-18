@@ -122,7 +122,7 @@ export class CourseAdmissionFormService {
       
       approval3DateTime: new FormControl(entity.approval3DateTime),
 
-      courseRef: new FormControl<ICourse | null>(entity.courseRef ?? null),
+      courseRef: new FormControl(null, Validators.required),
       
       isSinglePayment: new FormControl(entity.isSinglePayment ?? null),
       
@@ -143,12 +143,13 @@ export class CourseAdmissionFormService {
     const raw = form.getRawValue();
     return {
       ...raw,
-      courseRefId: raw.courseRef ? { id: raw.courseRef.id } : null,
+      courseRefId: raw.courseRef?.id ?? null,
+      courseRef: undefined,
       isSinglePayment: raw.isSinglePayment ?? null,
       installments: raw.installments.map(inst => ({
         installmentNo: inst.installmentNo,
         installmentFee: inst.installmentFee,
-        dupDate:inst.dueDate,
+        dueDate:inst.dueDate,
       })),
     } as unknown as ICourseAdmission | NewCourseAdmission;
   }

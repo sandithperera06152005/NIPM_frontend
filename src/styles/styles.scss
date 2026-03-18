@@ -2,6 +2,36 @@
 /*  @ Import/write your custom styles here.
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
+
+/* ===== Custom Green Theme for Plantation Management ===== */
+/* Navigation background with green tint */
+.fuse-vertical-navigation {
+    background-color: #f0fdf4 !important;
+    /* Light green background */
+}
+
+.fuse-vertical-navigation .fuse-vertical-navigation-wrapper {
+    background-color: #f0fdf4 !important;
+}
+
+.fuse-vertical-navigation .fuse-vertical-navigation-item {
+    background-color: transparent !important;
+}
+
+.fuse-vertical-navigation .fuse-vertical-navigation-item:hover {
+    background-color: #dcfce7 !important;
+    /* Slightly stronger green hover */
+}
+
+.fuse-vertical-navigation .fuse-vertical-navigation-item.active {
+    background-color: #bbf7d0 !important;
+    /* More pronounced green for active */
+}
+
+.fuse-vertical-navigation .fuse-vertical-navigation-item.active>.fuse-vertical-navigation-item-wrapper {
+    background-color: #bbf7d0 !important;
+}
+
 /* ===== Mat Select Bank Account Dropdown ===== */
 .bank-account-panel {
     min-width: 400px !important;

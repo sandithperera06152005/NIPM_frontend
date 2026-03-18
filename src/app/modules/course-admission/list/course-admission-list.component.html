@@ -70,7 +70,8 @@
           </div>
         </ng-container>
 
-        <div *ngIf="!filterFields.length" class="rounded border border-dashed border-outline px-4 py-6 text-center text-sm text-disabled">
+        <div *ngIf="!filterFields.length"
+          class="rounded border border-dashed border-outline px-4 py-6 text-center text-sm text-disabled">
           No filterable fields are available for this entity.
         </div>
       </div>
@@ -87,10 +88,11 @@
     <div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden">
 
       <!-- Header -->
-      <div class="bg-default dark:bg-transparent flex flex-0 flex-col p-6 pb-22 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-28 sm:pt-12">
+      <div
+        class="bg-default dark:bg-transparent flex flex-0 flex-col p-6 pb-22 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-28 sm:pt-12">
         <div class="min-w-0 flex-1">
           <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
-            Course Admission
+            Student Admission
           </h2>
         </div>
         <!-- Actions -->
@@ -101,13 +103,14 @@
           </button>
           <button mat-flat-button color="primary" type="button" (click)="openFormDrawer()">
             <mat-icon [svgIcon]="'heroicons_mini:plus'"></mat-icon>
-            <span class="ml-2">New CourseAdmission</span>
+            <span class="ml-2">Admit new Student</span>
           </button>
         </div>
       </div>
 
       <!-- Table Container -->
-      <div class="example-table-container bg-card -mt-16 h-full rounded-t-2xl" style="overflow-x: auto; white-space: nowrap; width: 100%">
+      <div class="example-table-container bg-card -mt-16 h-full rounded-t-2xl"
+        style="overflow-x: auto; white-space: nowrap; width: 100%">
         <div *ngIf="isLoading" class="flex items-center justify-center p-8">
           <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
         </div>
@@ -119,178 +122,178 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
             <td mat-cell *matCellDef="let element">{{ element.id }}</td>
           </ng-container>
-          
+
           <ng-container matColumnDef="fullName">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>FullName</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.fullName }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="nameWithInitials">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>NameWithInitials</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.nameWithInitials }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="permanentAddress">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>PermanentAddress</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.permanentAddress }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="teleNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>TeleNo</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.teleNo }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="mobileNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>MobileNo</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.mobileNo }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="whatsAppNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>WhatsAppNo</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.whatsAppNo }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.email }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="nic">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Nic</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.nic }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="dateOfBirth">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>DateOfBirth</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.dateOfBirth | date: 'medium' }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="employer">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Employer</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.employer }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="employerDesignation">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerDesignation</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.employerDesignation }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="employerOfficialAddress">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerOfficialAddress</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.employerOfficialAddress }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="employerTeleNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerTeleNo</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.employerTeleNo }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="employerFaxNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerFaxNo</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.employerFaxNo }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="sponsorByWhom">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>SponsorByWhom</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.sponsorByWhom }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="advertisementTypeOther">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AdvertisementTypeOther</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.advertisementTypeOther }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.status }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="appliedDateTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AppliedDateTime</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.appliedDateTime | date: 'medium' }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="approval1Status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval1Status</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.approval1Status }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="approval1DateTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval1DateTime</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.approval1DateTime | date: 'medium' }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="approval2Status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval2Status</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.approval2Status }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="approval2DateTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval2DateTime</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.approval2DateTime | date: 'medium' }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="approval3Status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval3Status</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.approval3Status }}</td>
-            
+
           </ng-container>
-          
+
           <ng-container matColumnDef="approval3DateTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval3DateTime</th>
-            
+
             <td mat-cell *matCellDef="let element">{{ element.approval3DateTime | date: 'medium' }}</td>
-            
+
           </ng-container>
-          
+
 
           <!-- Generate columns for "Show Children" buttons -->
-          
+
 
           <!-- General Actions Column (Edit/Delete) -->
           <ng-container matColumnDef="actions">
@@ -315,17 +318,16 @@
       </div>
 
       <!-- Paginator -->
-      <mat-paginator [length]="totalItems" [pageSize]="itemsPerPage" [pageSizeOptions]="[10, 25, 50, 100]" (page)="loadData()"></mat-paginator>
+      <mat-paginator [length]="totalItems" [pageSize]="itemsPerPage" [pageSizeOptions]="[10, 25, 50, 100]"
+        (page)="loadData()"></mat-paginator>
     </div>
   </mat-drawer-content>
 
   <!-- Side Drawer for Form -->
   <mat-drawer #formDrawer mode="over" position="end" class="w-1/3 min-w-96">
     <div class="flex h-full flex-col bg-card p-6">
-      <app-course-admission-form
-        [entity]="selectedCourseAdmission"
-        [heading]="drawerMode === 'new' ? 'New CourseAdmission' : 'Edit CourseAdmission'"
-        (saved)="handleFormSaved()"
+      <app-course-admission-form [entity]="selectedCourseAdmission"
+        [heading]="drawerMode === 'new' ? 'Admit new Student' : 'Edit CourseAdmission'" (saved)="handleFormSaved()"
         (cancelled)="closeFormDrawer()">
       </app-course-admission-form>
     </div>
