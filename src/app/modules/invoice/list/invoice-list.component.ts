@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { catchError, merge, of, startWith, Subject, switchMap, tap } from 'rxjs';
 import { forkJoin } from 'rxjs';
-import { map} from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 // Angular Material
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -29,7 +29,9 @@ import { InvoiceService } from '../service/invoice.service';
 import { InvoiceFormComponent } from '../form/invoice-form.component';
 import { ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../../entities/document/service/document.service';
-
+import { PaymentService } from 'app/entities/payment/service/payment.service';
+import { IDocument } from 'app/entities/document/document.model';
+import { IPayment } from 'app/entities/payment/payment.model';
 
 
 type ParentDialogData = {
@@ -101,7 +103,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatFormFieldModule,
     MatInputModule,
     InvoiceFormComponent,
-    ReactiveFormsModule, 
+    ReactiveFormsModule,
     MatSidenavModule,
   ],
 
@@ -116,7 +118,8 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as ParentDialogData | null;
   private readonly fb = inject(FormBuilder);
   private readonly documentService = inject(DocumentService);
-  
+  private paymentService = inject(PaymentService);
+
 
   searchNic: string = '';
   isLoading = false;
@@ -130,7 +133,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   drawerMode: 'new' | 'edit' = 'new';
 
   filterFields: FilterField[] = [
-    
+
     {
       key: 'invoiceNo',
       label: 'InvoiceNo',
@@ -138,7 +141,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-    
+
     {
       key: 'issuedDate',
       label: 'IssuedDate',
@@ -146,7 +149,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['date'],
       rawFieldType: 'Instant'
     },
-    
+
     {
       key: 'dueDate',
       label: 'DueDate',
@@ -154,7 +157,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['date'],
       rawFieldType: 'Instant'
     },
-    
+
     {
       key: 'totalAmount',
       label: 'TotalAmount',
@@ -162,7 +165,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['number'],
       rawFieldType: 'BigDecimal'
     },
-    
+
     {
       key: 'paidAmount',
       label: 'PaidAmount',
@@ -170,8 +173,8 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       operators: FILTER_OPERATOR_LIBRARY['number'],
       rawFieldType: 'BigDecimal'
     },
-    
-    
+
+
   ];
 
   filtersForm: FormGroup = this.buildFiltersForm();
@@ -187,8 +190,8 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     'issuedDate',
     'dueDate',
     'totalAmount',
-    'paidAmount',
     'receivedDocument',
+    'paidAmount',
     'actions'
   ];
 
@@ -224,149 +227,182 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     this.loadData();
   }
 
- approvedInvoices: Set<number> = new Set<number>();
+  approvedInvoices = new Set<number>();
 
-loadData(): void {
-  if (!this.paginator) {
-    return;
-  }
+  loadData(): void {
+    if (!this.paginator) return;
 
-  this.isLoading = true;
-  const req = {
-    page: this.paginator.pageIndex,
-    size: this.paginator.pageSize,
-    sort: this.getSortParameters(),
-    ...this.baseParentFilters,
-    ...this.activeFilters,
-  };
+    this.isLoading = true;
 
-  this.invoiceService.query(req).pipe(
-    tap(res => {
-      this.isLoading = false;
-      this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
-      this.dataSource.data = res.body ?? [];
+    const req = {
+      page: this.paginator.pageIndex,
+      size: this.paginator.pageSize,
+      sort: this.getSortParameters(),
+      ...this.baseParentFilters,
+      ...this.activeFilters,
+    };
 
-      // Automatically mark invoices with paidAmount > 0 as approved
-      res.body?.forEach(invoice => {
-        if (invoice.paidAmount && invoice.paidAmount > 0) {
-          this.approvedInvoices.add(invoice.id!);
-        }
-      });
-    }),
-    switchMap(res => {
-      const invoices = res.body ?? [];
-      // Load documents for all invoices
+    this.invoiceService.query(req).pipe(
+      switchMap(res => {
+        this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
+        this.dataSource.data = res.body ?? [];
+        const invoices = res.body ?? [];
+
+        if (!invoices.length) return of(null);
+
+        // For each invoice, fetch documents
         const docCalls = invoices.map(invoice =>
           invoice.id
             ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
-                map(docs => { invoice.documents = docs; }),
-                catchError(() => of(null)) 
-              )
+              switchMap(docs => {
+                invoice.documents = docs ?? [];
+
+                // For each document, fetch its payment
+                const paymentCalls = invoice.documents.map(doc => {
+                  if (doc.payment?.id) {
+                    return this.paymentService.find(doc.payment.id).pipe(
+                      tap(paymentRes => {
+                        const payment = paymentRes.body;
+                        if (payment) {
+                          doc.payment = payment;
+
+                          // Mark as approved if payment is completed
+                          if (payment.paymentStatus === 'COMPLETED') {
+                            this.approvedInvoices.add(doc.id!);
+                          }
+                        }
+                      }),
+                      catchError(err => {
+                        console.error(`Error fetching payment for doc ${doc.id}`, err);
+                        return of(null);
+                      })
+                    );
+                  } else {
+                    return of(null); // document has no payment
+                  }
+                });
+
+                return paymentCalls.length ? forkJoin(paymentCalls) : of(null);
+              }),
+              catchError(err => {
+                console.error(`Error fetching documents for invoice ${invoice.id}`, err);
+                return of(null);
+              })
+            )
             : of(null)
         );
-      return forkJoin(docCalls);
-    }),
-    tap(() => this.isLoading = false),
-    catchError(() => {
-      this.isLoading = false;
-      return of(null);
-    })
-  ).subscribe();
-}
 
-approvePayment(invoice: IInvoice): void {
-  if (!invoice.id) {
-    alert('Invoice ID is missing!');
-    return;
+        return docCalls.length ? forkJoin(docCalls) : of(null);
+      }),
+      catchError(err => {
+        console.error('Error loading invoices/documents/payments', err);
+        return of(null);
+      }),
+      finalize(() => {
+        this.isLoading = false;
+        this.dataSource._updateChangeSubscription();
+      })
+    ).subscribe();
   }
+  // Track approved documents
+  //approvedInvoices = new Set<number>();
 
-  const paidAmount = Number(invoice.paidAmount);
-  if (!paidAmount || paidAmount <= 0) {
-    alert('Please enter a valid paid amount before approving.');
-    return;
-  }
+  approvePayment(invoice: any, doc: any): void {
 
-  // Step 1: fetch the full invoice from backend
-  this.invoiceService.find(invoice.id).subscribe({
-    next: (res) => {
-      const fullInvoice = res.body;
-      if (!fullInvoice) {
-        alert('Invoice not found on backend');
-        return;
-      }
-
-      // Step 2: update only paidAmount
-      fullInvoice.paidAmount = paidAmount;
-
-      // Step 3: send full invoice back to backend via update (PUT)
-      this.invoiceService.update(fullInvoice).subscribe({
-        next: (updated) => {
-          this.approvedInvoices.add(invoice.id!);
-          alert('Payment approved and saved!');
-
-          // Update table locally
-          const idx = this.dataSource.data.findIndex(inv => inv.id === invoice.id);
-          if (idx !== -1) {
-            this.dataSource.data[idx].paidAmount = paidAmount;
-            this.dataSource._updateChangeSubscription();
-          }
-        },
-        error: (err) => {
-          console.error('Failed to update invoice', err);
-          alert('Failed to save paid amount');
-        }
-      });
-    },
-    error: (err) => {
-      console.error('Failed to fetch invoice', err);
-      alert('Cannot fetch invoice from backend');
+    if (this.isApproved(doc)) {
+      return;
     }
-  });
-}
 
-public isApproved(invoice: IInvoice): boolean {
-  return invoice.id != null && this.approvedInvoices.has(invoice.id);
-}
+    const enteredAmount = Number(doc.enteredPaidAmount);
 
-// searchByNic(): void {
-//   // If search field is empty or length is not 12, clear data
-//   //|| this.searchNic.trim().length !== 12
-//   if (!this.searchNic ) {
-//     this.dataSource.data = [];
-//     return;
-//   }
+    if (!enteredAmount || enteredAmount <= 0) {
+      alert('Enter valid payment amount');
+      return;
+    }
 
-//   this.isLoading = true;
+    if (!invoice.id) {
+      alert('Invoice ID missing');
+      return;
+    }
 
-//   this.invoiceService.getByNic(this.searchNic).pipe(
-//     catchError(err => {
-//       console.error('Error fetching invoices', err);
-//       this.dataSource.data = [];
-//       this.isLoading = false;
-//       return of([]);
-//     })
-//   ).subscribe((res: IInvoice[]) => {
-//     // Sort ascending by invoiceNo
-//     this.dataSource.data = res.sort((a, b) => {
-//       const getNumber = (inv: string) => {
-//         const match = inv.match(/-(\d+)$/);
-//         return match ? parseInt(match[1], 10) : 0;
-//       };
-//       return getNumber(a.invoiceNo) - getNumber(b.invoiceNo);
-//     });
 
-//     // Mark approved invoices
-//     res.forEach(invoice => {
-//       if (invoice.paidAmount && invoice.paidAmount > 0) {
-//         this.approvedInvoices.add(invoice.id!);
-//       }
-//     });
+    this.invoiceService.find(invoice.id).subscribe({
+      next: (res: any) => {
 
-    
+        const fullInvoice = res.body;
 
-//     this.isLoading = false;
-//   });
-// }
+        if (!fullInvoice) {
+          alert('Invoice not found');
+          return;
+        }
+
+        const currentPaid = fullInvoice.paidAmount || 0;
+
+        fullInvoice.paidAmount = currentPaid + enteredAmount;
+
+        this.invoiceService.update(fullInvoice).subscribe({
+          next: () => {
+
+            const index = this.dataSource.data.findIndex((inv: any) => inv.id === invoice.id);
+
+            if (index !== -1) {
+              this.dataSource.data[index].paidAmount = fullInvoice.paidAmount;
+              this.dataSource._updateChangeSubscription();
+            }
+            if (doc.payment?.id) {
+
+              this.paymentService.find(doc.payment.id).subscribe({
+                next: (paymentRes: any) => {
+
+                  const fullPayment = paymentRes.body;
+
+                  if (!fullPayment) {
+                    console.error('Payment not found');
+                    return;
+                  }
+
+                  // Change ONLY status
+                  fullPayment.paymentStatus = 'COMPLETED';
+
+                  this.paymentService.update(fullPayment).subscribe({
+                    next: () => {
+                      console.log('Payment status updated');
+                    },
+                    error: err => {
+                      console.error('Payment status update failed', err);
+                    }
+                  });
+
+                },
+                error: err => {
+                  console.error('Fetch payment failed', err);
+                }
+              });
+
+            }
+            this.approvedInvoices.add(doc.id);
+
+            alert('Payment approved successfully');
+
+          },
+          error: err => {
+            console.error('Invoice update failed', err);
+            alert('Failed to update invoice');
+          }
+        });
+
+      },
+      error: err => {
+        console.error('Fetch invoice failed', err);
+        alert('Cannot fetch invoice');
+      }
+    });
+
+  }
+
+  isApproved(doc: any): boolean {
+    return doc.payment?.paymentStatus === 'COMPLETED';
+  }
 
   searchByNic(): void {
     if (!this.searchNic) { this.dataSource.data = []; return; }
@@ -383,12 +419,12 @@ public isApproved(invoice: IInvoice): boolean {
         res.forEach(invoice => { if (invoice.paidAmount && invoice.paidAmount > 0) this.approvedInvoices.add(invoice.id!); });
 
         // Load documents for search results
-        const docCalls = res.map(inv => 
+        const docCalls = res.map(inv =>
           inv.id
             ? this.documentService.getDocumentsByInvoiceId(inv.id).pipe(
-                map(docs => { inv.documents = docs; }),
-                catchError(() => of(null))
-              )
+              map(docs => { inv.documents = docs; }),
+              catchError(() => of(null))
+            )
             : of(null)
         );
 
@@ -576,7 +612,7 @@ public isApproved(invoice: IInvoice): boolean {
 
 
 
-private buildFiltersForm(): FormGroup {
+  private buildFiltersForm(): FormGroup {
     const groupConfig = this.filterFields.reduce((acc, field) => {
       acc[field.key] = this.fb.group({
         operator: [''],
@@ -595,9 +631,4 @@ private buildFiltersForm(): FormGroup {
     const operator = group.get('operator')?.value as string | undefined;
     return field.operators.find(item => item.key === operator);
   }
-
-
-
-  
-
 }

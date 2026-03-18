@@ -42,11 +42,13 @@ export class CourseAdmissionService {
   protected resourceUrl = 'api/course-admissions';
 
   create(payload: NewCourseAdmission): Observable<EntityResponseType> {
+    this.validateRequiredFields(payload);
     const copy = this.convertDateFromClient(payload);
     return this.http.post<RestCourseAdmission>(this.resourceUrl, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
   }
 
   update(payload: ICourseAdmission): Observable<EntityResponseType> {
+    this.validateRequiredFields(payload);
     const copy = this.convertDateFromClient(payload);
     return this.http.put<RestCourseAdmission>(`${this.resourceUrl}/${payload.id}`, copy, { observe: 'response' }).pipe(map(res => this.convertResponseFromServer(res)));
   }
@@ -79,6 +81,25 @@ export class CourseAdmissionService {
     }
     return options;
   };
+
+  protected validateRequiredFields(payload: NewCourseAdmission | ICourseAdmission): void {
+    if (!payload.courseRef) throw new Error('Course is required');
+
+    if (payload.isSinglePayment === null || payload.isSinglePayment === undefined)
+      throw new Error('Payment plan is required');
+
+    // Force email to primitive string and trim spaces
+  const email = payload.email ? payload.email.toString().trim() : '';
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // more robust email regex
+  if (!email || !emailPattern.test(email)) 
+    throw new Error('Invalid email');
+
+  // Force NIC to primitive string and trim spaces
+  const nic = payload.nic ? payload.nic.toString().trim() : '';
+  const nicPattern = /^(\d{9}[vV]|\d{12})$/; // NIC: 9 digits + V/v or 12 digits
+  if (!nic || !nicPattern.test(nic)) 
+    throw new Error('Invalid NIC format');
+  }
 
   // --- Date Conversion Helpers ---
   protected convertDateFromClient<T extends ICourseAdmission | NewCourseAdmission | PartialUpdateCourseAdmission>(entity: T): RestOf<T> {
