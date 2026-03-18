@@ -1,7 +1,7 @@
 // This is an EJS template that generates the reusable form component for an entity.
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Optional, Output, OnChanges, OnInit, SimpleChanges, inject } from '@angular/core';
-import { FormArray, FormGroup,ReactiveFormsModule } from '@angular/forms';
+import { FormArray, FormGroup,ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -71,6 +71,7 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
   form: CourseAdmissionFormGroup = this.formService.createCourseAdmissionFormGroup();
   isSaving = false;
   isInitialized = false;
+  submitted = false;
   courses: ICourse[] = [];
   errorMessage: string | null = null;
   courseFee = 0;
@@ -90,6 +91,19 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
     this.initializeFormFromInputs();
     this.loadRelationshipOptions();
     this.isInitialized = true;
+
+    this.form.get('fullName')?.setValidators([Validators.required]);
+    this.form.get('isSinglePayment')?.setValidators([Validators.required]);
+
+    // Make Angular recalc validation status
+    this.form.get('fullName')?.updateValueAndValidity();
+    this.form.get('isSinglePayment')?.updateValueAndValidity();
+
+    this.form.get('email')?.setValidators([Validators.required, Validators.email]);
+    this.form.get('nic')?.setValidators([Validators.required, Validators.pattern(/^(\d{9}[vV]|\d{12})$/)]);
+    
+    this.form.get('email')?.updateValueAndValidity();
+    this.form.get('nic')?.updateValueAndValidity();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -190,10 +204,17 @@ export class CourseAdmissionFormComponent implements OnInit, OnChanges {
 }
 
   onSubmit(): void {
+    this.submitted = true;
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
+
+    if (this.form.invalid) {
+    return; 
+  }
+
 
   this.errorMessage = null;
   this.isSaving = true;

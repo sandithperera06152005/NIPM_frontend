@@ -7,6 +7,8 @@ export interface IDocument {
   fileUrl?: string | null;
   documentType?: keyof typeof DocumentType | null;
   paymentId?: number | null;
+  paidAmount?: number; 
+  payment?: IPayment | null; 
 }
 
 export type NewDocument = Omit<IDocument, 'id'> & { id: null };
