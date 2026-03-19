@@ -130,19 +130,19 @@
 
           </ng-container>
 
-          <ng-container matColumnDef="nameWithInitials">
+          <!-- <ng-container matColumnDef="nameWithInitials">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>NameWithInitials</th>
 
             <td mat-cell *matCellDef="let element">{{ element.nameWithInitials }}</td>
 
-          </ng-container>
+          </ng-container> -->
 
-          <ng-container matColumnDef="permanentAddress">
+          <!-- <ng-container matColumnDef="permanentAddress">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>PermanentAddress</th>
 
             <td mat-cell *matCellDef="let element">{{ element.permanentAddress }}</td>
 
-          </ng-container>
+          </ng-container> -->
 
           <ng-container matColumnDef="teleNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>TeleNo</th>
@@ -158,12 +158,12 @@
 
           </ng-container>
 
-          <ng-container matColumnDef="whatsAppNo">
+          <!-- <ng-container matColumnDef="whatsAppNo">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>WhatsAppNo</th>
 
             <td mat-cell *matCellDef="let element">{{ element.whatsAppNo }}</td>
 
-          </ng-container>
+          </ng-container> -->
 
           <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
@@ -186,7 +186,7 @@
 
           </ng-container>
 
-          <ng-container matColumnDef="employer">
+          <!-- <ng-container matColumnDef="employer">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Employer</th>
 
             <td mat-cell *matCellDef="let element">{{ element.employer }}</td>
@@ -233,7 +233,7 @@
 
             <td mat-cell *matCellDef="let element">{{ element.advertisementTypeOther }}</td>
 
-          </ng-container>
+          </ng-container> -->
 
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
@@ -242,7 +242,7 @@
 
           </ng-container>
 
-          <ng-container matColumnDef="appliedDateTime">
+          <!-- <ng-container matColumnDef="appliedDateTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>AppliedDateTime</th>
 
             <td mat-cell *matCellDef="let element">{{ element.appliedDateTime | date: 'medium' }}</td>
@@ -289,16 +289,19 @@
 
             <td mat-cell *matCellDef="let element">{{ element.approval3DateTime | date: 'medium' }}</td>
 
-          </ng-container>
+          </ng-container> -->
 
 
           <!-- Generate columns for "Show Children" buttons -->
 
 
-          <!-- General Actions Column (Edit/Delete) -->
+          <!-- General Actions Column (View/Edit/Delete) -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let element">
+              <button mat-icon-button (click)="view(element.id)" matTooltip="View CourseAdmission">
+                <mat-icon [svgIcon]="'heroicons_outline:eye'"></mat-icon>
+              </button>
               <button mat-icon-button (click)="openFormDrawer(element.id)" matTooltip="Edit CourseAdmission">
                 <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
               </button>

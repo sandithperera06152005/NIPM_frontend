@@ -1,0 +1,190 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden bg-gradient-to-b from-green-50 to-white">
+    <!-- Header -->
+    <div class="border-b bg-white/80 px-4 py-5 backdrop-blur sm:px-8 sm:py-6">
+        <div class="mx-auto flex w-full max-w-none flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Manage Payments</h1>
+                <p class="mt-1 text-sm text-gray-600">Enter your payment amount and upload your receipt for each invoice.</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <span class="rounded-full bg-gray-100 px-3 py-1">
+                    Total invoices: <span class="font-semibold text-gray-900">{{ invoices.length }}</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-auto p-4 sm:p-8">
+
+        <mat-spinner *ngIf="isLoading" diameter="44" class="mx-auto mt-10"></mat-spinner>
+
+        <div *ngIf="!isLoading" class="mx-auto w-full max-w-none space-y-6">
+
+            <!-- Invoice Table -->
+            <div *ngIf="invoices.length > 0" class="mt-2">
+                <div class="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="text-lg font-semibold text-gray-800">Your Invoices</h2>
+                    <p class="text-xs text-gray-500">Tip: upload PDF/JPG/PNG receipts. You can save amount and upload receipt independently.</p>
+                </div>
+
+                <div class="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                    <div class="overflow-auto">
+                        <table mat-table [dataSource]="dataSource" matSort class="min-w-full w-full">
+                        <!-- ID (Auto-increment) -->
+                        <ng-container matColumnDef="id">
+                            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-gray-700">#</th>
+                            <td mat-cell *matCellDef="let element; let i = index" class="text-gray-700">{{ i + 1 }}</td>
+                        </ng-container>
+                        <!-- Invoice No -->
+                        <ng-container matColumnDef="invoiceNo">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="whitespace-nowrap text-gray-700">Invoice</th>
+                            <td mat-cell *matCellDef="let element" class="font-medium text-gray-900">{{ element.invoiceNo }}</td>
+                        </ng-container>
+                        <!-- Issued Date -->
+                        <ng-container matColumnDef="issuedDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="whitespace-nowrap text-gray-700">Issued</th>
+                            <td mat-cell *matCellDef="let element" class="whitespace-nowrap text-gray-700">{{ element.issuedDate | date:'mediumDate' }}</td>
+                        </ng-container>
+                        <!-- Due Date -->
+                        <ng-container matColumnDef="dueDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="whitespace-nowrap text-gray-700">Due</th>
+                            <td mat-cell *matCellDef="let element" class="whitespace-nowrap text-gray-700">{{ element.dueDate | date:'yyyy-MM-dd' }}</td>
+                        </ng-container>
+                        <!-- Total Amount -->
+                        <ng-container matColumnDef="totalAmount">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="whitespace-nowrap text-gray-700">Total</th>
+                            <td mat-cell *matCellDef="let element" class="whitespace-nowrap text-gray-900">
+                                {{ element.totalAmount | number:'1.2-2' }}
+                            </td>
+                        </ng-container>
+                        <!-- Paid Amount -->
+                        <ng-container matColumnDef="paidAmount">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="whitespace-nowrap text-gray-700">Payment</th>
+                            <td mat-cell *matCellDef="let invoice" class="min-w-[320px]">
+                                <ng-container *ngIf="invoice.id != null; else paidReadonly">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <mat-form-field appearance="outline" class="w-44 mt-2">
+                                                <input
+                                                    matInput
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    [(ngModel)]="paymentAmounts[invoice.id]"
+                                                    placeholder="Enter amount"
+                                                />
+                                            </mat-form-field>
+
+                                            <span
+                                                class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                                                [ngClass]="(((invoice.totalAmount ?? 0) - (paymentAmounts[invoice.id] ?? 0)) <= 0 && (invoice.totalAmount ?? 0) > 0) ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'"
+                                            >
+                                                {{ (((invoice.totalAmount ?? 0) - (paymentAmounts[invoice.id] ?? 0)) <= 0 && (invoice.totalAmount ?? 0) > 0) ? 'Paid' : 'Pending' }}
+                                            </span>
+
+                                            <label
+                                                class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                <mat-icon class="text-gray-500">attach_file</mat-icon>
+                                                <span class="max-w-[180px] truncate">
+                                                    {{ invoice.id != null && selectedReceiptFiles[invoice.id] ? selectedReceiptFiles[invoice.id]!.name : 'Attach receipt' }}
+                                                </span>
+                                                <input
+                                                    class="hidden"
+                                                    type="file"
+                                                    (change)="onReceiptSelected(invoice, $event)"
+                                                    accept=".pdf,.png,.jpg,.jpeg"
+                                                />
+                                            </label>
+
+                                            <button
+                                                mat-stroked-button
+                                                color="primary"
+                                                [disabled]="!invoice.id || uploadingReceiptInvoiceIds.has(invoice.id) || !selectedReceiptFiles[invoice.id]"
+                                                (click)="uploadReceipt(invoice)"
+                                            >
+                                                {{ uploadingReceiptInvoiceIds.has(invoice.id!) ? 'Uploading...' : 'Upload Receipt' }}
+                                            </button>
+                                        </div>
+
+                                        <p class="text-xs text-gray-500">Accepted: PDF, JPG, PNG. Max size depends on server settings.</p>
+                                    </div>
+                                </ng-container>
+                                <ng-template #paidReadonly>
+                                    {{ invoice.paidAmount | number:'1.2-2' }}
+                                </ng-template>
+                            </td>
+                        </ng-container>
+                        <!-- Outstanding Amount -->
+                        <ng-container matColumnDef="outstandingAmount">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header class="whitespace-nowrap text-gray-700">Outstanding</th>
+                            <td mat-cell *matCellDef="let invoice" class="whitespace-nowrap text-gray-900">
+                                <ng-container *ngIf="invoice.id != null; else outReadonly">
+                                    {{ ((invoice.totalAmount ?? 0) - (paymentAmounts[invoice.id] ?? 0)) | number:'1.2-2' }}
+                                </ng-container>
+                                <ng-template #outReadonly>
+                                    {{ ((invoice.totalAmount ?? 0) - (invoice.paidAmount ?? 0)) | number:'1.2-2' }}
+                                </ng-template>
+                            </td>
+                        </ng-container>
+                        <!-- Save Payment -->
+                        <ng-container matColumnDef="savePayment">
+                            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-gray-700">Save</th>
+                            <td mat-cell *matCellDef="let invoice" class="whitespace-nowrap">
+                                <button
+                                    mat-raised-button
+                                    color="primary"
+                                    [disabled]="!invoice.id || savingInvoiceIds.has(invoice.id)"
+                                    (click)="savePaidAmount(invoice)"
+                                >
+                                    {{ savingInvoiceIds.has(invoice.id!) ? 'Saving...' : 'Save' }}
+                                </button>
+                            </td>
+                        </ng-container>
+                        <!-- Received Document -->
+                        <ng-container matColumnDef="receivedDocument">
+                            <th mat-header-cell *matHeaderCellDef class="whitespace-nowrap text-gray-700">Documents</th>
+                            <td mat-cell *matCellDef="let invoice" class="min-w-[220px]">
+                                <ng-container *ngIf="invoice.documents?.length; else noDocs">
+                                    <ng-container *ngFor="let doc of invoice.documents">
+                                        <a
+                                            class="mb-1 inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                                            [href]="'http://localhost:8080/api/documents/download/' + doc.id"
+                                            target="_blank"
+                                        >
+                                            <mat-icon color="warn">receipt_long</mat-icon>
+                                            <span class="max-w-[150px] truncate">{{ doc.fileName || 'Receipt' }}</span>
+                                        </a>
+                                    </ng-container>
+                                </ng-container>
+                                <ng-template #noDocs>
+                                    <span class="inline-flex items-center gap-2 text-sm text-gray-500">
+                                        <mat-icon color="disabled">insert_drive_file</mat-icon>
+                                        No documents
+                                    </span>
+                                </ng-template>
+                            </td>
+                        </ng-container>
+                        <!-- Header and Rows -->
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50"></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Payments Message -->
+            <div *ngIf="invoices.length === 0" class="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100">
+                    <mat-icon class="text-gray-500">receipt_long</mat-icon>
+                </div>
+                <h2 class="mt-4 text-lg font-semibold text-gray-800">No Invoice Records Found</h2>
+                <p class="mt-1 text-sm text-gray-600">When invoices are generated for your course admission, they will appear here.</p>
+            </div>
+
+        </div>
+
+    </div>
+</div>

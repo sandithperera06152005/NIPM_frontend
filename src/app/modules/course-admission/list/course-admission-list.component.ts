@@ -26,6 +26,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ICourseAdmission } from '../course-admission.model';
 import { CourseAdmissionService } from '../service/course-admission.service';
 import { CourseAdmissionFormComponent } from '../form/course-admission-form.component';
+import { CourseAdmissionViewDialogComponent } from '../view/course-admission-view-dialog.component';
 
 
 
@@ -341,7 +342,34 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['id', 'fullName', 'nameWithInitials', 'permanentAddress', 'teleNo', 'mobileNo', 'whatsAppNo', 'email', 'nic', 'dateOfBirth', 'employer', 'employerDesignation', 'employerOfficialAddress', 'employerTeleNo', 'employerFaxNo', 'sponsorByWhom', 'advertisementTypeOther', 'status', 'appliedDateTime', 'approval1Status', 'approval1DateTime', 'approval2Status', 'approval2DateTime', 'approval3Status', 'approval3DateTime', 'actions'];
+  displayedColumns: string[] = [
+    'id',
+    'fullName',
+    //'nameWithInitials', 
+    //'permanentAddress', 
+    'teleNo',
+    'mobileNo',
+    // 'whatsAppNo', 
+    'email',
+    'nic',
+    'dateOfBirth',
+    // 'employer', 
+    // 'employerDesignation', 
+    // 'employerOfficialAddress', 
+    // 'employerTeleNo', 
+    // 'employerFaxNo', 
+    // 'sponsorByWhom', 
+    // 'advertisementTypeOther', 
+    'status',
+    // 'appliedDateTime', 
+    // 'approval1Status', 
+    // 'approval1DateTime', 
+    // 'approval2Status', 
+    // 'approval2DateTime', 
+    // 'approval3Status', 
+    // 'approval3DateTime', 
+    'actions'
+  ];
   dataSource = new MatTableDataSource<ICourseAdmission>();
 
   ngOnInit(): void {
@@ -459,6 +487,17 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
           this.loadData();
         });
       }
+    });
+  }
+
+  view(id: number): void {
+    this.dialog.open(CourseAdmissionViewDialogComponent, {
+      data: { courseAdmissionId: id },
+      width: '80vw',
+      height: '75vh',
+      maxWidth: '1200px',
+      maxHeight: '95vh',
+      panelClass: 'course-admission-view-dialog',
     });
   }
 

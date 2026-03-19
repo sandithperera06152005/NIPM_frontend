@@ -16,6 +16,30 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: "heroicons_outline:chart-pie",
         link: "/dashboard",
       },
+      {
+        id: "student-dashboard",
+        title: "Student Dashboard",
+        type: "basic",
+        icon: "heroicons_outline:home",
+        link: "/student-dashboard",
+      },
+      {
+        id: "manage-payments",
+        title: "Manage Payments",
+        type: "basic",
+        icon: "heroicons_outline:currency-dollar",
+        link: "/student-dashboard/manage-payments",
+      },
+      // {
+      //   id: "student-dashboard",
+      //   title: "Student Dashboard",
+      //   type: "collapsable",
+      //   icon: "heroicons_outline:chart-pie",
+      //   children: [
+
+
+      //   ],
+      // },
       // {
       //   id: "student",
       //   title: "Student",

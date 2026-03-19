@@ -57,7 +57,7 @@ export class UserComponent implements OnInit, OnDestroy {
     private _router: Router,
     private _userService: UserService
     // private _authService:
-  ) {}
+  ) { }
 
   // -----------------------------------------------------------------------------------------------------
   // @ Lifecycle hooks
@@ -121,6 +121,10 @@ export class UserComponent implements OnInit, OnDestroy {
   //     // this.keycloakService.logout();
   //     // this._router.navigate(['/sign-out']);
   //   }
+
+  navigateToProfile(): void {
+    this._router.navigate(['/student-profile/view']);
+  }
 
   signOut(): void {
     // alert("Helloooooo");

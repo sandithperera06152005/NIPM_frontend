@@ -42,6 +42,7 @@ export interface IInvoice {
   paidAmount?: number | null;
   courseAdmission?: ICourseAdmission; 
   documents?: IDocument[];
+  registrationNumber?: string | null;
 }
 
 export type NewInvoice = Omit<IInvoice, 'id'> & { id: null };

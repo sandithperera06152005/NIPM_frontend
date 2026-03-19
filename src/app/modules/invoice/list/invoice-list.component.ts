@@ -27,8 +27,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IInvoice } from '../invoice.model';
 import { InvoiceService } from '../service/invoice.service';
 import { InvoiceFormComponent } from '../form/invoice-form.component';
+import { RegistrationNumberDialogComponent } from '../registration-number-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../../entities/document/service/document.service';
+import { PaymentService } from '../../../entities/payment/service/payment.service';
+import { IPayment } from '../../../entities/payment/payment.model';
 import { CourseAdmissionService } from '../../course-admission/service/course-admission.service';
 import { ICourseAdmission } from '../../course-admission/course-admission.model';
 import { ApplicationStatus } from '../../../enums/application-status.model';
@@ -106,6 +109,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     InvoiceFormComponent,
     ReactiveFormsModule,
     MatSidenavModule,
+    RegistrationNumberDialogComponent,
   ],
 
   templateUrl: './invoice-list.component.html',
@@ -120,6 +124,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as ParentDialogData | null;
   private readonly fb = inject(FormBuilder);
   private readonly documentService = inject(DocumentService);
+  private readonly paymentService = inject(PaymentService);
 
 
   searchNic: string = '';
@@ -259,11 +264,33 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       }),
       switchMap(res => {
         const invoices = res.body ?? [];
-        // Load documents for all invoices
+        // Load documents for all invoices.
+        // Receipts are stored in `document.paymentId` (FK to payment), so we fetch:
+        // invoice -> payments (by invoiceId) -> documents (by paymentId).
         const docCalls = invoices.map(invoice =>
           invoice.id
-            ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
-              map(docs => { invoice.documents = docs; }),
+            ? this.paymentService.query({ 'invoiceId.equals': invoice.id }).pipe(
+              map(r => r.body ?? []),
+              switchMap((payments: IPayment[]) => {
+                const paymentIds = payments.map(p => p.id).filter((id): id is number => typeof id === 'number');
+                if (paymentIds.length === 0) {
+                  invoice.documents = [];
+                  return of(null);
+                }
+
+                return forkJoin(
+                  paymentIds.map(paymentId =>
+                    this.documentService.query({ 'paymentId.equals': paymentId }).pipe(
+                      map(docRes => docRes.body ?? []),
+                      catchError(() => of([]))
+                    )
+                  )
+                ).pipe(
+                  map(docGroups => {
+                    invoice.documents = docGroups.flat();
+                  })
+                );
+              }),
               catchError(() => of(null))
             )
             : of(null)
@@ -290,65 +317,89 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       return;
     }
 
-    // Step 1: fetch the full invoice from backend
-    this.invoiceService.find(invoice.id).subscribe({
-      next: (res) => {
-        const fullInvoice = res.body;
-        if (!fullInvoice) {
-          alert('Invoice not found on backend');
-          return;
-        }
+    // Check if student is already approved (any invoice for this student is approved)
+    if (invoice.courseAdmission?.status === ApplicationStatus.APPROVED) {
+      // Student already approved, button should show "Approved" and be disabled
+      return;
+    }
 
-        // Step 2: update only paidAmount
-        fullInvoice.paidAmount = paidAmount;
+    // Open dialog to get registration number
+    const dialogRef = this.dialog.open(RegistrationNumberDialogComponent);
+    dialogRef.afterClosed().subscribe((registrationNumber: string | null) => {
+      if (!registrationNumber) {
+        return; // cancelled
+      }
 
-        // Step 3: send full invoice back to backend via update (PUT)
-        this.invoiceService.update(fullInvoice).subscribe({
-          next: (updated) => {
-            this.approvedInvoices.add(invoice.id!);
+      // Step 1: fetch the full invoice from backend
+      this.invoiceService.find(invoice.id).subscribe({
+        next: (res) => {
+          const fullInvoice = res.body;
+          if (!fullInvoice) {
+            alert('Invoice not found on backend');
+            return;
+          }
 
-            // Update course admission status if exists
-            if (fullInvoice.courseAdmission?.id) {
-              this.courseAdmissionService.find(fullInvoice.courseAdmission.id).subscribe({
-                next: (courseAdmissionResponse) => {
-                  if (courseAdmissionResponse.body) {
-                    const courseAdmission = courseAdmissionResponse.body;
-                    courseAdmission.status = ApplicationStatus.APPROVED;
-                    this.courseAdmissionService.update(courseAdmission).subscribe({
-                      next: () => {
-                        console.log('Course admission status updated to APPROVED');
-                      },
-                      error: (err) => {
-                        console.error('Failed to update course admission status', err);
-                      }
-                    });
+          // Step 2: update paidAmount and registrationNumber
+          fullInvoice.paidAmount = paidAmount;
+          fullInvoice.registrationNumber = registrationNumber;
+
+          // Step 3: send full invoice back to backend via update (PUT)
+          this.invoiceService.update(fullInvoice).subscribe({
+            next: (updated) => {
+              this.approvedInvoices.add(invoice.id!);
+
+              // Update course admission status if exists
+              if (fullInvoice.courseAdmission?.id) {
+                this.courseAdmissionService.find(fullInvoice.courseAdmission.id).subscribe({
+                  next: (courseAdmissionResponse) => {
+                    if (courseAdmissionResponse.body) {
+                      const courseAdmission = courseAdmissionResponse.body;
+                      courseAdmission.status = ApplicationStatus.APPROVED;
+                      this.courseAdmissionService.update(courseAdmission).subscribe({
+                        next: () => {
+                          console.log('Course admission status updated to APPROVED');
+                        },
+                        error: (err) => {
+                          console.error('Failed to update course admission status', err);
+                        }
+                      });
+                    }
+                  },
+                  error: (err) => {
+                    console.error('Failed to fetch course admission', err);
                   }
-                },
-                error: (err) => {
-                  console.error('Failed to fetch course admission', err);
+                });
+              }
+
+              alert('Payment approved and saved!');
+
+              // Update course admission status locally in all invoices for this student
+              this.dataSource.data.forEach(inv => {
+                if (inv.courseAdmission?.id === fullInvoice.courseAdmission?.id) {
+                  if (inv.courseAdmission) {
+                    inv.courseAdmission.status = ApplicationStatus.APPROVED;
+                  }
                 }
               });
-            }
-
-            alert('Payment approved and saved!');
-
-            // Update table locally
-            const idx = this.dataSource.data.findIndex(inv => inv.id === invoice.id);
-            if (idx !== -1) {
-              this.dataSource.data[idx].paidAmount = paidAmount;
               this.dataSource._updateChangeSubscription();
+
+              // Mark only this specific invoice as approved
+              this.approvedInvoices.add(invoice.id!);
+
+              // Refresh data to ensure consistency
+              this.loadData();
+            },
+            error: (err) => {
+              console.error('Failed to update invoice', err);
+              alert('Failed to save paid amount');
             }
-          },
-          error: (err) => {
-            console.error('Failed to update invoice', err);
-            alert('Failed to save paid amount');
-          }
-        });
-      },
-      error: (err) => {
-        console.error('Failed to fetch invoice', err);
-        alert('Cannot fetch invoice from backend');
-      }
+          });
+        },
+        error: (err) => {
+          console.error('Failed to fetch invoice', err);
+          alert('Cannot fetch invoice from backend');
+        }
+      });
     });
   }
 

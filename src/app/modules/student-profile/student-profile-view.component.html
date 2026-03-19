@@ -1,0 +1,224 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-hidden bg-green-50">
+    <!-- Header -->
+    <div class="flex flex-col gap-2 bg-white px-8 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold tracking-tight text-gray-800">
+                Student Profile
+            </h1>
+            <p class="text-sm text-gray-500">
+                View and manage your personal information
+            </p>
+        </div>
+        <div>
+            <button mat-raised-button color="primary" (click)="editProfile()" *ngIf="courseAdmission">
+                <mat-icon>edit</mat-icon>
+                Edit Profile
+            </button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-auto p-4 md:p-8">
+
+        <mat-spinner *ngIf="isLoading" diameter="50" class="mx-auto mt-8"></mat-spinner>
+
+        <div *ngIf="!isLoading && courseAdmission" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Personal Information -->
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <div mat-card-avatar
+                        class="bg-blue-100 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center">
+                        <mat-icon>person</mat-icon>
+                    </div>
+                    <mat-card-title>Personal Information</mat-card-title>
+                    <mat-card-subtitle>Basic details and identification</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="info-field">
+                        <label class="field-label">Full Name</label>
+                        <p class="field-value">{{ courseAdmission.fullName }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Name with Initials</label>
+                        <p class="field-value">{{ courseAdmission.nameWithInitials }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">NIC</label>
+                        <p class="field-value">{{ courseAdmission.nic }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Date of Birth</label>
+                        <p class="field-value">{{ courseAdmission.dateOfBirth | date:'mediumDate' }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Contact Information -->
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <div mat-card-avatar
+                        class="bg-green-100 text-green-600 rounded-full w-12 h-12 flex items-center justify-center">
+                        <mat-icon>contact_phone</mat-icon>
+                    </div>
+                    <mat-card-title>Contact Information</mat-card-title>
+                    <mat-card-subtitle>Phone numbers and email addresses</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="info-field">
+                        <label class="field-label">Telephone</label>
+                        <p class="field-value">{{ courseAdmission.teleNo }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Mobile</label>
+                        <p class="field-value">{{ courseAdmission.mobileNo }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">WhatsApp</label>
+                        <p class="field-value">{{ courseAdmission.whatsAppNo }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Email</label>
+                        <p class="field-value">{{ courseAdmission.email }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Address Information -->
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <div mat-card-avatar
+                        class="bg-purple-100 text-purple-600 rounded-full w-12 h-12 flex items-center justify-center">
+                        <mat-icon>location_on</mat-icon>
+                    </div>
+                    <mat-card-title>Address Information</mat-card-title>
+                    <mat-card-subtitle>Residential and mailing addresses</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="mt-4">
+                    <div class="info-field">
+                        <label class="field-label">Permanent Address</label>
+                        <p class="field-value">{{ courseAdmission.permanentAddress }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Employment Information -->
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <div mat-card-avatar
+                        class="bg-orange-100 text-orange-600 rounded-full w-12 h-12 flex items-center justify-center">
+                        <mat-icon>work</mat-icon>
+                    </div>
+                    <mat-card-title>Employment Information</mat-card-title>
+                    <mat-card-subtitle>Current job and workplace details</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="info-field">
+                        <label class="field-label">Employer</label>
+                        <p class="field-value">{{ courseAdmission.employer }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Designation</label>
+                        <p class="field-value">{{ courseAdmission.employerDesignation }}</p>
+                    </div>
+                    <div class="info-field" style="grid-column: span 2;">
+                        <label class="field-label">Official Address</label>
+                        <p class="field-value">{{ courseAdmission.employerOfficialAddress }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Telephone</label>
+                        <p class="field-value">{{ courseAdmission.employerTeleNo }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Fax</label>
+                        <p class="field-value">{{ courseAdmission.employerFaxNo }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Application Information -->
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <div mat-card-avatar
+                        class="bg-teal-100 text-teal-600 rounded-full w-12 h-12 flex items-center justify-center">
+                        <mat-icon>assignment</mat-icon>
+                    </div>
+                    <mat-card-title>Application Information</mat-card-title>
+                    <mat-card-subtitle>Application status and approval details</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="info-field">
+                        <label class="field-label">Application Status</label>
+                        <p class="field-value status-badge" [ngClass]="{
+              'text-amber-600 bg-amber-50': courseAdmission.status === 'Pending',
+              'text-green-600 bg-green-50': courseAdmission.status === 'Approved',
+              'text-red-600 bg-red-50': courseAdmission.status === 'Rejected'
+            }">{{ courseAdmission.status }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Applied Date & Time</label>
+                        <p class="field-value">{{ courseAdmission.appliedDateTime | date:'medium' }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Approval 1 Status</label>
+                        <p class="field-value">{{ courseAdmission.approval1Status ? 'Approved' : 'Pending' }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Approval 1 Date & Time</label>
+                        <p class="field-value">{{ courseAdmission.approval1DateTime | date:'medium' }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Approval 2 Status</label>
+                        <p class="field-value">{{ courseAdmission.approval2Status ? 'Approved' : 'Pending' }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Approval 2 Date & Time</label>
+                        <p class="field-value">{{ courseAdmission.approval2DateTime | date:'medium' }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Approval 3 Status</label>
+                        <p class="field-value">{{ courseAdmission.approval3Status ? 'Approved' : 'Pending' }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Approval 3 Date & Time</label>
+                        <p class="field-value">{{ courseAdmission.approval3DateTime | date:'medium' }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+            <!-- Additional Information -->
+            <mat-card class="profile-card">
+                <mat-card-header>
+                    <div mat-card-avatar
+                        class="bg-indigo-100 text-indigo-600 rounded-full w-12 h-12 flex items-center justify-center">
+                        <mat-icon>info</mat-icon>
+                    </div>
+                    <mat-card-title>Additional Information</mat-card-title>
+                    <mat-card-subtitle>Other relevant details</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div class="info-field">
+                        <label class="field-label">Sponsor</label>
+                        <p class="field-value">{{ courseAdmission.sponsorByWhom }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Advertisement Type (Other)</label>
+                        <p class="field-value">{{ courseAdmission.advertisementTypeOther }}</p>
+                    </div>
+                    <div class="info-field">
+                        <label class="field-label">Single Payment</label>
+                        <p class="field-value">{{ courseAdmission.isSinglePayment ? 'Yes' : 'No' }}</p>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+
+        </div>
+
+        <div *ngIf="!isLoading && !courseAdmission" class="text-center mt-8">
+            <mat-icon class="text-gray-400 text-6xl">person_off</mat-icon>
+            <h2 class="text-lg font-semibold text-gray-700 mt-4">Profile Not Found</h2>
+            <p class="text-sm text-gray-500">Unable to load your profile information.</p>
+        </div>
+
+    </div>
+</div>
