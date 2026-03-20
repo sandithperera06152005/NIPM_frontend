@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { IMembershipAdmission } from '../membership-admission.model';
+import { IMembershipCategory } from '../../membership-category/membership-category.model';
 import { MembershipAdmissionService } from '../service/membership-admission.service';
 import { MembershipCategoryService } from '../../membership-category/service/membership-category.service';
 import { ApplicationStatus } from '../../../enums/application-status.model';
@@ -38,7 +39,7 @@ export class VerifyMemberComponent implements OnInit {
     private readonly snackBar = inject(MatSnackBar);
 
     membershipAdmission: IMembershipAdmission | null = null;
-    membershipCategoryName: string | null = null;
+    membershipCategory: IMembershipCategory | null = null;
     isLoading = true;
     isSendingEmail = false;
 
@@ -73,11 +74,11 @@ export class VerifyMemberComponent implements OnInit {
     loadMembershipCategory(categoryId: number): void {
         this.membershipCategoryService.find(categoryId).subscribe({
             next: (response) => {
-                this.membershipCategoryName = response.body?.membershipName || null;
+                this.membershipCategory = response.body;
                 this.isLoading = false;
             },
             error: () => {
-                this.membershipCategoryName = null;
+                this.membershipCategory = null;
                 this.isLoading = false;
             },
         });

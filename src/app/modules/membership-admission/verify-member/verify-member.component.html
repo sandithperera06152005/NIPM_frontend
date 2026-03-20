@@ -138,10 +138,36 @@
                             <label class="text-sm text-gray-500">Applied Date</label>
                             <p class="font-medium">{{ membershipAdmission.appliedDateTime | date: 'medium' || '-' }}</p>
                         </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Membership Category Details</h3>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-sm text-gray-500">Membership Name</label>
+                            <p class="font-medium">{{ membershipCategory?.membershipName || '-' }}</p>
+                        </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Membership Category</label>
-                            <p class="font-medium">{{ membershipCategoryName || '-' }}</p>
+                            <label class="text-sm text-gray-500">Duration</label>
+                            <p class="font-medium">{{ membershipCategory?.duration ? (membershipCategory.duration + ' months') : '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Price</label>
+                            <p class="font-medium">{{ membershipCategory?.price ? (membershipCategory.price | currency:'LKR') : '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Start Date</label>
+                            <p class="font-medium">{{ membershipCategory?.startDate | date:'mediumDate' || '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">End Date</label>
+                            <p class="font-medium">{{ membershipCategory?.endDate | date:'mediumDate' || '-' }}</p>
                         </div>
                     </div>
                 </div>
