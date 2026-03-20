@@ -11,42 +11,42 @@
 
 
     <mat-form-field class="w-full">
-      <mat-label>FullName</mat-label>
+      <mat-label>Full Name</mat-label>
       <input matInput formControlName="fullName" required>
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>NameWithInitials</mat-label>
+      <mat-label>Name With Initials</mat-label>
       <input matInput formControlName="nameWithInitials" required>
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>PermanentAddress</mat-label>
+      <mat-label>Permanent Address</mat-label>
       <input matInput formControlName="permanentAddress" required>
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>TeleNo</mat-label>
+      <mat-label>Telephone No</mat-label>
       <input matInput formControlName="teleNo" required>
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>MobileNo</mat-label>
+      <mat-label>Mobile No</mat-label>
       <input matInput formControlName="mobileNo" required>
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>WhatsAppNo</mat-label>
+      <mat-label>WhatsApp No</mat-label>
       <input matInput formControlName="whatsAppNo" required>
     </mat-form-field>
 
@@ -60,6 +60,17 @@
 
 
     <mat-form-field class="w-full">
+      <mat-label>Membership Category</mat-label>
+      <mat-select formControlName="membershipCategoryId">
+        <mat-option *ngFor="let category of membershipCategories" [value]="category.id">
+          {{ category.membershipName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+
+
+    <mat-form-field class="w-full">
       <mat-label>Identification/NIC</mat-label>
       <input matInput formControlName="nic" required>
     </mat-form-field>
@@ -67,7 +78,7 @@
 
 
     <mat-form-field class="w-full">
-      <mat-label>DateOfBirth</mat-label>
+      <mat-label>Date of Birth</mat-label>
       <input matInput [matDatepicker]="pickerdateOfBirth" formControlName="dateOfBirth" required>
       <mat-datepicker-toggle matSuffix [for]="pickerdateOfBirth"></mat-datepicker-toggle>
       <mat-datepicker #pickerdateOfBirth></mat-datepicker>
@@ -75,7 +86,7 @@
 
 
 
-    <mat-checkbox class="w-full" formControlName="memberOfCIP">
+    <!-- <mat-checkbox class="w-full" formControlName="memberOfCIP">
       MemberOfCip
     </mat-checkbox>
 
@@ -95,47 +106,47 @@
 
     <mat-checkbox class="w-full" formControlName="convictedByCourt">
       ConvictedByCourt
-    </mat-checkbox>
+    </mat-checkbox> -->
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>Referees1Name</mat-label>
+      <mat-label>Referees 1 Name</mat-label>
       <input matInput formControlName="referees1Name">
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>Referees1Designation</mat-label>
+      <mat-label>Referees 1 Designation</mat-label>
       <input matInput formControlName="referees1Designation">
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>Referees1Address</mat-label>
+      <mat-label>Referees 1 Address</mat-label>
       <input matInput formControlName="referees1Address">
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>Referees2Name</mat-label>
+      <mat-label>Referees 2 Name</mat-label>
       <input matInput formControlName="referees2Name">
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>Referees2Designation</mat-label>
+      <mat-label>Referees 2 Designation</mat-label>
       <input matInput formControlName="referees2Designation">
     </mat-form-field>
 
 
 
     <mat-form-field class="w-full">
-      <mat-label>Referees2Address</mat-label>
+      <mat-label>Referees 2 Address</mat-label>
       <input matInput formControlName="referees2Address">
     </mat-form-field>
 
@@ -153,7 +164,7 @@
 
 
     <mat-form-field class="w-full">
-      <mat-label>AppliedDateTime</mat-label>
+      <mat-label>Applied Date Time</mat-label>
       <input matInput [matDatepicker]="pickerappliedDateTime" formControlName="appliedDateTime">
       <mat-datepicker-toggle matSuffix [for]="pickerappliedDateTime"></mat-datepicker-toggle>
       <mat-datepicker #pickerappliedDateTime></mat-datepicker>

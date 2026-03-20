@@ -209,6 +209,11 @@ export const appRoutes: Route[] = [
           import("app/modules/invoice/invoice.routes"),
       },
       {
+        path: "membership-category",
+        loadChildren: () =>
+          import("app/modules/membership-category/membership-category.routes"),
+      },
+      {
         path: "course-admission-qualification",
         loadChildren: () =>
           import("app/modules/course-admission-qualification/course-admission-qualification.routes"),

@@ -17,6 +17,8 @@ import { finalize } from 'rxjs/operators';
 import { IMembershipAdmission, NewMembershipAdmission } from '../membership-admission.model';
 import { MembershipAdmissionService } from '../service/membership-admission.service';
 import { MembershipAdmissionFormGroup, MembershipAdmissionFormService } from '../update/membership-admission-form.service';
+import { IMembershipCategory } from '../../membership-category/membership-category.model';
+import { MembershipCategoryService } from '../../membership-category/service/membership-category.service';
 
 
 
@@ -50,6 +52,7 @@ type MembershipAdmissionFormDialogData = {
 })
 export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   private readonly membershipAdmissionService = inject(MembershipAdmissionService);
+  private readonly membershipCategoryService = inject(MembershipCategoryService);
   private readonly formService = inject(MembershipAdmissionFormService);
   private readonly dialogRef = inject(MatDialogRef<MembershipAdmissionFormComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as MembershipAdmissionFormDialogData | null;
@@ -65,6 +68,7 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   isInitialized = false;
   errorMessage: string | null = null;
 
+  membershipCategories: IMembershipCategory[] = [];
 
   readonly applicationStatusOptions = Object.keys(ApplicationStatus);
 
@@ -74,6 +78,7 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.initializeFormFromInputs();
     this.loadRelationshipOptions();
+    this.setupMembershipCategorySync();
     this.isInitialized = true;
 
     // Debug: Log the status options
@@ -157,6 +162,24 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   }
 
   private loadRelationshipOptions(): void {
+    this.membershipCategoryService.query().subscribe(response => {
+      this.membershipCategories = response.body ?? [];
+      this.updateMembershipCategory(this.form.controls.membershipCategoryId.value);
+    });
+  }
 
+  private setupMembershipCategorySync(): void {
+    this.form.controls.membershipCategoryId.valueChanges.subscribe(id => {
+      this.updateMembershipCategory(id);
+    });
+  }
+
+  private updateMembershipCategory(id: number | null): void {
+    if (id && this.membershipCategories.length > 0) {
+      const category = this.membershipCategories.find(c => c.id === id);
+      this.form.controls.membershipCategory.setValue(category ? { id } : null);
+    } else {
+      this.form.controls.membershipCategory.setValue(null);
+    }
   }
 }

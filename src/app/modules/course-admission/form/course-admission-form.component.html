@@ -2,7 +2,7 @@
 <form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="flex items-center justify-between border-b pb-4">
     <h2 class="text-2xl font-bold">
-      {{ heading || (isEditMode ? 'Edit CourseAdmission' : 'Admit new Student') }}
+      {{ heading || (isEditMode ? 'Edit student details' : 'Admit new Student') }}
     </h2>
     <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
   </div>
@@ -143,52 +143,56 @@
 
 
 
-    <!-- <mat-form-field class="w-full">
-      <mat-label>Employer</mat-label>
-      <input matInput formControlName="employer">
-    </mat-form-field>
+    <ng-container *ngIf="showExtendedFields">
+      <mat-form-field class="w-full">
+        <mat-label>Employer</mat-label>
+        <input matInput formControlName="employer">
+      </mat-form-field>
 
 
 
-    <mat-form-field class="w-full">
-      <mat-label>Employer Designation</mat-label>
-      <input matInput formControlName="employerDesignation">
-    </mat-form-field>
+      <mat-form-field class="w-full">
+        <mat-label>Employer Designation</mat-label>
+        <input matInput formControlName="employerDesignation">
+      </mat-form-field>
 
 
 
-    <mat-form-field class="w-full">
-      <mat-label>Employer Official Address</mat-label>
-      <input matInput formControlName="employerOfficialAddress">
-    </mat-form-field>
+      <mat-form-field class="w-full">
+        <mat-label>Employer Official Address</mat-label>
+        <input matInput formControlName="employerOfficialAddress">
+      </mat-form-field>
 
 
 
-    <mat-form-field class="w-full">
-      <mat-label>Employer Tele No</mat-label>
-      <input matInput formControlName="employerTeleNo">
-    </mat-form-field>
+      <mat-form-field class="w-full">
+        <mat-label>Employer Tele No</mat-label>
+        <input matInput formControlName="employerTeleNo">
+      </mat-form-field>
 
 
 
-    <mat-form-field class="w-full">
-      <mat-label>Employer Fax No</mat-label>
-      <input matInput formControlName="employerFaxNo">
-    </mat-form-field>
+      <mat-form-field class="w-full">
+        <mat-label>Employer Fax No</mat-label>
+        <input matInput formControlName="employerFaxNo">
+      </mat-form-field>
 
 
 
-    <mat-form-field class="w-full">
-      <mat-label>Sponsor By Whom</mat-label>
-      <input matInput formControlName="sponsorByWhom">
-    </mat-form-field> -->
+      <mat-form-field class="w-full">
+        <mat-label>Sponsor By Whom</mat-label>
+        <input matInput formControlName="sponsorByWhom">
+      </mat-form-field>
+    </ng-container>
 
 
 
-    <!-- <mat-form-field class="w-full">
-      <mat-label>Advertisement Type Other</mat-label>
-      <input matInput formControlName="advertisementTypeOther">
-    </mat-form-field> -->
+    <ng-container *ngIf="showExtendedFields">
+      <mat-form-field class="w-full">
+        <mat-label>Advertisement Type Other</mat-label>
+        <input matInput formControlName="advertisementTypeOther">
+      </mat-form-field>
+    </ng-container>
 
 
 

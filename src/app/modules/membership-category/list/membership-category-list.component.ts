@@ -23,15 +23,14 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 // Application Imports
-import { ICourseAdmission } from '../course-admission.model';
-import { CourseAdmissionService } from '../service/course-admission.service';
-import { CourseAdmissionFormComponent } from '../form/course-admission-form.component';
-import { CourseAdmissionViewDialogComponent } from '../view/course-admission-view-dialog.component';
+import { IMembershipCategory } from '../membership-category.model';
+import { MembershipCategoryService } from '../service/membership-category.service';
+import { MembershipCategoryFormComponent } from '../form/membership-category-form.component';
 
 
 
 
-import { ApplicationStatus } from 'app/enums/application-status.model';
+import { MembershipStatus } from '../../../enums/membership-status.model';
 
 type ParentDialogData = {
   parentFilters?: Record<string, string | number>;
@@ -88,7 +87,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
 };
 
 @Component({
-  selector: 'app-course-admission-list',
+  selector: 'app-membership-category-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -106,17 +105,17 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    CourseAdmissionFormComponent,
+    MembershipCategoryFormComponent,
   ],
-  templateUrl: './course-admission-list.component.html',
+  templateUrl: './membership-category-list.component.html',
 })
-export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
+export class MembershipCategoryListComponent implements AfterViewInit, OnInit {
   // --- Injected Services ---
-  private readonly courseAdmissionService = inject(CourseAdmissionService);
+  private readonly membershipCategoryService = inject(MembershipCategoryService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
-  private readonly dialogRef = inject(MatDialogRef<CourseAdmissionListComponent>, { optional: true });
+  private readonly dialogRef = inject(MatDialogRef<MembershipCategoryListComponent>, { optional: true });
   private readonly dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as ParentDialogData | null;
   private readonly fb = inject(FormBuilder);
 
@@ -128,210 +127,74 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
 
-  selectedCourseAdmission: ICourseAdmission | null = null;
+  selectedMembershipCategory: IMembershipCategory | null = null;
   drawerMode: 'new' | 'edit' = 'new';
 
-
-  readonly applicationStatusOptions = Object.keys(ApplicationStatus);
-
+  
+  readonly membershipStatusOptions = Object.keys(MembershipStatus);
+  
 
   // --- Filter configuration ---
   filterFields: FilterField[] = [
-
+    
     {
-      key: 'fullName',
-      label: 'FullName',
+      key: 'membershipNumber',
+      label: 'MembershipNumber',
       valueType: 'string' as FilterValueType,
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-
+    
     {
-      key: 'nameWithInitials',
-      label: 'NameWithInitials',
+      key: 'membershipName',
+      label: 'MembershipName',
       valueType: 'string' as FilterValueType,
       operators: FILTER_OPERATOR_LIBRARY['string'],
       rawFieldType: 'String'
     },
-
+    
     {
-      key: 'permanentAddress',
-      label: 'PermanentAddress',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'teleNo',
-      label: 'TeleNo',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'mobileNo',
-      label: 'MobileNo',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'whatsAppNo',
-      label: 'WhatsAppNo',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'email',
-      label: 'Email',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'nic',
-      label: 'Nic',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'dateOfBirth',
-      label: 'DateOfBirth',
+      key: 'startDate',
+      label: 'StartDate',
       valueType: 'date' as FilterValueType,
       operators: FILTER_OPERATOR_LIBRARY['date'],
       rawFieldType: 'LocalDate'
     },
-
+    
     {
-      key: 'employer',
-      label: 'Employer',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
+      key: 'endDate',
+      label: 'EndDate',
+      valueType: 'date' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['date'],
+      rawFieldType: 'LocalDate'
     },
-
+    
     {
-      key: 'employerDesignation',
-      label: 'EmployerDesignation',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
+      key: 'duration',
+      label: 'Duration',
+      valueType: 'number' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['number'],
+      rawFieldType: 'Integer'
     },
-
+    
     {
-      key: 'employerOfficialAddress',
-      label: 'EmployerOfficialAddress',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
+      key: 'price',
+      label: 'Price',
+      valueType: 'number' as FilterValueType,
+      operators: FILTER_OPERATOR_LIBRARY['number'],
+      rawFieldType: 'BigDecimal'
     },
-
-    {
-      key: 'employerTeleNo',
-      label: 'EmployerTeleNo',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'employerFaxNo',
-      label: 'EmployerFaxNo',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'sponsorByWhom',
-      label: 'SponsorByWhom',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
-    {
-      key: 'advertisementTypeOther',
-      label: 'AdvertisementTypeOther',
-      valueType: 'string' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['string'],
-      rawFieldType: 'String'
-    },
-
+    
     {
       key: 'status',
       label: 'Status',
       valueType: 'enum' as FilterValueType,
       operators: FILTER_OPERATOR_LIBRARY['enum'],
-      rawFieldType: 'ApplicationStatus',
-      enumOptionsKey: 'applicationStatusOptions'
+      rawFieldType: 'MembershipStatus',
+      enumOptionsKey: 'membershipStatusOptions'
     },
-
-    {
-      key: 'appliedDateTime',
-      label: 'AppliedDateTime',
-      valueType: 'date' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['date'],
-      rawFieldType: 'Instant'
-    },
-
-    {
-      key: 'approval1Status',
-      label: 'Approval1Status',
-      valueType: 'boolean' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['boolean'],
-      rawFieldType: 'Boolean'
-    },
-
-    {
-      key: 'approval1DateTime',
-      label: 'Approval1DateTime',
-      valueType: 'date' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['date'],
-      rawFieldType: 'Instant'
-    },
-
-    {
-      key: 'approval2Status',
-      label: 'Approval2Status',
-      valueType: 'boolean' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['boolean'],
-      rawFieldType: 'Boolean'
-    },
-
-    {
-      key: 'approval2DateTime',
-      label: 'Approval2DateTime',
-      valueType: 'date' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['date'],
-      rawFieldType: 'Instant'
-    },
-
-    {
-      key: 'approval3Status',
-      label: 'Approval3Status',
-      valueType: 'boolean' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['boolean'],
-      rawFieldType: 'Boolean'
-    },
-
-    {
-      key: 'approval3DateTime',
-      label: 'Approval3DateTime',
-      valueType: 'date' as FilterValueType,
-      operators: FILTER_OPERATOR_LIBRARY['date'],
-      rawFieldType: 'Instant'
-    },
-
-
+    
+    
   ];
 
   filtersForm: FormGroup = this.buildFiltersForm();
@@ -342,35 +205,8 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = [
-    'id',
-    'fullName',
-    //'nameWithInitials', 
-    'permanentAddress', 
-    //'teleNo',
-    'mobileNo',
-    // 'whatsAppNo', 
-    'email',
-    'nic',
-    'dateOfBirth',
-    // 'employer', 
-    // 'employerDesignation', 
-    // 'employerOfficialAddress', 
-    // 'employerTeleNo', 
-    // 'employerFaxNo', 
-    // 'sponsorByWhom', 
-    // 'advertisementTypeOther', 
-    'status',
-    // 'appliedDateTime', 
-    // 'approval1Status', 
-    // 'approval1DateTime', 
-    // 'approval2Status', 
-    // 'approval2DateTime', 
-    // 'approval3Status', 
-    // 'approval3DateTime', 
-    'actions'
-  ];
-  dataSource = new MatTableDataSource<ICourseAdmission>();
+  displayedColumns: string[] = ['id', 'membershipNumber', 'membershipName', 'startDate', 'endDate', 'duration', 'price', 'status',  'actions'];
+  dataSource = new MatTableDataSource<IMembershipCategory>();
 
   ngOnInit(): void {
     if (this.dialogData?.parentFilters) {
@@ -379,9 +215,7 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    const sortChange$ = this.sort ? this.sort.sortChange : of({});
-    const page$ = this.paginator ? this.paginator.page : of({});
-    const triggers$ = merge(sortChange$, page$, this.refreshTrigger).pipe(startWith({}));
+    const triggers$ = merge(this.sort.sortChange, this.paginator.page, this.refreshTrigger).pipe(startWith({}));
 
     if (this.dialogData?.parentFilters) {
       triggers$.subscribe(() => this.loadData());
@@ -418,7 +252,7 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
       ...this.activeFilters,
     };
 
-    this.courseAdmissionService.query(req).pipe(
+    this.membershipCategoryService.query(req).pipe(
       tap(res => {
         this.isLoading = false;
         this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
@@ -441,15 +275,15 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
-      this.courseAdmissionService.find(id).subscribe(response => {
+      this.membershipCategoryService.find(id).subscribe(response => {
         if (response.body) {
-          this.selectedCourseAdmission = response.body;
+          this.selectedMembershipCategory = response.body;
           this.formDrawer.open();
         }
       });
     } else {
       this.drawerMode = 'new';
-      this.selectedCourseAdmission = null;
+      this.selectedMembershipCategory = null;
       this.formDrawer.open();
     }
   }
@@ -475,29 +309,18 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
 
   delete(id: number): void {
     const confirmation = this.fuseConfirmationService.open({
-      title: 'Delete CourseAdmission',
+      title: 'Delete MembershipCategory',
       message: 'Are you sure you want to delete this? This action cannot be undone.',
       actions: { confirm: { label: 'Delete' } },
     });
 
     confirmation.afterClosed().subscribe(result => {
       if (result === 'confirmed') {
-        this.courseAdmissionService.delete(id).subscribe(() => {
+        this.membershipCategoryService.delete(id).subscribe(() => {
           this.refreshTrigger.next();
           this.loadData();
         });
       }
-    });
-  }
-
-  view(id: number): void {
-    this.dialog.open(CourseAdmissionViewDialogComponent, {
-      data: { courseAdmissionId: id },
-      width: '80vw',
-      height: '75vh',
-      maxWidth: '1200px',
-      maxHeight: '95vh',
-      panelClass: 'course-admission-view-dialog',
     });
   }
 
@@ -607,7 +430,7 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
     return (this as any)[field.enumOptionsKey] ?? [];
   }
 
-
+  
 
   private buildFiltersForm(): FormGroup {
     const groupConfig = this.filterFields.reduce((acc, field) => {

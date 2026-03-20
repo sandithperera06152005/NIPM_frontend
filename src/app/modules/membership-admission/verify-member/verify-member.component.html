@@ -138,6 +138,11 @@
                             <label class="text-sm text-gray-500">Applied Date</label>
                             <p class="font-medium">{{ membershipAdmission.appliedDateTime | date: 'medium' || '-' }}</p>
                         </div>
+
+                        <div>
+                            <label class="text-sm text-gray-500">Membership Category</label>
+                            <p class="font-medium">{{ membershipCategoryName || '-' }}</p>
+                        </div>
                     </div>
                 </div>
             </div>

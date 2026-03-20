@@ -92,7 +92,7 @@
         class="bg-default dark:bg-transparent flex flex-0 flex-col p-6 pb-22 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:pb-28 sm:pt-12">
         <div class="min-w-0 flex-1">
           <h2 class="truncate text-3xl font-extrabold leading-7 tracking-tight sm:leading-10 md:text-4xl">
-            Student Admission
+            Membership Categories
           </h2>
         </div>
         <!-- Actions -->
@@ -103,7 +103,7 @@
           </button>
           <button mat-flat-button color="primary" type="button" (click)="openFormDrawer()">
             <mat-icon [svgIcon]="'heroicons_mini:plus'"></mat-icon>
-            <span class="ml-2">Admit new Student</span>
+            <span class="ml-2">New MembershipCategory</span>
           </button>
         </div>
       </div>
@@ -115,7 +115,7 @@
           <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
         </div>
 
-        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="loadData()" *ngIf="!isLoading">
+        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="loadData()">
 
           <!-- Dynamically generate columns for entity fields -->
           <ng-container matColumnDef="id">
@@ -123,117 +123,47 @@
             <td mat-cell *matCellDef="let element">{{ element.id }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="fullName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>FullName</th>
+          <ng-container matColumnDef="membershipNumber">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>MembershipNumber</th>
 
-            <td mat-cell *matCellDef="let element">{{ element.fullName }}</td>
-
-          </ng-container>
-
-          <!-- <ng-container matColumnDef="nameWithInitials">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>NameWithInitials</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.nameWithInitials }}</td>
-
-          </ng-container> -->
-
-          <ng-container matColumnDef="permanentAddress">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>PermanentAddress</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.permanentAddress }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.membershipNumber }}</td>
 
           </ng-container>
 
-          <ng-container matColumnDef="teleNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>TeleNo</th>
+          <ng-container matColumnDef="membershipName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>MembershipName</th>
 
-            <td mat-cell *matCellDef="let element">{{ element.teleNo }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="mobileNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>MobileNo</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.mobileNo }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.membershipName }}</td>
 
           </ng-container>
 
-          <!-- <ng-container matColumnDef="whatsAppNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>WhatsAppNo</th>
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>StartDate</th>
 
-            <td mat-cell *matCellDef="let element">{{ element.whatsAppNo }}</td>
-
-          </ng-container> -->
-
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.startDate | date: 'medium' }}</td>
 
           </ng-container>
 
-          <ng-container matColumnDef="nic">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nic</th>
+          <ng-container matColumnDef="endDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>EndDate</th>
 
-            <td mat-cell *matCellDef="let element">{{ element.nic }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="dateOfBirth">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>DateOfBirth</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.dateOfBirth | date: 'medium' }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.endDate | date: 'medium' }}</td>
 
           </ng-container>
 
-          <!-- <ng-container matColumnDef="employer">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Employer</th>
+          <ng-container matColumnDef="duration">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Duration</th>
 
-            <td mat-cell *matCellDef="let element">{{ element.employer }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="employerDesignation">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerDesignation</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.employerDesignation }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.duration }}</td>
 
           </ng-container>
 
-          <ng-container matColumnDef="employerOfficialAddress">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerOfficialAddress</th>
+          <ng-container matColumnDef="price">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
 
-            <td mat-cell *matCellDef="let element">{{ element.employerOfficialAddress }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="employerTeleNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerTeleNo</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.employerTeleNo }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.price }}</td>
 
           </ng-container>
-
-          <ng-container matColumnDef="employerFaxNo">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>EmployerFaxNo</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.employerFaxNo }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="sponsorByWhom">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>SponsorByWhom</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.sponsorByWhom }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="advertisementTypeOther">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>AdvertisementTypeOther</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.advertisementTypeOther }}</td>
-
-          </ng-container> -->
 
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
@@ -242,70 +172,18 @@
 
           </ng-container>
 
-          <!-- <ng-container matColumnDef="appliedDateTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>AppliedDateTime</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.appliedDateTime | date: 'medium' }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="approval1Status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval1Status</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.approval1Status }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="approval1DateTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval1DateTime</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.approval1DateTime | date: 'medium' }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="approval2Status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval2Status</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.approval2Status }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="approval2DateTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval2DateTime</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.approval2DateTime | date: 'medium' }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="approval3Status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval3Status</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.approval3Status }}</td>
-
-          </ng-container>
-
-          <ng-container matColumnDef="approval3DateTime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Approval3DateTime</th>
-
-            <td mat-cell *matCellDef="let element">{{ element.approval3DateTime | date: 'medium' }}</td>
-
-          </ng-container> -->
-
 
           <!-- Generate columns for "Show Children" buttons -->
 
 
-          <!-- General Actions Column (View/Edit/Delete) -->
+          <!-- General Actions Column (Edit/Delete) -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let element">
-              <button mat-icon-button (click)="view(element.id)" matTooltip="View CourseAdmission">
-                <mat-icon [svgIcon]="'heroicons_outline:eye'"></mat-icon>
-              </button>
-              <button mat-icon-button (click)="openFormDrawer(element.id)" matTooltip="Edit CourseAdmission">
+              <button mat-icon-button (click)="openFormDrawer(element.id)" matTooltip="Edit MembershipCategory">
                 <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
               </button>
-              <button mat-icon-button (click)="delete(element.id)" matTooltip="Delete CourseAdmission">
+              <button mat-icon-button (click)="delete(element.id)" matTooltip="Delete MembershipCategory">
                 <mat-icon class="text-warn" [svgIcon]="'heroicons_outline:trash'"></mat-icon>
               </button>
             </td>
@@ -314,9 +192,11 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" [attr.colspan]="displayedColumns.length">No data found.</td>
-          </tr>
+          <ng-container *ngIf="!isLoading">
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">No data found.</td>
+            </tr>
+          </ng-container>
         </table>
       </div>
 
@@ -329,10 +209,10 @@
   <!-- Side Drawer for Form -->
   <mat-drawer #formDrawer mode="over" position="end" class="w-1/3 min-w-96">
     <div class="flex h-full flex-col bg-card p-6">
-      <app-course-admission-form [entity]="selectedCourseAdmission"
-        [heading]="drawerMode === 'new' ? 'Admit new Student' : 'Edit CourseAdmission'" (saved)="handleFormSaved()"
-        (cancelled)="closeFormDrawer()">
-      </app-course-admission-form>
+      <app-membership-category-form [entity]="selectedMembershipCategory"
+        [heading]="drawerMode === 'new' ? 'New MembershipCategory' : 'Edit MembershipCategory'"
+        (saved)="handleFormSaved()" (cancelled)="closeFormDrawer()">
+      </app-membership-category-form>
     </div>
   </mat-drawer>
 </mat-drawer-container>

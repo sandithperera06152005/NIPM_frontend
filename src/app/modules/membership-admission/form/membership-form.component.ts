@@ -19,6 +19,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MembershipAdmissionFormGroup, MembershipAdmissionFormService } from '../update/membership-admission-form.service';
 import { MembershipAdmissionService } from '../service/membership-admission.service';
 import { IMembershipAdmission, NewMembershipAdmission } from '../membership-admission.model';
+import { IMembershipCategory } from '../../membership-category/membership-category.model';
+import { MembershipCategoryService } from '../../membership-category/service/membership-category.service';
 import { ApplicationStatus } from '../../../enums/application-status.model';
 
 import { AccountService } from 'app/core/auth/account.service';
@@ -69,8 +71,12 @@ export class MembershipFormComponent implements OnInit {
     // To store current membership ID if exists
     currentMembershipId: number | null = null;
 
+    // Selected membership category details
+    selectedCategory: IMembershipCategory | null = null;
+
     private readonly membershipAdmissionService = inject(MembershipAdmissionService);
     private readonly formService = inject(MembershipAdmissionFormService);
+    private readonly membershipCategoryService = inject(MembershipCategoryService);
     private readonly accountService = inject(AccountService);
     private readonly paymentService = inject(PaymentService);
     private readonly documentService = inject(DocumentService);
@@ -84,6 +90,15 @@ export class MembershipFormComponent implements OnInit {
         (this.form as unknown as FormGroup).addControl('paymentMethod', new FormControl<string | null>(null));
         (this.form as unknown as FormGroup).addControl('amount', new FormControl<number | null>(null));
         (this.form as unknown as FormGroup).addControl('referenceNumber', new FormControl<string | null>(null));
+
+        // Subscribe to membershipCategoryId changes to load category details
+        this.form.get('membershipCategoryId')?.valueChanges.subscribe((id) => {
+            if (id) {
+                this.loadCategory(id);
+            } else {
+                this.selectedCategory = null;
+            }
+        });
 
         // Check if we have an ID in the route (editing existing membership from email link)
         const idParam = this.route.snapshot.paramMap.get('id');
@@ -115,6 +130,12 @@ export class MembershipFormComponent implements OnInit {
                 if (membership) {
                     this.currentMembershipId = membership.id ?? null;
                     this.formService.resetForm(this.form, membership);
+
+                    // Load category details if category ID exists
+                    const categoryId = membership.membershipCategory?.id || membership.membershipCategoryId;
+                    if (categoryId) {
+                        this.loadCategory(categoryId);
+                    }
 
                     this.snackBar.open('Your membership details have been loaded', 'Close', {
                         duration: 3000,
@@ -173,6 +194,12 @@ export class MembershipFormComponent implements OnInit {
                     // Populate form with existing data
                     this.formService.resetForm(this.form, membership);
 
+                    // Load category details if category ID exists
+                    const categoryId = membership.membershipCategory?.id || membership.membershipCategoryId;
+                    if (categoryId) {
+                        this.loadCategory(categoryId);
+                    }
+
                     // Show a message that existing data was loaded
                     this.snackBar.open('Your membership details have been loaded', 'Close', {
                         duration: 3000,
@@ -182,6 +209,20 @@ export class MembershipFormComponent implements OnInit {
             error: () => {
                 this.isLoadingMember = false;
                 console.warn('Unable to load membership data');
+            }
+        });
+    }
+
+    /**
+     * Load membership category details by ID
+     */
+    private loadCategory(id: number): void {
+        this.membershipCategoryService.find(id).subscribe({
+            next: (res) => {
+                this.selectedCategory = res.body;
+            },
+            error: () => {
+                this.selectedCategory = null;
             }
         });
     }

@@ -8,7 +8,12 @@ import { CourseAdmissionService } from '../service/course-admission.service';
 import { InvoiceService } from '../../invoice/service/invoice.service';
 import { ICourseAdmission } from '../course-admission.model';
 import { IInvoice } from '../../invoice/invoice.model';
-import { forkJoin } from 'rxjs';
+import { ICourse } from '../../course/course.model';
+import { CourseService } from '../../course/service/course.service';
+import { ICourseCoordinator } from '../../course-coordinator/course-coordinator.model';
+import { CourseCoordinatorService } from '../../course-coordinator/service/course-coordinator.service';
+import { forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 interface DialogData {
     courseAdmissionId: number;
@@ -37,6 +42,8 @@ export class CourseAdmissionViewDialogComponent implements OnInit {
     private data = inject(MAT_DIALOG_DATA) as DialogData;
     private courseAdmissionService = inject(CourseAdmissionService);
     private invoiceService = inject(InvoiceService);
+    private courseService = inject(CourseService);
+    private courseCoordinatorService = inject(CourseCoordinatorService);
 
     courseAdmission: ICourseAdmission | null = null;
     invoices: IInvoice[] = [];
@@ -49,19 +56,19 @@ export class CourseAdmissionViewDialogComponent implements OnInit {
 
     private loadData(): void {
         this.isLoading = true;
-
-        // Fetch course admission details
         const admission$ = this.courseAdmissionService.find(this.data.courseAdmissionId);
-
-        // Fetch invoices for this admission
-        const invoices$ = this.invoiceService.query({ 'courseAdmissionId.equals': this.data.courseAdmissionId });
-
-        forkJoin([admission$, invoices$]).subscribe({
-            next: ([admissionResponse, invoicesResponse]) => {
+        admission$.pipe(
+            switchMap(admissionResponse => {
                 this.courseAdmission = admissionResponse.body;
-
+                const course$ = this.courseAdmission?.courseRefId ? this.courseService.find(this.courseAdmission.courseRefId) : of(null);
+                const invoices$ = this.invoiceService.query({ 'courseAdmissionId.equals': this.data.courseAdmissionId });
+                return forkJoin([course$, invoices$]);
+            }),
+            switchMap(([courseResponse, invoicesResponse]) => {
+                if (courseResponse && this.courseAdmission) {
+                    this.courseAdmission.courseRef = courseResponse.body;
+                }
                 this.invoices = invoicesResponse.body || [];
-
                 // Find registration number from invoices
                 for (const invoice of this.invoices) {
                     if (invoice.registrationNumber) {
@@ -69,7 +76,17 @@ export class CourseAdmissionViewDialogComponent implements OnInit {
                         break;
                     }
                 }
-
+                // Load coordinator if exists
+                const coordinator$ = this.courseAdmission?.courseRef?.coordinator?.id
+                    ? this.courseCoordinatorService.find(this.courseAdmission.courseRef.coordinator.id)
+                    : of(null);
+                return coordinator$;
+            })
+        ).subscribe({
+            next: (coordinatorResponse) => {
+                if (coordinatorResponse && this.courseAdmission?.courseRef) {
+                    this.courseAdmission.courseRef.coordinator = coordinatorResponse.body as any;
+                }
                 this.isLoading = false;
             },
             error: (err) => {

@@ -97,6 +97,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link: "/course-coordinator",
       },
       {
+        id: "membership-category",
+        title: "Membership Category",
+        type: "basic",
+        icon: "heroicons_outline:user-group",
+        link: "/membership-category",
+      },
+      {
         id: "course",
         title: "Course",
         type: "basic",

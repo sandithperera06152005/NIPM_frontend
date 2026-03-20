@@ -8,50 +8,53 @@ type MembershipAdmissionFormGroupInput = IMembershipAdmission | Partial<NewMembe
 type MembershipAdmissionFormRawValue = IMembershipAdmission;
 export type MembershipAdmissionFormGroup = FormGroup<{
   id: FormControl<IMembershipAdmission['id'] | NewMembershipAdmission['id']>;
-  
+
   fullName: FormControl<IMembershipAdmission['fullName']>;
-  
+
   nameWithInitials: FormControl<IMembershipAdmission['nameWithInitials']>;
-  
+
   permanentAddress: FormControl<IMembershipAdmission['permanentAddress']>;
-  
+
   teleNo: FormControl<IMembershipAdmission['teleNo']>;
-  
+
   mobileNo: FormControl<IMembershipAdmission['mobileNo']>;
-  
+
   whatsAppNo: FormControl<IMembershipAdmission['whatsAppNo']>;
-  
+
   email: FormControl<IMembershipAdmission['email']>;
-  
+
+  membershipCategoryId: FormControl<IMembershipAdmission['membershipCategoryId']>;
+
   nic: FormControl<IMembershipAdmission['nic']>;
-  
+
   dateOfBirth: FormControl<IMembershipAdmission['dateOfBirth']>;
-  
+
   memberOfCIP: FormControl<IMembershipAdmission['memberOfCIP']>;
-  
+
   unsoundMind: FormControl<IMembershipAdmission['unsoundMind']>;
-  
+
   insolventOrBankrupt: FormControl<IMembershipAdmission['insolventOrBankrupt']>;
-  
+
   convictedByCourt: FormControl<IMembershipAdmission['convictedByCourt']>;
-  
+
   referees1Name: FormControl<IMembershipAdmission['referees1Name']>;
-  
+
   referees1Designation: FormControl<IMembershipAdmission['referees1Designation']>;
-  
+
   referees1Address: FormControl<IMembershipAdmission['referees1Address']>;
-  
+
   referees2Name: FormControl<IMembershipAdmission['referees2Name']>;
-  
+
   referees2Designation: FormControl<IMembershipAdmission['referees2Designation']>;
-  
+
   referees2Address: FormControl<IMembershipAdmission['referees2Address']>;
-  
+
   status: FormControl<IMembershipAdmission['status']>;
-  
+
   appliedDateTime: FormControl<IMembershipAdmission['appliedDateTime']>;
-  
-  
+
+  membershipCategory: FormControl<MembershipAdmissionFormRawValue['membershipCategory']>;
+
 }>;
 
 @Injectable({ providedIn: 'root' })
@@ -62,50 +65,53 @@ export class MembershipAdmissionFormService {
         { value: entity.id, disabled: true },
         { nonNullable: true, validators: [Validators.required] }
       ),
-      
+
       fullName: new FormControl(entity.fullName),
-      
+
       nameWithInitials: new FormControl(entity.nameWithInitials),
-      
+
       permanentAddress: new FormControl(entity.permanentAddress),
-      
+
       teleNo: new FormControl(entity.teleNo),
-      
+
       mobileNo: new FormControl(entity.mobileNo),
-      
+
       whatsAppNo: new FormControl(entity.whatsAppNo),
-      
+
       email: new FormControl(entity.email),
-      
+
+      membershipCategoryId: new FormControl(entity.membershipCategoryId),
+
       nic: new FormControl(entity.nic),
-      
+
       dateOfBirth: new FormControl(entity.dateOfBirth),
-      
+
       memberOfCIP: new FormControl(entity.memberOfCIP),
-      
+
       unsoundMind: new FormControl(entity.unsoundMind),
-      
+
       insolventOrBankrupt: new FormControl(entity.insolventOrBankrupt),
-      
+
       convictedByCourt: new FormControl(entity.convictedByCourt),
-      
+
       referees1Name: new FormControl(entity.referees1Name),
-      
+
       referees1Designation: new FormControl(entity.referees1Designation),
-      
+
       referees1Address: new FormControl(entity.referees1Address),
-      
+
       referees2Name: new FormControl(entity.referees2Name),
-      
+
       referees2Designation: new FormControl(entity.referees2Designation),
-      
+
       referees2Address: new FormControl(entity.referees2Address),
-      
+
       status: new FormControl(entity.status),
-      
+
       appliedDateTime: new FormControl(entity.appliedDateTime),
-      
-      
+
+      membershipCategory: new FormControl(entity.membershipCategory),
+
     });
     return form;
   }
@@ -117,7 +123,7 @@ export class MembershipAdmissionFormService {
   resetForm(form: MembershipAdmissionFormGroup, entity: MembershipAdmissionFormGroupInput): void {
     form.reset({
       ...entity,
-      
+
     } as any);
     form.controls.id.setValue(entity.id);
   }

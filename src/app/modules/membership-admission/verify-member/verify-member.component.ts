@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { IMembershipAdmission } from '../membership-admission.model';
 import { MembershipAdmissionService } from '../service/membership-admission.service';
+import { MembershipCategoryService } from '../../membership-category/service/membership-category.service';
 import { ApplicationStatus } from '../../../enums/application-status.model';
 
 export interface VerifyMemberDialogData {
@@ -33,9 +34,11 @@ export interface VerifyMemberDialogResult {
 })
 export class VerifyMemberComponent implements OnInit {
     private readonly membershipAdmissionService = inject(MembershipAdmissionService);
+    private readonly membershipCategoryService = inject(MembershipCategoryService);
     private readonly snackBar = inject(MatSnackBar);
 
     membershipAdmission: IMembershipAdmission | null = null;
+    membershipCategoryName: string | null = null;
     isLoading = true;
     isSendingEmail = false;
 
@@ -54,9 +57,27 @@ export class VerifyMemberComponent implements OnInit {
         this.membershipAdmissionService.find(this.data.membershipAdmissionId).subscribe({
             next: (response) => {
                 this.membershipAdmission = response.body;
+                const categoryId = this.membershipAdmission?.membershipCategory?.id || this.membershipAdmission?.membershipCategoryId;
+                if (categoryId) {
+                    this.loadMembershipCategory(categoryId);
+                } else {
+                    this.isLoading = false;
+                }
+            },
+            error: () => {
+                this.isLoading = false;
+            },
+        });
+    }
+
+    loadMembershipCategory(categoryId: number): void {
+        this.membershipCategoryService.find(categoryId).subscribe({
+            next: (response) => {
+                this.membershipCategoryName = response.body?.membershipName || null;
                 this.isLoading = false;
             },
             error: () => {
+                this.membershipCategoryName = null;
                 this.isLoading = false;
             },
         });

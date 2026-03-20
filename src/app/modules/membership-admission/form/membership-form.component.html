@@ -78,6 +78,45 @@
                 </div>
             </mat-expansion-panel>
 
+            <!-- Membership Category Details -->
+            <mat-expansion-panel class="mb-4" expanded>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon class="mr-2">category</mat-icon>
+                        Membership Category Details
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <mat-form-field class="w-full">
+                        <mat-label>Membership Name</mat-label>
+                        <input matInput readonly [value]="selectedCategory?.membershipName || 'Not selected'">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Duration</mat-label>
+                        <input matInput readonly
+                            [value]="selectedCategory?.duration ? (selectedCategory.duration + ' months') : 'N/A'">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Price</mat-label>
+                        <input matInput readonly
+                            [value]="selectedCategory?.price ? (selectedCategory.price | currency:'LKR') : 'N/A'">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full">
+                        <mat-label>Start Date</mat-label>
+                        <input matInput readonly [value]="selectedCategory?.startDate | date:'mediumDate' || 'N/A'">
+                    </mat-form-field>
+
+                    <mat-form-field class="w-full md:col-span-2">
+                        <mat-label>End Date</mat-label>
+                        <input matInput readonly [value]="selectedCategory?.endDate | date:'mediumDate' || 'N/A'">
+                    </mat-form-field>
+                </div>
+            </mat-expansion-panel>
+
             <!-- Payment Details -->
             <mat-expansion-panel class="mb-4" expanded>
                 <mat-expansion-panel-header>
