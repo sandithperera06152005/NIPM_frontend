@@ -27,7 +27,7 @@ export class InvoiceService {
   protected readonly http = inject(HttpClient);
 
 
-  protected resourceUrl = `http://localhost:8080/api/invoices`;
+  protected resourceUrl = 'api/invoices';
 
   // Create a new invoice
   create(payload: NewInvoice): Observable<EntityResponseType> {

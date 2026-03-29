@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, startWith, Subject, catchError, tap, switchMap } from 'rxjs';
+import { forkJoin, merge, Observable, of, startWith, Subject, catchError, finalize, map, tap, switchMap, throwError } from 'rxjs';
 
 // Angular Material & Fuse
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -19,12 +20,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 // Application Imports
 import { ICourseCoordinator } from '../course-coordinator.model';
 import { CourseCoordinatorService, EntityResponseType, EntityArrayResponseType } from '../service/course-coordinator.service';
 import { CourseCoordinatorFormComponent } from '../form/course-coordinator-form.component';
+import { CourseService } from '../../course/service/course.service';
+import { ICourse } from '../../course/course.model';
 
 type ParentDialogData = {
   parentFilters?: Record<string, string | number>;
@@ -47,6 +51,11 @@ interface FilterField {
   rawFieldType?: string;
   enumOptionsKey?: string;
 }
+
+type LinkedCoursesError = {
+  type: 'linked-courses';
+  coursesCount: number;
+};
 
 const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = {
   string: [
@@ -99,13 +108,16 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatSnackBarModule,
     CourseCoordinatorFormComponent,
   ],
   templateUrl: './course-coordinator-list.component.html',
 })
 export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   private readonly courseCoordinatorService = inject(CourseCoordinatorService);
+  private readonly courseService = inject(CourseService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly dialogRef = inject(MatDialogRef<CourseCoordinatorListComponent>, { optional: true });
@@ -118,6 +130,7 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
   private readonly refreshTrigger = new Subject<void>();
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
+  deletingIds = new Set<number>();
 
   selectedCourseCoordinator: ICourseCoordinator | null = null;
   drawerMode: 'new' | 'edit' = 'new';
@@ -211,6 +224,12 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
+  getRowNumber(index: number): number {
+    const pageIndex = this.paginator?.pageIndex ?? 0;
+    const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+    return pageIndex * pageSize + index + 1;
+  }
+
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
@@ -250,11 +269,27 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
     });
 
     confirmation.afterClosed().subscribe(result => {
-      if (result === 'confirmed') {
-        this.courseCoordinatorService.delete(id).subscribe(() => {
-          this.refreshTrigger.next();
-          this.loadData();
-        });
+      if (result === 'confirmed' && !this.deletingIds.has(id)) {
+        this.deletingIds.add(id);
+
+        this.deleteCoordinatorSafely(id)
+          .pipe(finalize(() => this.deletingIds.delete(id)))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Course coordinator deleted successfully.', 'Close', { duration: 3000 });
+              this.refreshTrigger.next();
+              this.loadData();
+            },
+            error: error => {
+              if (this.isLinkedCoursesError(error)) {
+                this.confirmDeleteLinkedCoordinator(id, error.coursesCount);
+                return;
+              }
+
+              console.error('Failed to delete course coordinator', error);
+              this.snackBar.open(this.getDeleteErrorMessage(error), 'Close', { duration: 7000 });
+            },
+          });
       }
     });
   }
@@ -328,5 +363,95 @@ export class CourseCoordinatorListComponent implements AfterViewInit, OnInit {
     const group = this.fieldGroup(field.key);
     const operator = group?.get('operator')?.value as string | undefined;
     return field.operators.find(o => o.key === operator);
+  }
+
+  private deleteCoordinatorSafely(id: number): Observable<HttpResponse<{}>> {
+    return this.courseService.query({ page: 0, size: 500, 'coordinatorId.equals': id }).pipe(
+      map(response => response.body ?? []),
+      switchMap(courses => {
+        if (courses.length > 0) {
+          return throwError(() => ({ type: 'linked-courses', coursesCount: courses.length } as LinkedCoursesError));
+        }
+
+        return this.courseCoordinatorService.delete(id);
+      })
+    );
+  }
+
+  private confirmDeleteLinkedCoordinator(id: number, coursesCount: number): void {
+    const confirmation = this.fuseConfirmationService.open({
+      title: 'Coordinator Is In Use',
+      message: `This coordinator is linked to ${coursesCount} course(s). Delete anyway and keep those courses by removing the coordinator link?`,
+      actions: {
+        confirm: { label: 'Delete Anyway' },
+        cancel: { label: 'Cancel' },
+      },
+    });
+
+    confirmation.afterClosed().subscribe(result => {
+      if (result !== 'confirmed' || this.deletingIds.has(id)) {
+        return;
+      }
+
+      this.deletingIds.add(id);
+
+      this.forceDeleteCoordinatorWithDetachedCourses(id)
+        .pipe(finalize(() => this.deletingIds.delete(id)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Course coordinator deleted successfully. Linked courses were preserved.', 'Close', {
+              duration: 4000,
+            });
+            this.refreshTrigger.next();
+            this.loadData();
+          },
+          error: error => {
+            console.error('Failed to force delete course coordinator', error);
+            this.snackBar.open(this.getDeleteErrorMessage(error), 'Close', { duration: 7000 });
+          },
+        });
+    });
+  }
+
+  private forceDeleteCoordinatorWithDetachedCourses(id: number): Observable<HttpResponse<{}>> {
+    return this.courseService.query({ page: 0, size: 500, 'coordinatorId.equals': id }).pipe(
+      map(response => response.body ?? []),
+      switchMap(courses => this.detachCoordinatorFromCourses(courses)),
+      switchMap(() => this.courseCoordinatorService.delete(id))
+    );
+  }
+
+  private detachCoordinatorFromCourses(courses: ICourse[]): Observable<unknown> {
+    if (!courses.length) {
+      return of([]);
+    }
+
+    return forkJoin(
+      courses.map(course =>
+        this.courseService.update({
+          ...course,
+          coordinator: null,
+        } as ICourse)
+      )
+    );
+  }
+
+  private getDeleteErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+
+    if (error instanceof HttpErrorResponse) {
+      const detail = error.error?.detail || error.error?.message;
+      if (typeof detail === 'string' && detail.trim()) {
+        return detail;
+      }
+    }
+
+    return 'Unable to delete this course coordinator. Please try again.';
+  }
+
+  private isLinkedCoursesError(error: unknown): error is LinkedCoursesError {
+    return !!error && typeof error === 'object' && (error as LinkedCoursesError).type === 'linked-courses';
   }
 }

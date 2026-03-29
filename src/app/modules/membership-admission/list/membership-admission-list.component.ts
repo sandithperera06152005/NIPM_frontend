@@ -3,7 +3,8 @@ import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, startWith, Subject, catchError, switchMap, tap } from 'rxjs';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { forkJoin, merge, Observable, of, startWith, Subject, catchError, finalize, map, switchMap, tap } from 'rxjs';
 
 // Angular Material & Fuse
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -20,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 // Application Imports
@@ -27,6 +29,10 @@ import { IMembershipAdmission } from '../membership-admission.model';
 import { MembershipAdmissionService } from '../service/membership-admission.service';
 import { MembershipAdmissionFormComponent } from '../form/membership-admission-form.component';
 import { VerifyMemberComponent, VerifyMemberDialogData, VerifyMemberDialogResult } from '../verify-member/verify-member.component';
+import { PaymentService } from 'app/entities/payment/service/payment.service';
+import { DocumentService } from 'app/entities/document/service/document.service';
+import { IDocument } from 'app/entities/document/document.model';
+import { InvoiceService } from 'app/modules/invoice/service/invoice.service';
 
 
 
@@ -107,6 +113,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModule,
+    MatSnackBarModule,
     MembershipAdmissionFormComponent,
   ],
   templateUrl: './membership-admission-list.component.html',
@@ -114,7 +121,11 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
 export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
   // --- Injected Services ---
   private readonly membershipAdmissionService = inject(MembershipAdmissionService);
+  private readonly paymentService = inject(PaymentService);
+  private readonly documentService = inject(DocumentService);
+  private readonly invoiceService = inject(InvoiceService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly dialogRef = inject(MatDialogRef<MembershipAdmissionListComponent>, { optional: true });
@@ -128,6 +139,7 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
   private readonly refreshTrigger = new Subject<void>();
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
+  deletingIds = new Set<number>();
 
   selectedMembershipAdmission: IMembershipAdmission | null = null;
   drawerMode: 'new' | 'edit' = 'new';
@@ -411,6 +423,12 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
+  getRowNumber(index: number): number {
+    const pageIndex = this.paginator?.pageIndex ?? 0;
+    const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+    return pageIndex * pageSize + index + 1;
+  }
+
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
@@ -469,11 +487,22 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
     });
 
     confirmation.afterClosed().subscribe(result => {
-      if (result === 'confirmed') {
-        this.membershipAdmissionService.delete(id).subscribe(() => {
-          this.refreshTrigger.next();
-          this.loadData();
-        });
+      if (result === 'confirmed' && !this.deletingIds.has(id)) {
+        this.deletingIds.add(id);
+
+        this.deleteMembershipAdmissionWithDependencies(id)
+          .pipe(finalize(() => this.deletingIds.delete(id)))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Member deleted successfully.', 'Close', { duration: 3000 });
+              this.refreshTrigger.next();
+              this.loadData();
+            },
+            error: error => {
+              console.error('Failed to delete membership admission', error);
+              this.snackBar.open(this.getDeleteErrorMessage(error), 'Close', { duration: 7000 });
+            },
+          });
       }
     });
   }
@@ -604,5 +633,84 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
     }
     const operator = group.get('operator')?.value as string | undefined;
     return field.operators.find(item => item.key === operator);
+  }
+
+  private deleteMembershipAdmissionWithDependencies(id: number): Observable<HttpResponse<{}>> {
+    return this.paymentService.query({ page: 0, size: 500, 'membershipAdmissionId.equals': id }).pipe(
+      map(response => response.body ?? []),
+      switchMap(payments => {
+        const invoiceIds = [...new Set(payments.map(payment => payment.invoiceId).filter((invoiceId): invoiceId is number => invoiceId != null))];
+        const paymentIds = payments.map(payment => payment.id);
+
+        return this.loadDocumentsForDependencies(paymentIds, invoiceIds).pipe(
+          switchMap(documents => this.deleteDocuments(documents)),
+          switchMap(() => this.deletePayments(paymentIds)),
+          switchMap(() => this.deleteInvoices(invoiceIds)),
+          switchMap(() => this.membershipAdmissionService.delete(id))
+        );
+      })
+    );
+  }
+
+  private loadDocumentsForDependencies(paymentIds: Array<number | null | undefined>, invoiceIds: number[]): Observable<IDocument[]> {
+    const validPaymentIds = paymentIds.filter((paymentId): paymentId is number => paymentId != null);
+    const documentRequests: Observable<IDocument[]>[] = [
+      ...validPaymentIds.map(paymentId =>
+        this.documentService.query({ page: 0, size: 500, 'paymentId.equals': paymentId }).pipe(
+          map(response => response.body ?? []),
+          catchError(() => of([]))
+        )
+      ),
+      ...invoiceIds.map(invoiceId =>
+        this.documentService.getDocumentsByInvoiceId(invoiceId).pipe(
+          catchError(() => of([]))
+        )
+      ),
+    ];
+
+    if (!documentRequests.length) {
+      return of([]);
+    }
+
+    return forkJoin(documentRequests).pipe(
+      map(documentGroups => documentGroups.reduce((allDocuments, group) => allDocuments.concat(group), [] as IDocument[])),
+      map(documents => [...new Map(documents.filter(document => document?.id != null).map(document => [document.id, document])).values()])
+    );
+  }
+
+  private deleteDocuments(documents: IDocument[]): Observable<unknown> {
+    if (!documents.length) {
+      return of([]);
+    }
+
+    return forkJoin(documents.map(document => this.documentService.delete(document.id)));
+  }
+
+  private deletePayments(paymentIds: Array<number | null | undefined>): Observable<unknown> {
+    const validPaymentIds = paymentIds.filter((paymentId): paymentId is number => paymentId != null);
+    if (!validPaymentIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(validPaymentIds.map(paymentId => this.paymentService.delete(paymentId)));
+  }
+
+  private deleteInvoices(invoiceIds: number[]): Observable<unknown> {
+    if (!invoiceIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(invoiceIds.map(invoiceId => this.invoiceService.delete(invoiceId)));
+  }
+
+  private getDeleteErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const detail = error.error?.detail || error.error?.message;
+      if (typeof detail === 'string' && detail.trim()) {
+        return detail;
+      }
+    }
+
+    return 'Unable to delete this member. Please try again.';
   }
 }

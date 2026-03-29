@@ -1,24 +1,30 @@
-<div class="min-w-0 flex-1 flex-col p-6">
-    <!-- Header -->
-    <div class="mb-6 flex items-center justify-between">
-        <!-- Left side: Back button and title -->
-        <div class="flex items-center gap-4">
-            <button mat-icon-button (click)="goBack()" matTooltip="Back">
-                <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
-            </button>
-            <h2 class="text-2xl font-bold">Applicant Details</h2>
-        </div>
+<div class="min-w-0 flex-1 bg-gradient-to-b from-emerald-50 via-white to-slate-50 p-4 sm:p-6 lg:p-8">
+    <div class="mb-8 overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-700 shadow-xl">
+        <div class="flex flex-col gap-6 px-6 py-7 md:flex-row md:items-end md:justify-between md:px-8">
+            <div class="min-w-0">
+                <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-100">
+                    <mat-icon class="!h-4 !w-4 !text-base" [svgIcon]="'heroicons_outline:document-magnifying-glass'"></mat-icon>
+                    Applicant Review
+                </div>
+                <div class="flex items-center gap-4">
+                    <button mat-icon-button class="rounded-full bg-white/15 text-white hover:bg-white/25" (click)="goBack()" matTooltip="Back">
+                        <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-black tracking-tight text-white md:text-3xl">Applicant Details</h2>
+                        <p class="mt-2 text-sm text-emerald-50/90">Review applicant profile, qualifications, documents, and finance-related records.</p>
+                    </div>
+                </div>
+            </div>
 
-        <div class="flex gap-3">
-            <!-- Approve Payment button -->
-            <button mat-flat-button style="background-color: #f3f4f6; color: #111;" (click)="approveStudent()">
-                Approve Student
-            </button>
-
-            <!-- Reject Student button -->
-            <button mat-flat-button style="background-color: #fee2e2; color: #b91c1c;" (click)="rejectStudent()">
-                Reject Student
-            </button>
+            <!-- <div class="flex flex-wrap gap-3">
+                <button mat-flat-button class="!rounded-xl !bg-white !px-5 !font-semibold !text-slate-900 hover:!bg-slate-100" (click)="approveStudent()">
+                    Approve Student
+                </button>
+                <button mat-flat-button class="!rounded-xl !bg-rose-100 !px-5 !font-semibold !text-rose-700 hover:!bg-rose-200" (click)="rejectStudent()">
+                    Reject Student
+                </button>
+            </div> -->
         </div>
     </div>
 
@@ -32,11 +38,11 @@
     <div *ngIf="!isLoading && applicant" class="space-y-6">
 
         <!-- Basic Information Card -->
-        <mat-card>
-            <mat-card-header>
+        <mat-card class="overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+            <mat-card-header class="border-b border-slate-200 !px-6 !py-5">
                 <mat-card-title>Personal Information</mat-card-title>
             </mat-card-header>
-            <mat-card-content class="mt-4">
+            <mat-card-content class="mt-4 !p-6">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <div>
                         <p class="text-sm text-gray-500">Full Name</p>
@@ -91,11 +97,11 @@
         </mat-card>
 
         <!-- Course & Finance Information -->
-        <mat-card>
-            <mat-card-header>
+        <mat-card class="overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+            <mat-card-header class="border-b border-slate-200 !px-6 !py-5">
                 <mat-card-title>Course & Finance Information</mat-card-title>
             </mat-card-header>
-            <mat-card-content class="mt-4">
+            <mat-card-content class="mt-4 !p-6">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                         <p class="text-sm text-gray-500">Preferred Course Type</p>
@@ -127,7 +133,7 @@
         </mat-card>
 
         <!-- Tabs for related data -->
-        <mat-tab-group>
+        <mat-tab-group class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
             <!-- Advanced Level Qualifications Tab -->
             <mat-tab>
@@ -135,7 +141,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:academic-cap'" class="mr-2"></mat-icon>
                     A/L Qualifications
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="advancedLevelQualifications.length === 0" class="text-gray-500">
                         No A/L qualifications found.
                     </div>
@@ -157,7 +163,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:book-open'" class="mr-2"></mat-icon>
                     A/L Subjects
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="advancedLevelSubjects.length === 0" class="text-gray-500">
                         No A/L subjects found.
                     </div>
@@ -178,7 +184,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:certificate'" class="mr-2"></mat-icon>
                     Diploma Qualifications
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="diplomaQualifications.length === 0" class="text-gray-500">
                         No diploma qualifications found.
                     </div>
@@ -202,7 +208,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:building-office-2'" class="mr-2"></mat-icon>
                     Industry Experience
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="industryExperiences.length === 0" class="text-gray-500">
                         No industry experience found.
                     </div>
@@ -225,7 +231,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:users'" class="mr-2"></mat-icon>
                     Employment
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="employments.length === 0" class="text-gray-500">
                         No employment records found.
                     </div>
@@ -248,7 +254,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:trophy'" class="mr-2"></mat-icon>
                     Achievements
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="achievements.length === 0" class="text-gray-500">
                         No achievements found.
                     </div>
@@ -270,7 +276,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:credit-card'" class="mr-2"></mat-icon>
                     Payments
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="payments.length === 0" class="text-gray-500">
                         No payments found.
                     </div>
@@ -293,7 +299,7 @@
                     <mat-icon [svgIcon]="'heroicons_outline:document-duplicate'" class="mr-2"></mat-icon>
                     Documents
                 </ng-template>
-                <div class="p-4">
+                <div class="p-6">
                     <div *ngIf="documents.length === 0" class="text-gray-500">
                         No documents found.
                     </div>
@@ -313,8 +319,8 @@
     </div>
 
     <!-- No Applicant Found -->
-    <div *ngIf="!isLoading && !applicant" class="text-center p-8">
+    <div *ngIf="!isLoading && !applicant" class="rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
         <p class="text-gray-500">Applicant not found.</p>
-        <button mat-flat-button color="primary" class="mt-4" (click)="goBack()">Back to List</button>
+        <button mat-flat-button class="mt-4 !rounded-xl !bg-slate-900 !px-5 !font-semibold !text-white hover:!bg-slate-800" (click)="goBack()">Back to List</button>
     </div>
 </div>

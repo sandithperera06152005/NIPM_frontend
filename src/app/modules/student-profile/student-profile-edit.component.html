@@ -1,0 +1,352 @@
+<form class="flex flex-col gap-6" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-lime-900">Update Student Profile</h2>
+            <p class="text-sm text-slate-600">Changes are saved back to the original applicant, admission,
+                qualification, and experience records.</p>
+        </div>
+        <div class="flex gap-3">
+            <button type="button" mat-stroked-button class="!border-lime-300 !text-lime-800 !rounded-full"
+                (click)="onCancel()">
+                <mat-icon class="mr-2">arrow_back</mat-icon>
+                Back
+            </button>
+            <button type="submit" mat-flat-button color="primary" class="!rounded-full" [disabled]="isSaving">
+                <mat-icon class="mr-2" *ngIf="!isSaving">save</mat-icon>
+                <mat-spinner *ngIf="isSaving" diameter="18" class="mr-2"></mat-spinner>
+                Save Changes
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        {{ errorMessage }}
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <mat-card class="rounded-xl shadow-lg border border-lime-300 bg-white" formGroupName="applicant">
+            <div class="p-4 sm:p-5 border-b border-lime-100 flex items-center gap-3">
+                <div class="bg-lime-100 text-lime-600 p-2 rounded-lg"><mat-icon>person_outline</mat-icon></div>
+                <h3 class="text-lg font-semibold text-lime-800 m-0">Personal And Contact Details</h3>
+            </div>
+            <mat-card-content class="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field>
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="fullName" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Name With Initials</mat-label>
+                    <input matInput formControlName="initialsName" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Date Of Birth</mat-label>
+                    <input matInput [matDatepicker]="dobPicker" formControlName="dateOfBirth" />
+                    <mat-datepicker-toggle matSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #dobPicker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Gender</mat-label>
+                    <mat-select formControlName="gender">
+                        <mat-option value="">Select Gender</mat-option>
+                        <mat-option *ngFor="let gender of genderOptions" [value]="gender">{{ gender }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Nationality</mat-label>
+                    <input matInput formControlName="nationality" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>NIC Number</mat-label>
+                    <input matInput formControlName="nicNumber" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" formControlName="email" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Mobile Number</mat-label>
+                    <input matInput formControlName="mobileNumber" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>WhatsApp Number</mat-label>
+                    <input matInput formControlName="whatsappNumber" />
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>District</mat-label>
+                    <input matInput formControlName="district" />
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2">
+                    <mat-label>Contact Address</mat-label>
+                    <textarea matInput rows="3" formControlName="contactAddress"></textarea>
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2">
+                    <mat-label>Permanent Address</mat-label>
+                    <textarea matInput rows="3" formControlName="permanentAddress"></textarea>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Preferred Course Type</mat-label>
+                    <mat-select formControlName="preferredCourseType">
+                        <mat-option value="">Select Type</mat-option>
+                        <mat-option *ngFor="let courseType of courseTypeOptions" [value]="courseType">{{ courseType
+                            }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>Finance Type</mat-label>
+                    <mat-select formControlName="financeType">
+                        <mat-option value="">Select Finance Type</mat-option>
+                        <mat-option *ngFor="let financeType of financeTypeOptions" [value]="financeType">{{ financeType
+                            }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="md:col-span-2">
+                    <mat-label>Sponsor Name</mat-label>
+                    <input matInput formControlName="sponsorName" />
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="rounded-xl shadow-lg border border-lime-300 bg-white">
+            <div class="p-4 sm:p-5 border-b border-lime-100 flex items-center gap-3">
+                <div class="bg-lime-100 text-lime-600 p-2 rounded-lg"><mat-icon>assignment_turned_in</mat-icon></div>
+                <h3 class="text-lg font-semibold text-lime-800 m-0">Admission And Employment</h3>
+            </div>
+            <mat-card-content class="p-4 sm:p-5 flex flex-col gap-6">
+                <div formGroupName="admission" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field>
+                        <mat-label>Registered Course</mat-label>
+                        <mat-select formControlName="courseRefId">
+                            <mat-option [value]="null">Select Course</mat-option>
+                            <mat-option *ngFor="let course of courses" [value]="course.id">{{ course.title
+                                }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Registration Number</mat-label>
+                        <input matInput formControlName="registrationNumber" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Home Telephone</mat-label>
+                        <input matInput formControlName="teleNo" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Application Status</mat-label>
+                        <mat-select formControlName="status">
+                            <mat-option value="">Select Status</mat-option>
+                            <mat-option *ngFor="let status of applicationStatusOptions" [value]="status">{{ status
+                                }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Payment Plan</mat-label>
+                        <mat-select formControlName="isSinglePayment">
+                            <mat-option [value]="true">Single Payment</mat-option>
+                            <mat-option [value]="false">Installment Plan</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Applied On</mat-label>
+                        <input matInput [matDatepicker]="appliedPicker" formControlName="appliedDateTime" />
+                        <mat-datepicker-toggle matSuffix [for]="appliedPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #appliedPicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+
+                <div formGroupName="employment" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <mat-form-field>
+                        <mat-label>Employer Or Company</mat-label>
+                        <input matInput formControlName="organizationName" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Designation</mat-label>
+                        <input matInput formControlName="designation" />
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Official Telephone</mat-label>
+                        <input matInput formControlName="officialTelephone" />
+                    </mat-form-field>
+                    <mat-form-field class="md:col-span-2">
+                        <mat-label>Official Address</mat-label>
+                        <textarea matInput rows="3" formControlName="officialAddress"></textarea>
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <mat-card class="rounded-xl shadow-lg border border-lime-300 bg-white">
+        <div class="p-4 sm:p-5 border-b border-lime-100 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-lime-100 text-lime-600 p-2 rounded-lg"><mat-icon>menu_book</mat-icon></div>
+                <h3 class="text-lg font-semibold text-lime-800 m-0">Academic Qualifications</h3>
+            </div>
+            <button type="button" mat-stroked-button class="!rounded-full" (click)="addAdvancedLevelQualification()">Add
+                A/L</button>
+        </div>
+        <mat-card-content class="p-4 sm:p-5 space-y-6">
+            <div formArrayName="advancedLevelQualifications" class="space-y-6">
+                <div *ngFor="let qualificationGroup of advancedLevelQualificationsArray.controls; let i = index"
+                    [formGroupName]="i" class="rounded-xl border border-slate-200 p-4">
+                    <div class="mb-4 flex items-center justify-between gap-3">
+                        <h4 class="font-semibold text-slate-800">A/L Qualification {{ i + 1 }}</h4>
+                        <button type="button" mat-icon-button color="warn"
+                            (click)="removeAdvancedLevelQualification(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <mat-form-field>
+                            <mat-label>Exam Year</mat-label>
+                            <input matInput type="number" formControlName="examYear" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Index Number</mat-label>
+                            <input matInput formControlName="indexNumber" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Stream</mat-label>
+                            <input matInput formControlName="stream" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Medium</mat-label>
+                            <input matInput formControlName="medium" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Z-Score</mat-label>
+                            <input matInput type="number" formControlName="zScore" />
+                        </mat-form-field>
+                    </div>
+                    <div class="mt-4 rounded-lg bg-slate-50 p-4" formArrayName="subjects">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <h5 class="font-medium text-slate-700">Subjects</h5>
+                            <button type="button" mat-stroked-button class="!rounded-full"
+                                (click)="addAdvancedLevelSubject(i)">Add Subject</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div *ngFor="let subjectGroup of getSubjectsArray(i).controls; let j = index"
+                                [formGroupName]="j"
+                                class="grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-3 items-start">
+                                <mat-form-field>
+                                    <mat-label>Subject Name</mat-label>
+                                    <input matInput formControlName="subjectName" />
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>Grade</mat-label>
+                                    <input matInput formControlName="grade" />
+                                </mat-form-field>
+                                <button type="button" mat-icon-button color="warn"
+                                    (click)="removeAdvancedLevelSubject(i, j)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <mat-card class="rounded-xl shadow-lg border border-lime-300 bg-white">
+            <div class="p-4 sm:p-5 border-b border-lime-100 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="bg-lime-100 text-lime-600 p-2 rounded-lg"><mat-icon>workspace_premium</mat-icon></div>
+                    <h3 class="text-lg font-semibold text-lime-800 m-0">Diploma Qualifications</h3>
+                </div>
+                <button type="button" mat-stroked-button class="!rounded-full" (click)="addDiplomaQualification()">Add
+                    Diploma</button>
+            </div>
+            <mat-card-content class="p-4 sm:p-5 space-y-4" formArrayName="diplomaQualifications">
+                <div *ngFor="let diplomaGroup of diplomaQualificationsArray.controls; let i = index" [formGroupName]="i"
+                    class="rounded-xl border border-slate-200 p-4">
+                    <div class="mb-4 flex items-center justify-between gap-3">
+                        <h4 class="font-semibold text-slate-800">Diploma {{ i + 1 }}</h4>
+                        <button type="button" mat-icon-button color="warn" (click)="removeDiplomaQualification(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <mat-form-field>
+                            <mat-label>Qualification Type</mat-label>
+                            <mat-select formControlName="qualificationType">
+                                <mat-option value="">Select Type</mat-option>
+                                <mat-option *ngFor="let nvqType of nvqTypeOptions" [value]="nvqType">{{ nvqType
+                                    }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Diploma Program Name</mat-label>
+                            <input matInput formControlName="diplomaProgramName" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Discipline</mat-label>
+                            <input matInput formControlName="discipline" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Institute Name</mat-label>
+                            <input matInput formControlName="instituteName" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Effective Date</mat-label>
+                            <input matInput [matDatepicker]="diplomaPicker" formControlName="effectiveDate" />
+                            <mat-datepicker-toggle matSuffix [for]="diplomaPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #diplomaPicker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Certificate Reference Number</mat-label>
+                            <input matInput formControlName="certificateRefNumber" />
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card class="rounded-xl shadow-lg border border-lime-300 bg-white">
+            <div class="p-4 sm:p-5 border-b border-lime-100 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="bg-lime-100 text-lime-600 p-2 rounded-lg"><mat-icon>engineering</mat-icon></div>
+                    <h3 class="text-lg font-semibold text-lime-800 m-0">Industry Experience</h3>
+                </div>
+                <button type="button" mat-stroked-button class="!rounded-full" (click)="addIndustryExperience()">Add
+                    Experience</button>
+            </div>
+            <mat-card-content class="p-4 sm:p-5 space-y-4" formArrayName="industryExperiences">
+                <div *ngFor="let industryGroup of industryExperiencesArray.controls; let i = index" [formGroupName]="i"
+                    class="rounded-xl border border-slate-200 p-4">
+                    <div class="mb-4 flex items-center justify-between gap-3">
+                        <h4 class="font-semibold text-slate-800">Experience {{ i + 1 }}</h4>
+                        <button type="button" mat-icon-button color="warn" (click)="removeIndustryExperience(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <mat-form-field class="md:col-span-2">
+                            <mat-label>Institute Or Organization</mat-label>
+                            <input matInput formControlName="instituteName" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>From Date</mat-label>
+                            <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" />
+                            <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #fromPicker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>To Date</mat-label>
+                            <input matInput [matDatepicker]="toPicker" formControlName="toDate" />
+                            <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #toPicker></mat-datepicker>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Years</mat-label>
+                            <input matInput type="number" formControlName="years" />
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Months</mat-label>
+                            <input matInput type="number" formControlName="months" />
+                        </mat-form-field>
+                    </div>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</form>

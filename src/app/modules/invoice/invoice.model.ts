@@ -1,5 +1,6 @@
 import { IDocument } from 'app/entities/document/document.model';
 import dayjs from 'dayjs/esm';
+import { IMembershipAdmission } from 'app/modules/membership-admission/membership-admission.model';
 
 
 
@@ -41,6 +42,7 @@ export interface IInvoice {
   totalAmount?: number | null;
   paidAmount?: number | null;
   courseAdmission?: ICourseAdmission; 
+  membershipAdmission?: IMembershipAdmission | null;
   documents?: IDocument[];
   registrationNumber?: string | null;
 }

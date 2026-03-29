@@ -6,19 +6,13 @@ import { AcademicYearService } from 'app/modules/academic-year/service/academic-
 import { IAcademicYear } from 'app/modules/academic-year/academic-year.model';
 
 import { AppUserService } from 'app/modules/app-user/service/app-user.service';
-import { IAppUser } from 'app/modules/app-user/app-user.model';
 import { UserStatus } from 'app/enums/user-status.model';
 import { CompanyService } from 'app/modules/company/service/company.service';
-import { ICompany } from 'app/modules/company/company.model';
 import { CourseService } from 'app/modules/course/service/course.service';
-import { ICourse } from 'app/modules/course/course.model';
 import { CourseAdmissionService } from 'app/modules/course-admission/service/course-admission.service';
-import { ICourseAdmission } from 'app/modules/course-admission/course-admission.model';
 import { ApplicationStatus } from 'app/enums/application-status.model';
 import { AuditLogService } from 'app/modules/audit-log/service/audit-log.service';
-import { IAuditLog } from 'app/modules/audit-log/audit-log.model';
 import { StudentProfileService } from 'app/modules/student-profile/service/student-profile.service';
-import { IStudentProfile } from 'app/modules/student-profile/student-profile.model';
 import { EnrollmentStatus } from 'app/enums/enrollment-status.model';
 
 
@@ -42,27 +36,14 @@ export class DashboardComponent implements OnInit {
   recentAppUsers: { name: string; status: string }[] = [];
   recentCompanies: { name: string; status: string }[] = [];
   recentCourses: { name: string; status: string }[] = [];
-  recentCourseAdmissions: { id: string; status: string }[] = [];
-  recentMembershipAdmissions: { id: string; status: string }[] = [];
-  recentApprovals: { title: string }[] = [];
-  recentFinance: { description: string; amount: number }[] = [];
-  recentInvoices: { number: string; status: string }[] = [];
-  recentCoordinators: { name: string }[] = [];
+  recentCourseAdmissions: { id: string; name: string; status: string }[] = [];
   stats = {
     academicYears: 0,
     appUsers: 0,
     companies: 0,
     courses: 0,
     courseAdmissions: 0,
-    membershipAdmissions: 0,
-    pendingApprovals: 0,
-    financeRecords: 0,
-    invoices: 0,
-    courseCoordinators: 0,
     totalUsers: 0,
-    todayTransactions: 0,
-    pendingTasks: 0,
-    uptime: 99,
   };
 
   constructor(
@@ -85,7 +66,6 @@ export class DashboardComponent implements OnInit {
     this.loadStudentProfiles();
     this.loadStats();
     this.loadAuditLogs();
-    this.loadMockData();
   }
 
   // ================================
@@ -131,6 +111,7 @@ export class DashboardComponent implements OnInit {
           name: (user.firstName || '') + ' ' + (user.lastName || ''),
           status: user.status === UserStatus.ACTIVE ? 'Active' : 'Inactive',
         }));
+        this.stats.totalUsers = appUsers.length;
       },
       error: err => console.error('Failed to load app users', err),
     });
@@ -171,6 +152,7 @@ export class DashboardComponent implements OnInit {
 
         this.recentCourseAdmissions = courseAdmissions.map(admission => ({
           id: String(admission.id),
+          name: String(admission.fullName ?? admission.nameWithInitials ?? `Admission #${admission.id}`),
           status: this.mapAdmissionStatus(admission.status),
         }));
       },
@@ -261,6 +243,7 @@ export class DashboardComponent implements OnInit {
     this.appUserService.query().subscribe({
       next: res => {
         this.stats.appUsers = res.body?.length || 0;
+        this.stats.totalUsers = this.stats.appUsers;
       },
       error: err => console.error('Failed to load app users count', err),
     });
@@ -315,55 +298,13 @@ export class DashboardComponent implements OnInit {
   navigateTo(moduleId: string): void {
     const routes: { [key: string]: string } = {
       'student-admission': '/course-admission',
-      'membership-admission': '/membership-admission',
-      'approval': '/approvals',
-      'finance-management': '/finance-management',
       'company': '/company',
+      'membership-admission': '/membership-admission',
       'course': '/course',
-      'invoice': '/invoice',
-      'course-coordinator': '/course-coordinator',
     };
     const route = routes[moduleId];
     if (route) {
       this.router.navigate([route]);
     }
-  }
-
-  private loadMockData(): void {
-    // Mock data for missing entities
-    this.recentMembershipAdmissions = [
-      { id: '1', status: 'Pending' },
-      { id: '2', status: 'Approved' },
-    ];
-
-    this.recentApprovals = [
-      { title: 'Course Admission #101' },
-      { title: 'Membership #45' },
-    ];
-
-    this.recentFinance = [
-      { description: 'Course Fee Payment', amount: 1500 },
-      { description: 'Membership Fee', amount: 500 },
-    ];
-
-    this.recentInvoices = [
-      { number: 'INV-001', status: 'Paid' },
-      { number: 'INV-002', status: 'Pending' },
-    ];
-
-    this.recentCoordinators = [
-      { name: 'Dr. Smith' },
-      { name: 'Prof. Johnson' },
-    ];
-
-    // Update stats with mock data
-    this.stats.membershipAdmissions = 25;
-    this.stats.pendingApprovals = 8;
-    this.stats.financeRecords = 42;
-    this.stats.invoices = 35;
-    this.stats.courseCoordinators = 5;
-    this.stats.totalUsers = this.stats.appUsers + this.stats.courseAdmissions;
-    this.stats.todayTransactions = 12;
-    this.stats.pendingTasks = this.stats.pendingApprovals + 3;
   }
 }

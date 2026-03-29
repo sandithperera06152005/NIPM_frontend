@@ -41,6 +41,11 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        path: "student-application-form",
+        loadChildren: () =>
+          import("app/modules/student-application-form/student-application-form.routes"),
+      },
+      {
         path: "confirmation-required",
         loadChildren: () =>
           import(
@@ -132,11 +137,6 @@ export const appRoutes: Route[] = [
         path: "dashboard",
         loadChildren: () =>
           import("app/modules/admin/dashboard/dashboard.routes"),
-      },
-      {
-        path: "student-application-form",
-        loadChildren: () =>
-          import("app/modules/student-application-form/student-application-form.routes"),
       },
       // {
       //   path: "membership-admission/form",

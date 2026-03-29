@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "nginx-nimesh/build",
+            "outputPath": "nginx-nipm/build",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],

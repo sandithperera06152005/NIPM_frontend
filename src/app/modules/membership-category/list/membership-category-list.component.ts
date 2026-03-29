@@ -272,6 +272,12 @@ export class MembershipCategoryListComponent implements AfterViewInit, OnInit {
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
+  getRowNumber(index: number): number {
+    const pageIndex = this.paginator?.pageIndex ?? 0;
+    const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+    return pageIndex * pageSize + index + 1;
+  }
+
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';

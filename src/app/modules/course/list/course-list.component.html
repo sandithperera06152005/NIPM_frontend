@@ -116,8 +116,8 @@
 
           <!-- Dynamically generate columns for entity fields -->
           <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+            <th mat-header-cell *matHeaderCellDef>No.</th>
+            <td mat-cell *matCellDef="let element; let i = index">{{ getRowNumber(i) }}</td>
           </ng-container>
           
           <ng-container matColumnDef="code">
@@ -142,7 +142,7 @@
           </ng-container>
           
           <ng-container matColumnDef="durationMonths">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>DurationMonths</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Duration (Months)</th>
             
             <td mat-cell *matCellDef="let element">{{ element.durationMonths }}</td>
             
@@ -166,7 +166,12 @@
               <button mat-icon-button (click)="openFormDrawer(element.id)" matTooltip="Edit Course">
                 <mat-icon [svgIcon]="'heroicons_outline:pencil-square'"></mat-icon>
               </button>
-              <button mat-icon-button (click)="delete(element.id)" matTooltip="Delete Course">
+              <button
+                mat-icon-button
+                [disabled]="deletingIds.has(element.id)"
+                (click)="delete(element.id)"
+                [matTooltip]="deletingIds.has(element.id) ? 'Deleting Course' : 'Delete Course'"
+              >
                 <mat-icon class="text-warn" [svgIcon]="'heroicons_outline:trash'"></mat-icon>
               </button>
             </td>

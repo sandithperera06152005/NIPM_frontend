@@ -1,9 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
-import { catchError, merge, of, startWith, Subject, switchMap, tap } from 'rxjs';
-import { forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, forkJoin, map, of, switchMap, tap } from 'rxjs';
 // Angular Material
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -30,11 +28,13 @@ import { InvoiceFormComponent } from '../form/invoice-form.component';
 import { RegistrationNumberDialogComponent } from '../registration-number-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { DocumentService } from '../../../entities/document/service/document.service';
-import { PaymentService } from '../../../entities/payment/service/payment.service';
-import { IPayment } from '../../../entities/payment/payment.model';
 import { CourseAdmissionService } from '../../course-admission/service/course-admission.service';
 import { ICourseAdmission } from '../../course-admission/course-admission.model';
 import { ApplicationStatus } from '../../../enums/application-status.model';
+import { PaymentService } from 'app/entities/payment/service/payment.service';
+import { IPayment } from 'app/entities/payment/payment.model';
+import { IMembershipAdmission } from 'app/modules/membership-admission/membership-admission.model';
+import { MembershipAdmissionService } from 'app/modules/membership-admission/service/membership-admission.service';
 
 
 
@@ -58,6 +58,11 @@ interface FilterField {
   operators: FilterFieldOperator[];
   rawFieldType?: string;
   enumOptionsKey?: string;
+}
+
+interface InvoiceMembershipLink {
+  invoice: IInvoice;
+  membershipAdmissionId: number | null;
 }
 
 const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = {
@@ -106,6 +111,8 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     InvoiceFormComponent,
     ReactiveFormsModule,
     MatSidenavModule,
@@ -125,15 +132,20 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly documentService = inject(DocumentService);
   private readonly paymentService = inject(PaymentService);
+  private readonly membershipAdmissionService = inject(MembershipAdmissionService);
 
 
   searchNic: string = '';
+  searchInvoiceNo: string = '';
+  searchRegistrationNumber: string = '';
+  searchDateFrom: Date | null = null;
+  searchDateTo: Date | null = null;
   isLoading = false;
   totalItems = 0;
   itemsPerPage = 10;
-  private readonly refreshTrigger = new Subject<void>();
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
+  private allInvoices: IInvoice[] = [];
 
   selectedInvoice: IInvoice | null = null;
   drawerMode: 'new' | 'edit' = 'new';
@@ -192,10 +204,14 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
 
   displayedColumns: string[] = [
     'id',
+    //'studentName',
+    'studentNic',
+    'registrationNumber',
     'invoiceNo',
     'issuedDate',
     'dueDate',
     'totalAmount',
+    'outstandingAmount',
     'paidAmount',
     'receivedDocument',
     'actions'
@@ -206,100 +222,54 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   ngOnInit(): void {
     if (this.dialogData?.parentFilters) {
       this.baseParentFilters = { ...this.dialogData.parentFilters };
+      this.loadData();
+    } else {
+      this.route.params.subscribe(params => {
+        this.baseParentFilters = {};
+        const parentIdKey = Object.keys(params)[0];
+        if (parentIdKey) {
+          const parentModelName = parentIdKey.replace('Id', '');
+          this.baseParentFilters[`${parentModelName}Id.equals`] = params[parentIdKey];
+        }
+        this.loadData();
+      });
     }
   }
 
   ngAfterViewInit(): void {
-    const triggers$ = merge(this.sort.sortChange, this.paginator.page, this.refreshTrigger).pipe(startWith({}));
-
-    if (this.dialogData?.parentFilters) {
-      triggers$.subscribe(() => this.loadData());
-    } else {
-      this.route.params
-        .pipe(
-          tap(params => {
-            this.baseParentFilters = {};
-            const parentIdKey = Object.keys(params)[0];
-            if (parentIdKey) {
-              const parentModelName = parentIdKey.replace('Id', '');
-              this.baseParentFilters[`${parentModelName}Id.equals`] = params[parentIdKey];
-            }
-          }),
-          switchMap(() => triggers$)
-        )
-        .subscribe(() => this.loadData());
-    }
-
-    this.loadData();
+    this.dataSource.sort = this.sort;
   }
 
   approvedInvoices: Set<number> = new Set<number>();
 
   loadData(): void {
-    if (!this.paginator) {
-      return;
-    }
-
     this.isLoading = true;
     const req = {
-      page: this.paginator.pageIndex,
-      size: this.paginator.pageSize,
-      sort: this.getSortParameters(),
+      page: 0,
+      size: 5000,
+      sort: ['id,desc'],
       ...this.baseParentFilters,
       ...this.activeFilters,
     };
 
     this.invoiceService.query(req).pipe(
-      tap(res => {
-        this.isLoading = false;
-        this.totalItems = Number(res.headers.get('X-Total-Count') ?? 0);
-        this.dataSource.data = res.body ?? [];
-
-        // Automatically mark invoices with paidAmount > 0 as approved
-        res.body?.forEach(invoice => {
-          if (invoice.paidAmount && invoice.paidAmount > 0) {
-            this.approvedInvoices.add(invoice.id!);
-          }
-        });
-      }),
       switchMap(res => {
         const invoices = res.body ?? [];
-        // Load documents for all invoices.
-        // Receipts are stored in `document.paymentId` (FK to payment), so we fetch:
-        // invoice -> payments (by invoiceId) -> documents (by paymentId).
-        const docCalls = invoices.map(invoice =>
-          invoice.id
-            ? this.paymentService.query({ 'invoiceId.equals': invoice.id }).pipe(
-              map(r => r.body ?? []),
-              switchMap((payments: IPayment[]) => {
-                const paymentIds = payments.map(p => p.id).filter((id): id is number => typeof id === 'number');
-                if (paymentIds.length === 0) {
-                  invoice.documents = [];
-                  return of(null);
-                }
-
-                return forkJoin(
-                  paymentIds.map(paymentId =>
-                    this.documentService.query({ 'paymentId.equals': paymentId }).pipe(
-                      map(docRes => docRes.body ?? []),
-                      catchError(() => of([]))
-                    )
-                  )
-                ).pipe(
-                  map(docGroups => {
-                    invoice.documents = docGroups.flat();
-                  })
-                );
-              }),
-              catchError(() => of(null))
-            )
-            : of(null)
+        this.totalItems = Number(res.headers.get('X-Total-Count') ?? invoices.length);
+        this.markApprovedInvoices(invoices);
+        return this.loadDocumentsForInvoices(invoices).pipe(
+          switchMap(enrichedInvoices => this.loadMembershipAdmissionsForInvoices(enrichedInvoices)),
+          tap(enrichedInvoices => {
+            this.allInvoices = this.sortInvoices(enrichedInvoices);
+            this.applySearchFilters();
+          }),
         );
-        return forkJoin(docCalls);
       }),
       tap(() => this.isLoading = false),
       catchError(() => {
         this.isLoading = false;
+        this.allInvoices = [];
+        this.dataSource.data = [];
         return of(null);
       })
     ).subscribe();
@@ -317,89 +287,50 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       return;
     }
 
-    // Check if student is already approved (any invoice for this student is approved)
-    if (invoice.courseAdmission?.status === ApplicationStatus.APPROVED) {
-      // Student already approved, button should show "Approved" and be disabled
-      return;
-    }
-
-    // Open dialog to get registration number
-    const dialogRef = this.dialog.open(RegistrationNumberDialogComponent);
-    dialogRef.afterClosed().subscribe((registrationNumber: string | null) => {
-      if (!registrationNumber) {
-        return; // cancelled
-      }
-
-      // Step 1: fetch the full invoice from backend
+    if (!invoice.courseAdmission?.id) {
       this.invoiceService.find(invoice.id).subscribe({
-        next: (res) => {
+        next: res => {
           const fullInvoice = res.body;
           if (!fullInvoice) {
             alert('Invoice not found on backend');
             return;
           }
 
-          // Step 2: update paidAmount and registrationNumber
           fullInvoice.paidAmount = paidAmount;
-          fullInvoice.registrationNumber = registrationNumber;
 
-          // Step 3: send full invoice back to backend via update (PUT)
           this.invoiceService.update(fullInvoice).subscribe({
-            next: (updated) => {
+            next: () => {
               this.approvedInvoices.add(invoice.id!);
-
-              // Update course admission status if exists
-              if (fullInvoice.courseAdmission?.id) {
-                this.courseAdmissionService.find(fullInvoice.courseAdmission.id).subscribe({
-                  next: (courseAdmissionResponse) => {
-                    if (courseAdmissionResponse.body) {
-                      const courseAdmission = courseAdmissionResponse.body;
-                      courseAdmission.status = ApplicationStatus.APPROVED;
-                      this.courseAdmissionService.update(courseAdmission).subscribe({
-                        next: () => {
-                          console.log('Course admission status updated to APPROVED');
-                        },
-                        error: (err) => {
-                          console.error('Failed to update course admission status', err);
-                        }
-                      });
-                    }
-                  },
-                  error: (err) => {
-                    console.error('Failed to fetch course admission', err);
-                  }
-                });
-              }
-
               alert('Payment approved and saved!');
-
-              // Update course admission status locally in all invoices for this student
-              this.dataSource.data.forEach(inv => {
-                if (inv.courseAdmission?.id === fullInvoice.courseAdmission?.id) {
-                  if (inv.courseAdmission) {
-                    inv.courseAdmission.status = ApplicationStatus.APPROVED;
-                  }
-                }
-              });
-              this.dataSource._updateChangeSubscription();
-
-              // Mark only this specific invoice as approved
-              this.approvedInvoices.add(invoice.id!);
-
-              // Refresh data to ensure consistency
               this.loadData();
             },
-            error: (err) => {
-              console.error('Failed to update invoice', err);
+            error: err => {
+              console.error('Failed to update membership invoice', err);
               alert('Failed to save paid amount');
-            }
+            },
           });
         },
-        error: (err) => {
-          console.error('Failed to fetch invoice', err);
+        error: err => {
+          console.error('Failed to fetch membership invoice', err);
           alert('Cannot fetch invoice from backend');
-        }
+        },
       });
+      return;
+    }
+
+    const existingRegistrationNumber = this.getExistingRegistrationNumberForSeries(invoice);
+    if (existingRegistrationNumber) {
+      this.approveCourseInvoice(invoice, paidAmount, existingRegistrationNumber);
+      return;
+    }
+
+    const dialogRef = this.dialog.open(RegistrationNumberDialogComponent);
+    dialogRef.afterClosed().subscribe((registrationNumber: string | null) => {
+      if (!registrationNumber) {
+        return;
+      }
+
+      this.approveCourseInvoice(invoice, paidAmount, registrationNumber);
     });
   }
 
@@ -448,33 +379,116 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
   // }
 
   searchByNic(): void {
-    if (!this.searchNic) { this.dataSource.data = []; return; }
+    const nic = this.searchNic.trim();
+    if (!nic) {
+      this.applySearchFilters();
+      return;
+    }
 
     this.isLoading = true;
-    this.invoiceService.getByNic(this.searchNic).pipe(
-      switchMap((res: IInvoice[]) => {
-        this.dataSource.data = res.sort((a, b) => {
-          const getNum = (inv: string) => (inv.match(/-(\d+)$/) ? parseInt(inv.match(/-(\d+)$/)![1], 10) : 0);
-          return getNum(a.invoiceNo) - getNum(b.invoiceNo);
+
+    forkJoin({
+      courseAdmissions: this.courseAdmissionService.query({ 'nic.equals': nic, page: 0, size: 500 }).pipe(
+        map(res => res.body ?? []),
+        catchError(() => of([] as ICourseAdmission[]))
+      ),
+      membershipAdmissions: this.membershipAdmissionService.query({ 'nic.equals': nic, page: 0, size: 500 }).pipe(
+        map(res => res.body ?? []),
+        catchError(() => of([] as IMembershipAdmission[]))
+      ),
+    }).pipe(
+      switchMap(({ courseAdmissions, membershipAdmissions }) => {
+        const membershipById = new Map<number, IMembershipAdmission>();
+        membershipAdmissions.forEach(admission => {
+          if (admission.id != null) {
+            membershipById.set(admission.id, admission);
+          }
         });
 
-        // Mark approved
-        res.forEach(invoice => { if (invoice.paidAmount && invoice.paidAmount > 0) this.approvedInvoices.add(invoice.id!); });
-
-        // Load documents for search results
-        const docCalls = res.map(inv =>
-          inv.id
-            ? this.documentService.getDocumentsByInvoiceId(inv.id).pipe(
-              map(docs => { inv.documents = docs; }),
-              catchError(() => of(null))
-            )
-            : of(null)
+        const courseInvoiceRequests = courseAdmissions.map(admission =>
+          this.invoiceService.query({ 'courseAdmissionId.equals': admission.id, page: 0, size: 500 }).pipe(
+            map(res => res.body ?? []),
+            catchError(() => of([] as IInvoice[]))
+          )
         );
 
-        return forkJoin(docCalls);
+        const membershipPaymentRequests = membershipAdmissions.map(admission =>
+          this.paymentService.query({ 'memberID.equals': admission.id, page: 0, size: 500 }).pipe(
+            map(res => res.body ?? []),
+            switchMap((payments: IPayment[]) =>
+              payments.length > 0
+                ? of(payments)
+                : this.paymentService.query({ 'membershipAdmissionId.equals': admission.id, page: 0, size: 500 }).pipe(
+                    map(fallbackRes => fallbackRes.body ?? []),
+                    catchError(() => of([] as IPayment[]))
+                  )
+            ),
+            switchMap((payments: IPayment[]) => {
+              const invoiceIds = [...new Set(payments.map(payment => payment.invoiceId).filter((id): id is number => typeof id === 'number'))];
+              if (!invoiceIds.length) {
+                return of([] as IInvoice[]);
+              }
+
+              return forkJoin(
+                invoiceIds.map(invoiceId =>
+                  this.invoiceService.find(invoiceId).pipe(
+                    map(res => {
+                      const invoice = res.body;
+                      if (invoice) {
+                        invoice.membershipAdmission =
+                          membershipById.get(admission.id as number) ?? invoice.membershipAdmission ?? null;
+                      }
+                      return invoice;
+                    }),
+                    catchError(() => of(null))
+                  )
+                )
+              ).pipe(
+                map(invoices => invoices.filter((invoice): invoice is IInvoice => !!invoice))
+              );
+            }),
+            catchError(() => of([] as IInvoice[]))
+          )
+        );
+
+        const courseInvoices$ = courseInvoiceRequests.length
+          ? forkJoin(courseInvoiceRequests).pipe(map(groups => groups.flat()))
+          : of([] as IInvoice[]);
+
+        const membershipInvoices$ = membershipPaymentRequests.length
+          ? forkJoin(membershipPaymentRequests).pipe(map(groups => groups.flat()))
+          : of([] as IInvoice[]);
+
+        return forkJoin({
+          courseInvoices: courseInvoices$,
+          membershipInvoices: membershipInvoices$,
+        });
       }),
-      tap(() => this.isLoading = false),
-      catchError(err => { console.error(err); this.isLoading = false; return of(null); })
+      map(({ courseInvoices, membershipInvoices }) => {
+        const merged = [...courseInvoices, ...membershipInvoices];
+        const uniqueById = new Map<number, IInvoice>();
+        merged.forEach(invoice => {
+          if (invoice.id != null) {
+            uniqueById.set(invoice.id, invoice);
+          }
+        });
+        return Array.from(uniqueById.values());
+      }),
+      switchMap(invoices => this.loadDocumentsForInvoices(invoices)),
+      switchMap(invoices => this.loadMembershipAdmissionsForInvoices(invoices)),
+      tap(invoices => {
+        this.allInvoices = this.sortInvoices(invoices);
+        this.totalItems = this.allInvoices.length;
+        this.applySearchFilters();
+        this.isLoading = false;
+      }),
+      catchError(err => {
+        console.error('Error searching invoices by NIC', err);
+        this.isLoading = false;
+        this.allInvoices = [];
+        this.dataSource.data = [];
+        return of([] as IInvoice[]);
+      })
     ).subscribe();
   }
 
@@ -515,7 +529,6 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
 
   handleFormSaved(): void {
     this.closeFormDrawer();
-    this.refreshTrigger.next();
     this.loadData();
     this.dialogRef?.close(true);
   }
@@ -530,7 +543,6 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     confirmation.afterClosed().subscribe(result => {
       if (result === 'confirmed') {
         this.invoiceService.delete(id).subscribe(() => {
-          this.refreshTrigger.next();
           this.loadData();
         });
       }
@@ -603,7 +615,6 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     if (this.paginator) {
       this.paginator.firstPage();
     }
-    this.refreshTrigger.next();
     this.loadData();
     this.closeFilterDrawer();
   }
@@ -614,7 +625,6 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     if (this.paginator) {
       this.paginator.firstPage();
     }
-    this.refreshTrigger.next();
     this.loadData();
   }
 
@@ -650,7 +660,11 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
 
   clearSearch(): void {
     this.searchNic = '';
-    this.dataSource.data = [];
+    this.searchInvoiceNo = '';
+    this.searchRegistrationNumber = '';
+    this.searchDateFrom = null;
+    this.searchDateTo = null;
+    this.loadData();
   }
 
 
@@ -675,8 +689,232 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     return field.operators.find(item => item.key === operator);
   }
 
+  private applySearchFilters(): void {
+    const nicTerm = this.normalizeSearchValue(this.searchNic);
+    const invoiceNoTerm = this.normalizeSearchValue(this.searchInvoiceNo);
+    const registrationTerm = this.normalizeSearchValue(this.searchRegistrationNumber);
+    const fromDate = this.searchDateFrom ? new Date(this.searchDateFrom) : null;
+    const toDate = this.searchDateTo ? new Date(this.searchDateTo) : null;
 
+    if (fromDate) {
+      fromDate.setHours(0, 0, 0, 0);
+    }
 
+    if (toDate) {
+      toDate.setHours(23, 59, 59, 999);
+    }
 
+    const matchingCourseAdmissionIds = registrationTerm
+      ? new Set(
+        this.allInvoices
+          .filter(invoice => this.normalizeSearchValue(invoice.registrationNumber).includes(registrationTerm))
+          .map(invoice => invoice.courseAdmission?.id)
+          .filter((id): id is number => typeof id === 'number')
+      )
+      : new Set<number>();
 
+    const filteredInvoices = this.allInvoices.filter(invoice => {
+      const invoiceNic = this.normalizeSearchValue(invoice.courseAdmission?.nic || invoice.membershipAdmission?.nic);
+      const invoiceNo = this.normalizeSearchValue(invoice.invoiceNo);
+      const invoiceRegistrationNumber = this.normalizeSearchValue(invoice.registrationNumber);
+      const courseAdmissionId = invoice.courseAdmission?.id;
+      const issuedDateValue = invoice.issuedDate ? new Date(invoice.issuedDate.toString()) : null;
+
+      const nicMatches = !nicTerm || invoiceNic.includes(nicTerm);
+      const invoiceNoMatches = !invoiceNoTerm || invoiceNo.includes(invoiceNoTerm);
+      const registrationMatches =
+        !registrationTerm ||
+        invoiceRegistrationNumber.includes(registrationTerm) ||
+        (typeof courseAdmissionId === 'number' && matchingCourseAdmissionIds.has(courseAdmissionId));
+      const fromMatches = !fromDate || (!!issuedDateValue && issuedDateValue >= fromDate);
+      const toMatches = !toDate || (!!issuedDateValue && issuedDateValue <= toDate);
+
+      return nicMatches && invoiceNoMatches && registrationMatches && fromMatches && toMatches;
+    });
+
+    this.dataSource.data = this.sortInvoices(filteredInvoices);
+  }
+
+  private normalizeSearchValue(value: string | String | null | undefined): string {
+    return String(value ?? '')
+      .trim()
+      .replace(/\s+/g, '')
+      .toLowerCase();
+  }
+
+  private approveCourseInvoice(invoice: IInvoice, paidAmount: number, registrationNumber: string): void {
+    this.invoiceService.find(invoice.id!).subscribe({
+      next: (res) => {
+        const fullInvoice = res.body;
+        if (!fullInvoice) {
+          alert('Invoice not found on backend');
+          return;
+        }
+
+        fullInvoice.paidAmount = paidAmount;
+        fullInvoice.registrationNumber = registrationNumber;
+
+        this.invoiceService.update(fullInvoice).pipe(
+          switchMap(() => {
+            const courseAdmissionId = fullInvoice.courseAdmission?.id;
+            if (!courseAdmissionId) {
+              return of(null);
+            }
+
+            return this.courseAdmissionService.find(courseAdmissionId).pipe(
+              switchMap(courseAdmissionResponse => {
+                const courseAdmission = courseAdmissionResponse.body;
+                if (!courseAdmission) {
+                  throw new Error('Course admission not found.');
+                }
+
+                courseAdmission.status = ApplicationStatus.APPROVED;
+                return this.courseAdmissionService.update(courseAdmission);
+              })
+            );
+          })
+        ).subscribe({
+          next: () => {
+            this.approvedInvoices.add(invoice.id!);
+
+            this.dataSource.data.forEach(inv => {
+              if (inv.courseAdmission?.id === fullInvoice.courseAdmission?.id) {
+                if (inv.courseAdmission) {
+                  inv.courseAdmission.status = ApplicationStatus.APPROVED;
+                }
+                if (inv.id === invoice.id) {
+                  inv.registrationNumber = registrationNumber;
+                  inv.paidAmount = paidAmount;
+                }
+              }
+            });
+            this.dataSource._updateChangeSubscription();
+
+            alert('Payment approved and saved!');
+            this.loadData();
+          },
+          error: (err) => {
+            console.error('Failed to approve course invoice', err);
+            alert('Payment was saved, but the student admission status could not be updated.');
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to fetch invoice', err);
+        alert('Cannot fetch invoice from backend');
+      }
+    });
+  }
+
+  private getExistingRegistrationNumberForSeries(invoice: IInvoice): string | null {
+    const courseAdmissionId = invoice.courseAdmission?.id;
+    if (!courseAdmissionId) {
+      return null;
+    }
+
+    const relatedInvoices = this.allInvoices.filter(inv => inv.courseAdmission?.id === courseAdmissionId);
+    if (!relatedInvoices.length) {
+      return null;
+    }
+
+    const firstInvoice =
+      relatedInvoices.find(inv => this.getInvoiceLineNumber(inv.invoiceNo) === 1)
+      ?? [...relatedInvoices].sort((a, b) => this.getInvoiceLineNumber(a.invoiceNo) - this.getInvoiceLineNumber(b.invoiceNo))[0];
+
+    const firstInvoiceRegistration = firstInvoice?.registrationNumber?.trim();
+    if (firstInvoiceRegistration) {
+      return firstInvoiceRegistration;
+    }
+
+    const fallbackRegistration = relatedInvoices
+      .map(inv => inv.registrationNumber?.trim())
+      .find((registrationNumber): registrationNumber is string => !!registrationNumber);
+
+    return fallbackRegistration ?? null;
+  }
+
+  private getInvoiceLineNumber(invoiceNo: string | null | undefined): number {
+    const match = (invoiceNo ?? '').match(/-(\d+)$/);
+    return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+  }
+
+  private sortInvoices(invoices: IInvoice[]): IInvoice[] {
+    return [...invoices].sort((a, b) => (a.invoiceNo ?? '').localeCompare(b.invoiceNo ?? '', undefined, { numeric: true }));
+  }
+
+  private markApprovedInvoices(invoices: IInvoice[]): void {
+    invoices.forEach(invoice => {
+      if (invoice.id && invoice.paidAmount && invoice.paidAmount > 0) {
+        this.approvedInvoices.add(invoice.id);
+      }
+    });
+  }
+
+  private loadDocumentsForInvoices(invoices: IInvoice[]) {
+    const docCalls = invoices.map(invoice =>
+      invoice.id
+        ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
+          tap(documents => {
+            invoice.documents = documents ?? [];
+          }),
+          catchError(() => {
+            invoice.documents = [];
+            return of(invoice);
+          }),
+          switchMap(() => of(invoice))
+        )
+        : of(invoice)
+    );
+
+    return forkJoin(docCalls);
+  }
+
+  private loadMembershipAdmissionsForInvoices(invoices: IInvoice[]) {
+    const paymentCalls = invoices.map(invoice =>
+      invoice.id
+        ? this.paymentService.query({ page: 0, size: 1, 'invoiceId.equals': invoice.id }).pipe(
+          map(res => ({
+            invoice,
+            membershipAdmissionId: res.body?.[0]?.membershipAdmission?.id ?? res.body?.[0]?.memberID ?? null,
+          } as InvoiceMembershipLink)),
+          catchError(() => of({ invoice, membershipAdmissionId: null } as InvoiceMembershipLink))
+        )
+        : of({ invoice, membershipAdmissionId: null } as InvoiceMembershipLink)
+    );
+
+    return forkJoin(paymentCalls).pipe(
+      switchMap((results: InvoiceMembershipLink[]) => {
+        const membershipIds = [...new Set(results.map(item => item.membershipAdmissionId).filter((id): id is number => !!id))];
+        if (!membershipIds.length) {
+          return of(invoices);
+        }
+
+        const membershipCalls = membershipIds.map(id =>
+          this.membershipAdmissionService.find(id).pipe(
+            map(response => response.body),
+            catchError(() => of(null))
+          )
+        );
+
+        return forkJoin(membershipCalls).pipe(
+          map((memberships: Array<IMembershipAdmission | null>) => {
+            const membershipMap = new Map<number, IMembershipAdmission>();
+            memberships.forEach(membership => {
+              if (membership?.id) {
+                membershipMap.set(membership.id, membership);
+              }
+            });
+
+            results.forEach(result => {
+              if (result.membershipAdmissionId) {
+                result.invoice.membershipAdmission = membershipMap.get(result.membershipAdmissionId) ?? null;
+              }
+            });
+
+            return invoices;
+          })
+        );
+      })
+    );
+  }
 }

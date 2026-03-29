@@ -1,9 +1,10 @@
 // This is an EJS template. It generates the list component TypeScript file.
 import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, startWith, Subject, catchError, switchMap, tap } from 'rxjs';
+import { forkJoin, merge, Observable, of, startWith, Subject, catchError, finalize, map, switchMap, tap, throwError } from 'rxjs';
 
 // Angular Material & Fuse
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -20,12 +21,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 // Application Imports
 import { ICourse } from '../course.model';
 import { CourseService } from '../service/course.service';
 import { CourseFormComponent } from '../form/course-form.component';
+import { CourseInstallmentService } from '../update/course-installment.service';
+import { CourseAdmissionService } from '../../course-admission/service/course-admission.service';
 
 
 type ParentDialogData = {
@@ -49,6 +53,11 @@ interface FilterField {
   rawFieldType?: string;
   enumOptionsKey?: string;
 }
+
+type LinkedCourseAdmissionsError = {
+  type: 'linked-course-admissions';
+  admissionsCount: number;
+};
 
 const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = {
   string: [
@@ -101,6 +110,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatSnackBarModule,
     CourseFormComponent,
   ],
   templateUrl: './course-list.component.html',
@@ -108,7 +118,10 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
 export class CourseListComponent implements AfterViewInit, OnInit {
   // --- Injected Services ---
   private readonly courseService = inject(CourseService);
+  private readonly courseInstallmentService = inject(CourseInstallmentService);
+  private readonly courseAdmissionService = inject(CourseAdmissionService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly dialogRef = inject(MatDialogRef<CourseListComponent>, { optional: true });
@@ -122,6 +135,7 @@ export class CourseListComponent implements AfterViewInit, OnInit {
   private readonly refreshTrigger = new Subject<void>();
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
+  deletingIds = new Set<number>();
 
   selectedCourse: ICourse | null = null;
   drawerMode: 'new' | 'edit' = 'new';
@@ -251,6 +265,12 @@ export class CourseListComponent implements AfterViewInit, OnInit {
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
+  getRowNumber(index: number): number {
+    const pageIndex = this.paginator?.pageIndex ?? 0;
+    const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+    return pageIndex * pageSize + index + 1;
+  }
+
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
@@ -294,11 +314,27 @@ export class CourseListComponent implements AfterViewInit, OnInit {
     });
 
     confirmation.afterClosed().subscribe(result => {
-      if (result === 'confirmed') {
-        this.courseService.delete(id).subscribe(() => {
-          this.refreshTrigger.next();
-          this.loadData();
-        });
+      if (result === 'confirmed' && !this.deletingIds.has(id)) {
+        this.deletingIds.add(id);
+
+        this.deleteCourseSafely(id)
+          .pipe(finalize(() => this.deletingIds.delete(id)))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Course deleted successfully.', 'Close', { duration: 3000 });
+              this.refreshTrigger.next();
+              this.loadData();
+            },
+            error: error => {
+              if (this.isLinkedCourseAdmissionsError(error)) {
+                this.confirmDeleteLinkedCourse(id, error.admissionsCount);
+                return;
+              }
+
+              console.error('Failed to delete course', error);
+              this.snackBar.open(this.getDeleteErrorMessage(error), 'Close', { duration: 7000 });
+            },
+          });
       }
     });
   }
@@ -429,5 +465,106 @@ export class CourseListComponent implements AfterViewInit, OnInit {
     }
     const operator = group.get('operator')?.value as string | undefined;
     return field.operators.find(item => item.key === operator);
+  }
+
+  private deleteCourseSafely(id: number): Observable<HttpResponse<{}>> {
+    return this.courseAdmissionService.query({ page: 0, size: 500, 'courseRefId.equals': id }).pipe(
+      map(response => response.body ?? []),
+      switchMap(admissions => {
+        if (admissions.length > 0) {
+          return throwError(() => ({ type: 'linked-course-admissions', admissionsCount: admissions.length } as LinkedCourseAdmissionsError));
+        }
+
+        return this.deleteCourseAfterDependenciesRemoved(id);
+      })
+    );
+  }
+
+  private confirmDeleteLinkedCourse(id: number, admissionsCount: number): void {
+    const confirmation = this.fuseConfirmationService.open({
+      title: 'Course Is In Use',
+      message: `This course is linked to ${admissionsCount} course admission(s). Delete it anyway and keep those admissions by removing their course link?`,
+      actions: {
+        confirm: { label: 'Delete Anyway' },
+        cancel: { label: 'Cancel' },
+      },
+    });
+
+    confirmation.afterClosed().subscribe(result => {
+      if (result !== 'confirmed' || this.deletingIds.has(id)) {
+        return;
+      }
+
+      this.deletingIds.add(id);
+
+      this.forceDeleteCourseWithDetachedAdmissions(id)
+        .pipe(finalize(() => this.deletingIds.delete(id)))
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Course deleted successfully. Linked admissions were preserved.', 'Close', { duration: 4000 });
+            this.refreshTrigger.next();
+            this.loadData();
+          },
+          error: error => {
+            console.error('Failed to force delete course', error);
+            this.snackBar.open(this.getDeleteErrorMessage(error), 'Close', { duration: 7000 });
+          },
+        });
+    });
+  }
+
+  private forceDeleteCourseWithDetachedAdmissions(id: number): Observable<HttpResponse<{}>> {
+    return this.courseAdmissionService.query({ page: 0, size: 500, 'courseRefId.equals': id }).pipe(
+      map(response => response.body ?? []),
+      switchMap(admissions => {
+        const detachRequests = admissions.map(admission =>
+          this.courseAdmissionService.update({
+            ...admission,
+            courseRefId: null,
+            courseRef: null,
+          } as any)
+        );
+
+        return (detachRequests.length ? forkJoin(detachRequests) : of([])).pipe(
+          switchMap(() => this.deleteCourseAfterDependenciesRemoved(id))
+        );
+      })
+    );
+  }
+
+  private deleteCourseAfterDependenciesRemoved(id: number): Observable<HttpResponse<{}>> {
+    return this.courseInstallmentService.getByCourse(id).pipe(
+      map(installments => installments ?? []),
+      switchMap(installments => this.deleteCourseInstallments(installments.map(installment => installment.id))),
+      switchMap(() => this.courseService.delete(id))
+    );
+  }
+
+  private deleteCourseInstallments(installmentIds: Array<number | undefined>): Observable<unknown> {
+    const validInstallmentIds = installmentIds.filter((installmentId): installmentId is number => installmentId != null);
+    if (!validInstallmentIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(validInstallmentIds.map(installmentId => this.courseInstallmentService.delete(installmentId)));
+  }
+
+  private getDeleteErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message) {
+      return error.message;
+    }
+
+    if (error instanceof HttpErrorResponse) {
+      const detail = error.error?.detail || error.error?.message;
+      if (typeof detail === 'string' && detail.trim()) {
+        return detail;
+      }
+    }
+
+    return 'Unable to delete this course. Please try again.';
+  }
+
+  private isLinkedCourseAdmissionsError(error: unknown): error is LinkedCourseAdmissionsError {
+    return !!error && typeof error === 'object' && (error as LinkedCourseAdmissionsError).type === 'linked-course-admissions';
   }
 }

@@ -29,9 +29,11 @@ import { DocumentService } from 'app/entities/document/service/document.service'
 import { PaymentMethod } from 'app/enums/payment-method.model';
 import { PaymentStatus } from 'app/enums/payment-status.model';
 import { IPayment, NewPayment } from 'app/entities/payment/payment.model';
+import { InvoiceService } from 'app/modules/invoice/service/invoice.service';
+import { IInvoice, NewInvoice } from 'app/modules/invoice/invoice.model';
 
 import dayjs from 'dayjs/esm';
-import { DATE_FORMAT } from 'app/config/input.constants';
+import { catchError, map, Observable, switchMap, throwError } from 'rxjs';
 
 @Component({
     selector: 'app-membership-form',
@@ -80,6 +82,7 @@ export class MembershipFormComponent implements OnInit {
     private readonly accountService = inject(AccountService);
     private readonly paymentService = inject(PaymentService);
     private readonly documentService = inject(DocumentService);
+    private readonly invoiceService = inject(InvoiceService);
     private readonly snackBar = inject(MatSnackBar);
     private readonly route = inject(ActivatedRoute);
 
@@ -261,6 +264,105 @@ export class MembershipFormComponent implements OnInit {
         });
     }
 
+    private buildMembershipInvoiceNo(membershipId: number): string {
+        return `MINV-${membershipId}-1`;
+    }
+
+    private createInvoiceForMembership(membershipId: number, amount: number): Observable<number> {
+        const invoicePayload: NewInvoice = {
+            id: null,
+            invoiceNo: this.buildMembershipInvoiceNo(membershipId),
+            issuedDate: dayjs(),
+            dueDate: this.selectedCategory?.endDate ? dayjs(this.selectedCategory.endDate) : dayjs(),
+            totalAmount: amount,
+            paidAmount: 0,
+        };
+
+        return this.invoiceService.create(invoicePayload).pipe(
+            map(response => {
+                const invoiceId = response.body?.id;
+                if (!invoiceId) {
+                    throw new Error('Failed to create invoice');
+                }
+                return invoiceId;
+            })
+        );
+    }
+
+    private createOrUpdateMembershipInvoice(membershipId: number, amount: number): Observable<number> {
+        return this.paymentService.query({ page: 0, size: 1, 'membershipAdmissionId.equals': membershipId }).pipe(
+            map(response => response.body?.[0] ?? null),
+            switchMap(payment => {
+                const existingInvoiceId = payment?.invoiceId;
+                if (!existingInvoiceId) {
+                    return this.createInvoiceForMembership(membershipId, amount);
+                }
+
+                return this.invoiceService.find(existingInvoiceId).pipe(
+                    map(response => response.body),
+                    switchMap(invoice => {
+                        if (!invoice?.id) {
+                            return this.createInvoiceForMembership(membershipId, amount);
+                        }
+
+                        const updatedInvoice: IInvoice = {
+                            ...invoice,
+                            invoiceNo: invoice.invoiceNo || this.buildMembershipInvoiceNo(membershipId),
+                            issuedDate: invoice.issuedDate || dayjs(),
+                            dueDate: invoice.dueDate || (this.selectedCategory?.endDate ? dayjs(this.selectedCategory.endDate) : dayjs()),
+                            totalAmount: amount,
+                            paidAmount: invoice.paidAmount ?? 0,
+                        };
+
+                        return this.invoiceService.update(updatedInvoice).pipe(
+                            map(updateResponse => updateResponse.body?.id ?? existingInvoiceId)
+                        );
+                    }),
+                    catchError(() => this.createInvoiceForMembership(membershipId, amount))
+                );
+            })
+        );
+    }
+
+    private saveMembershipPayment(
+        membershipId: number,
+        invoiceId: number,
+        paymentMethod: string,
+        amount: number,
+        referenceNumber: string | null
+    ): Observable<number> {
+        return this.paymentService.query({ page: 0, size: 1, 'membershipAdmissionId.equals': membershipId }).pipe(
+            map(response => response.body?.[0] ?? null),
+            switchMap(existingPayment => {
+                const paymentPayload: IPayment | NewPayment = {
+                    id: existingPayment?.id ?? null,
+                    memberID: membershipId,
+                    invoiceId,
+                    paymentMethod: paymentMethod as keyof typeof PaymentMethod,
+                    amount,
+                    referenceNumber,
+                    paymentDate: dayjs(),
+                    paymentStatus: PaymentStatus.PENDING,
+                    membershipAdmission: { id: membershipId },
+                };
+
+                const request$ = existingPayment?.id
+                    ? this.paymentService.update(paymentPayload as IPayment)
+                    : this.paymentService.create(paymentPayload as NewPayment);
+
+                return request$.pipe(
+                    map(response => {
+                        const paymentId = response.body?.id;
+                        if (!paymentId) {
+                            throw new Error('Failed to save payment');
+                        }
+                        return paymentId;
+                    })
+                );
+            })
+        );
+    }
+
     onSubmit(): void {
         if (this.form.invalid) {
             this.form.markAllAsTouched();
@@ -274,8 +376,8 @@ export class MembershipFormComponent implements OnInit {
 
         // Get payment details from form (cast to access dynamic controls)
         const paymentMethod = (this.form as unknown as FormGroup).get('paymentMethod')?.value;
-        const amount = (this.form as unknown as FormGroup).get('amount')?.value;
-        const referenceNumber = (this.form as unknown as FormGroup).get('referenceNumber')?.value;
+        const amount = Number((this.form as unknown as FormGroup).get('amount')?.value);
+        const referenceNumber = ((this.form as unknown as FormGroup).get('referenceNumber')?.value as string | null) || null;
 
         // If membership already exists, update it; otherwise create new
         const membershipObservable = this.currentMembershipId
@@ -296,37 +398,29 @@ export class MembershipFormComponent implements OnInit {
                 }
 
                 // If payment details are provided, save them
-                if (paymentMethod && amount) {
-                    const payment: NewPayment = {
-                        id: null,
-                        memberID: membershipId,
-                        paymentMethod: paymentMethod,
-                        amount: amount,
-                        referenceNumber: referenceNumber,
-                        paymentDate: dayjs(),
-                        paymentStatus: PaymentStatus.PENDING,
-                        membershipAdmission: { id: membershipId }
-                    };
-
-                    this.paymentService.create(payment).subscribe({
-                        next: (paymentRes) => {
-                            const paymentId = paymentRes.body?.id;
-
-                            // Upload receipt if file selected
-                            if (paymentId && this.selectedFile) {
+                if (paymentMethod && Number.isFinite(amount) && amount > 0) {
+                    this.createOrUpdateMembershipInvoice(membershipId, amount).pipe(
+                        switchMap(invoiceId =>
+                            this.saveMembershipPayment(membershipId, invoiceId, paymentMethod, amount, referenceNumber)
+                        ),
+                        catchError(error => {
+                            console.error('Membership payment flow failed:', error);
+                            return throwError(() => error);
+                        })
+                    ).subscribe({
+                        next: (paymentId) => {
+                            if (this.selectedFile) {
                                 this.uploadReceiptFile(paymentId);
                             }
 
                             this.isSaving = false;
-                            // Show success message instead of reloading
                             this.showSuccess = true;
                         },
                         error: () => {
                             this.isSaving = false;
-                            this.snackBar.open('Membership saved but payment failed to save', 'Close', {
+                            this.snackBar.open('Membership saved but invoice/payment failed to save', 'Close', {
                                 duration: 5000,
                             });
-                            window.location.reload();
                         }
                     });
                 } else {

@@ -162,7 +162,7 @@ export class MembershipAdmissionFormComponent implements OnInit, OnChanges {
   }
 
   private loadRelationshipOptions(): void {
-    this.membershipCategoryService.query().subscribe(response => {
+    this.membershipCategoryService.query({ 'status.equals': 'ACTIVE' }).subscribe(response => {
       this.membershipCategories = response.body ?? [];
       this.updateMembershipCategory(this.form.controls.membershipCategoryId.value);
     });

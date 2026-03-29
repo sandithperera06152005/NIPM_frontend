@@ -3,7 +3,8 @@ import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { merge, of, startWith, Subject, catchError, switchMap, tap } from 'rxjs';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { merge, of, startWith, Subject, catchError, switchMap, tap, forkJoin, finalize, map, Observable } from 'rxjs';
 
 // Angular Material & Fuse
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -20,6 +21,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 
 // Application Imports
@@ -27,9 +29,14 @@ import { ICourseAdmission } from '../course-admission.model';
 import { CourseAdmissionService } from '../service/course-admission.service';
 import { CourseAdmissionFormComponent } from '../form/course-admission-form.component';
 import { CourseAdmissionViewDialogComponent } from '../view/course-admission-view-dialog.component';
-
-
-
+import { InvoiceService } from '../../invoice/service/invoice.service';
+import { PaymentService } from 'app/entities/payment/service/payment.service';
+import { DocumentService } from 'app/entities/document/service/document.service';
+import { IDocument } from 'app/entities/document/document.model';
+import { CourseAdmissionQualificationService } from 'app/modules/course-admission-qualification/service/course-admission-qualification.service';
+import { ICourseAdmissionQualification } from 'app/modules/course-admission-qualification/course-admission-qualification.model';
+import { StudentProfileService } from 'app/modules/student-profile/service/student-profile.service';
+import { IStudentProfile } from 'app/modules/student-profile/student-profile.model';
 
 import { ApplicationStatus } from 'app/enums/application-status.model';
 
@@ -106,6 +113,7 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatSnackBarModule,
     CourseAdmissionFormComponent,
   ],
   templateUrl: './course-admission-list.component.html',
@@ -113,7 +121,13 @@ const FILTER_OPERATOR_LIBRARY: Record<FilterValueType, FilterFieldOperator[]> = 
 export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   // --- Injected Services ---
   private readonly courseAdmissionService = inject(CourseAdmissionService);
+  private readonly invoiceService = inject(InvoiceService);
+  private readonly paymentService = inject(PaymentService);
+  private readonly documentService = inject(DocumentService);
+  private readonly courseAdmissionQualificationService = inject(CourseAdmissionQualificationService);
+  private readonly studentProfileService = inject(StudentProfileService);
   private readonly fuseConfirmationService = inject(FuseConfirmationService);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
   private readonly dialogRef = inject(MatDialogRef<CourseAdmissionListComponent>, { optional: true });
@@ -127,6 +141,7 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
   private readonly refreshTrigger = new Subject<void>();
   private baseParentFilters: Record<string, string | number> = {};
   private activeFilters: Record<string, string> = {};
+  deletingIds = new Set<number>();
 
   selectedCourseAdmission: ICourseAdmission | null = null;
   drawerMode: 'new' | 'edit' = 'new';
@@ -438,6 +453,12 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
     return [`${this.sort.active},${this.sort.direction}`];
   }
 
+  getRowNumber(index: number): number {
+    const pageIndex = this.paginator?.pageIndex ?? 0;
+    const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+    return pageIndex * pageSize + index + 1;
+  }
+
   openFormDrawer(id?: number): void {
     if (id) {
       this.drawerMode = 'edit';
@@ -481,11 +502,22 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
     });
 
     confirmation.afterClosed().subscribe(result => {
-      if (result === 'confirmed') {
-        this.courseAdmissionService.delete(id).subscribe(() => {
-          this.refreshTrigger.next();
-          this.loadData();
-        });
+      if (result === 'confirmed' && !this.deletingIds.has(id)) {
+        this.deletingIds.add(id);
+
+        this.deleteCourseAdmissionWithDependencies(id)
+          .pipe(finalize(() => this.deletingIds.delete(id)))
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Student deleted successfully.', 'Close', { duration: 3000 });
+              this.refreshTrigger.next();
+              this.loadData();
+            },
+            error: error => {
+              console.error('Failed to delete course admission', error);
+              this.snackBar.open(this.getDeleteErrorMessage(error), 'Close', { duration: 7000 });
+            },
+          });
       }
     });
   }
@@ -627,5 +659,169 @@ export class CourseAdmissionListComponent implements AfterViewInit, OnInit {
     }
     const operator = group.get('operator')?.value as string | undefined;
     return field.operators.find(item => item.key === operator);
+  }
+
+  private deleteCourseAdmissionWithDependencies(id: number): Observable<HttpResponse<{}>> {
+    return this.courseAdmissionService.find(id).pipe(
+      map(response => response.body),
+      switchMap(admission => {
+        if (!admission) {
+          throw new Error(`Course admission ${id} not found.`);
+        }
+
+        const nic = String(admission.nic ?? '').trim();
+
+        return forkJoin({
+          invoices: this.invoiceService.query({ page: 0, size: 500, 'courseAdmissionId.equals': id }).pipe(
+            map(response => response.body ?? [])
+          ),
+          qualifications: this.courseAdmissionQualificationService.query({ page: 0, size: 500, 'courseAdmissionId.equals': id }).pipe(
+            map(response => response.body ?? []),
+            catchError(() => of([] as ICourseAdmissionQualification[]))
+          ),
+          studentProfiles: nic
+            ? this.studentProfileService.query({ page: 0, size: 500, 'nic.equals': nic }).pipe(
+                map(response => response.body ?? []),
+                catchError(() => of([] as IStudentProfile[]))
+              )
+            : of([] as IStudentProfile[]),
+        }).pipe(
+          switchMap(({ invoices, qualifications, studentProfiles }) => {
+            const invoiceIds = invoices
+              .map(invoice => invoice.id)
+              .filter((invoiceId): invoiceId is number => invoiceId != null);
+
+            const qualificationIds = qualifications
+              .map(qualification => qualification.id)
+              .filter((qualificationId): qualificationId is number => qualificationId != null);
+
+            const studentProfileIds = studentProfiles
+              .map(studentProfile => studentProfile.id)
+              .filter((studentProfileId): studentProfileId is number => studentProfileId != null);
+
+            return this.loadPaymentsForInvoices(invoiceIds).pipe(
+              switchMap(paymentIds =>
+                this.loadDocumentsForDependencies(paymentIds, invoiceIds).pipe(
+                  switchMap(documents => this.deleteDocuments(documents)),
+                  switchMap(() => this.deletePayments(paymentIds)),
+                  switchMap(() => this.deleteInvoices(invoiceIds)),
+                  switchMap(() => this.deleteQualifications(qualificationIds)),
+                  switchMap(() => this.deleteStudentProfiles(studentProfileIds)),
+                  switchMap(() => this.courseAdmissionService.delete(id))
+                )
+              )
+            );
+          })
+        );
+      })
+    );
+  }
+
+  private loadPaymentsForInvoices(invoiceIds: number[]): Observable<number[]> {
+    if (!invoiceIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(
+      invoiceIds.map(invoiceId =>
+        this.paymentService.query({ page: 0, size: 500, 'invoiceId.equals': invoiceId }).pipe(
+          map(response => response.body ?? []),
+          catchError(() => of([]))
+        )
+      )
+    ).pipe(
+      map(paymentGroups =>
+        [...new Set(
+          paymentGroups
+            .flat()
+            .map(payment => payment.id)
+            .filter((paymentId): paymentId is number => paymentId != null)
+        )]
+      )
+    );
+  }
+
+  private loadDocumentsForDependencies(paymentIds: number[], invoiceIds: number[]): Observable<IDocument[]> {
+    const documentRequests: Observable<IDocument[]>[] = [
+      ...paymentIds.map(paymentId =>
+        this.documentService.query({ page: 0, size: 500, 'paymentId.equals': paymentId }).pipe(
+          map(response => response.body ?? []),
+          catchError(() => of([]))
+        )
+      ),
+      ...invoiceIds.map(invoiceId =>
+        this.documentService.getDocumentsByInvoiceId(invoiceId).pipe(
+          catchError(() => of([]))
+        )
+      ),
+    ];
+
+    if (!documentRequests.length) {
+      return of([]);
+    }
+
+    return forkJoin(documentRequests).pipe(
+      map(documentGroups => documentGroups.flat()),
+      map(documents => [...new Map(documents.filter(document => document?.id != null).map(document => [document.id, document])).values()])
+    );
+  }
+
+  private deleteDocuments(documents: IDocument[]): Observable<unknown> {
+    if (!documents.length) {
+      return of([]);
+    }
+
+    return forkJoin(documents.map(document => this.documentService.delete(document.id)));
+  }
+
+  private deletePayments(paymentIds: number[]): Observable<unknown> {
+    if (!paymentIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(paymentIds.map(paymentId => this.paymentService.delete(paymentId)));
+  }
+
+  private deleteInvoices(invoiceIds: number[]): Observable<unknown> {
+    if (!invoiceIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(invoiceIds.map(invoiceId => this.invoiceService.delete(invoiceId)));
+  }
+
+  private deleteQualifications(qualificationIds: number[]): Observable<unknown> {
+    if (!qualificationIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(
+      qualificationIds.map(qualificationId => this.courseAdmissionQualificationService.delete(qualificationId))
+    );
+  }
+
+  private deleteStudentProfiles(studentProfileIds: number[]): Observable<unknown> {
+    if (!studentProfileIds.length) {
+      return of([]);
+    }
+
+    return forkJoin(
+      studentProfileIds.map(studentProfileId => this.studentProfileService.delete(studentProfileId))
+    );
+  }
+
+  private getDeleteErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const detail = error.error?.detail || error.error?.message;
+      if (typeof detail === 'string' && detail.trim()) {
+        return detail;
+      }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+
+    return 'Unable to delete this student. Please try again.';
   }
 }

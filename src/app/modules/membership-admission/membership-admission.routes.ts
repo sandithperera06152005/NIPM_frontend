@@ -8,19 +8,19 @@ export default [
     path: '',
     component: MembershipAdmissionListComponent,
     canActivate: [UserRouteAccessService],
-    data: { authorities: ['ROLE_MEMBER_COORDINATOR'] }
+    data: { authorities: ['ROLE_MEMBER_COORDINATOR', 'ROLE_ADMIN'] }
   },
   {
     path: 'new',
     component: MembershipFormComponent,
     canActivate: [UserRouteAccessService],
-    data: { authorities: ['ROLE_MEMBER_COORDINATOR'] }
+    data: { authorities: ['ROLE_MEMBER_COORDINATOR', 'ROLE_ADMIN'] }
   },
   {
     path: ':id',
     component: MembershipFormComponent,
     canActivate: [UserRouteAccessService],
-    data: { authorities: ['ROLE_MEMBER_COORDINATOR'] }
+    data: { authorities: ['ROLE_MEMBER_COORDINATOR', 'ROLE_ADMIN'] }
   }
 
 ] as Routes;

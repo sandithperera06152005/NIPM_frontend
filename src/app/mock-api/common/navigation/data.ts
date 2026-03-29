@@ -1,7 +1,12 @@
 /* eslint-disable */
 import { FuseNavigationItem } from "@fuse/components/navigation";
 
-export const defaultNavigation: FuseNavigationItem[] = [
+type RoleAwareNavigationItem = FuseNavigationItem & {
+  authorities?: string[];
+  children?: RoleAwareNavigationItem[];
+};
+
+export const defaultNavigation: RoleAwareNavigationItem[] = [
   {
     id: "operation-module",
     title: "NIPM operations",
@@ -15,6 +20,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:chart-pie",
         link: "/dashboard",
+        authorities: [
+          "ROLE_ADMIN",
+          "ROLE_MEMBER_COORDINATOR",
+          "ROLE_STUDENT_COORDINATOR",
+          "ROLE_APPROVER",
+          "ROLE_COURSE_ADMIN",
+          "ROLE_FINANCE_MANAGER",
+        ],
       },
       {
         id: "student-dashboard",
@@ -22,6 +35,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:home",
         link: "/student-dashboard",
+        authorities: ["ROLE_STUDENT"],
       },
       {
         id: "manage-payments",
@@ -29,6 +43,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:currency-dollar",
         link: "/student-dashboard/manage-payments",
+        authorities: ["ROLE_STUDENT"],
       },
       // {
       //   id: "student-dashboard",
@@ -53,6 +68,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:user-plus",
         link: "/course-admission",
+        authorities: ["ROLE_ADMIN", "ROLE_STUDENT_COORDINATOR"],
       },
       {
         id: "membership-admission",
@@ -60,41 +76,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:user-group",
         link: "/membership-admission",
-      },
-      {
-        id: "approval",
-        title: "Approvals",
-        type: "basic",
-        icon: "heroicons_outline:check-circle",
-        link: "/approvals",
-      },
-      {
-        id: "finance-management",
-        title: "Finance Management",
-        type: "basic",
-        icon: "heroicons_outline:currency-dollar",
-        link: "/finance-management",
-      },
-      {
-        id: "company",
-        title: "Company",
-        type: "basic",
-        icon: "heroicons_outline:building-office",
-        link: "/company",
-      },
-      {
-        id: "course-reg-form",
-        title: "Course Registration Forms",
-        type: "basic",
-        icon: "heroicons_outline:chart-pie",
-        link: "/course-reg-form",
-      },
-      {
-        id: "course-coordinator",
-        title: "Course Coordinator",
-        type: "basic",
-        icon: "heroicons_outline:user",
-        link: "/course-coordinator",
+        authorities: ["ROLE_ADMIN", "ROLE_MEMBER_COORDINATOR"],
       },
       {
         id: "membership-category",
@@ -102,13 +84,56 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:user-group",
         link: "/membership-category",
+        authorities: ["ROLE_ADMIN", "ROLE_MEMBER_COORDINATOR"],
       },
+      {
+        id: "approval",
+        title: "Approvals",
+        type: "basic",
+        icon: "heroicons_outline:check-circle",
+        link: "/approvals",
+        authorities: ["ROLE_ADMIN", "ROLE_APPROVER"],
+      },
+      {
+        id: "finance-management",
+        title: "Finance Management",
+        type: "basic",
+        icon: "heroicons_outline:currency-dollar",
+        link: "/finance-management",
+        authorities: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER"],
+      },
+      {
+        id: "company",
+        title: "Company",
+        type: "basic",
+        icon: "heroicons_outline:building-office",
+        link: "/company",
+        authorities: ["ROLE_ADMIN"],
+      },
+      {
+        id: "course-reg-form",
+        title: "Course Registration Forms",
+        type: "basic",
+        icon: "heroicons_outline:chart-pie",
+        link: "/course-reg-form",
+        authorities: ["ROLE_ADMIN", "ROLE_COURSE_ADMIN"],
+      },
+      {
+        id: "course-coordinator",
+        title: "Course Coordinator",
+        type: "basic",
+        icon: "heroicons_outline:user",
+        link: "/course-coordinator",
+        authorities: ["ROLE_ADMIN", "ROLE_COURSE_ADMIN"],
+      },
+
       {
         id: "course",
         title: "Course",
         type: "basic",
         icon: "heroicons_outline:book-open",
         link: "/course",
+        authorities: ["ROLE_ADMIN", "ROLE_COURSE_ADMIN"],
       },
 
       {
@@ -117,6 +142,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type: "basic",
         icon: "heroicons_outline:receipt-refund",
         link: "/invoice",
+        authorities: ["ROLE_ADMIN", "ROLE_FINANCE_MANAGER"],
       },
     ],
   },
@@ -261,7 +287,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
   // }
 
 ];
-export const compactNavigation: FuseNavigationItem[] = [
+export const compactNavigation: RoleAwareNavigationItem[] = [
   {
     id: "example",
     title: "Example",
@@ -270,7 +296,7 @@ export const compactNavigation: FuseNavigationItem[] = [
     link: "/example",
   },
 ];
-export const futuristicNavigation: FuseNavigationItem[] = [
+export const futuristicNavigation: RoleAwareNavigationItem[] = [
   {
     id: "example",
     title: "Example",
@@ -279,7 +305,7 @@ export const futuristicNavigation: FuseNavigationItem[] = [
     link: "/example",
   },
 ];
-export const horizontalNavigation: FuseNavigationItem[] = [
+export const horizontalNavigation: RoleAwareNavigationItem[] = [
   {
     id: "example",
     title: "Example",

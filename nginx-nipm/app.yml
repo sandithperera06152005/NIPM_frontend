@@ -1,0 +1,7 @@
+# version: '2'
+services:
+  nginx-nipm:
+    image: nginx-nipm:latest 
+    ports:
+      - 80:80
+      - 443:443

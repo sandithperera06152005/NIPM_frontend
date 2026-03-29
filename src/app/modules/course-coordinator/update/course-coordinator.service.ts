@@ -39,7 +39,7 @@ export class CourseCoordinatorFormService {
       
       nic: new FormControl(entity.nic, Validators.required),
       
-      isActive: new FormControl(entity.isActive, Validators.required),
+      isActive: new FormControl(entity.isActive ?? true),
       
       
     });
@@ -54,6 +54,7 @@ export class CourseCoordinatorFormService {
 
   resetForm(form: CourseCoordinatorFormGroup, entity: CourseCoordinatorFormGroupInput): void {
     form.reset({
+      isActive: true,
       ...entity,
       
     } as any);

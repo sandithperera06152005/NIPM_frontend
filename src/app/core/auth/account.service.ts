@@ -36,6 +36,9 @@ export class AccountService {
     if (!userIdentity) {
       return false;
     }
+    if (userIdentity.authorities.includes('ROLE_ADMIN')) {
+      return true;
+    }
     if (!Array.isArray(authorities)) {
       authorities = [authorities];
     }

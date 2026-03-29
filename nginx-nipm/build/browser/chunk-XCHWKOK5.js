@@ -1,0 +1,1 @@
+var D=function(E){return E.PENDING="PENDING",E.APPROVED="APPROVED",E.REJECTED="REJECTED",E.SUBMITTED="SUBMITTED",E}(D||{});export{D as a};

@@ -62,10 +62,10 @@ export class StudentManagePaymentsComponent implements OnInit {
         'issuedDate',
         'dueDate',
         'totalAmount',
-        'paidAmount',
         'outstandingAmount',
+        'paidAmount',
         'savePayment',
-        'receivedDocument',
+        //'receivedDocument',
     ];
     dataSource = new MatTableDataSource<IInvoice>();
 
