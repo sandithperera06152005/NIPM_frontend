@@ -10,12 +10,12 @@ export const environment = {
   },
   preEstimateID: "",
   // sso: "https://sso.nimeshmotors.lk/realms/jhipster/protocol/openid-connect/token",
-  sso: "http://localhost:9080/realms/jhipster/protocol/openid-connect/token",
-  //sso: "http://88.223.92.162:9080/realms/jhipster/protocol/openid-connect/token",
+  //sso: "http://localhost:9080/realms/jhipster/protocol/openid-connect/token",
+  sso: "http://88.223.92.162:9080/realms/jhipster/protocol/openid-connect/token",
   
   // apiBaseUrl: "https://api.nimeshmotors.lk",
   imgUrl: "/services/operationsmodule/api/fileDetails/",
-  apiBaseUrl: "http://localhost:8080",
-  //apiBaseUrl: "http://88.223.92.162:8080",
+  //apiBaseUrl: "http://localhost:8080",
+  apiBaseUrl: "http://88.223.92.162:8080",
 
 };
