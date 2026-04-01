@@ -23,13 +23,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: "heroicons_outline:academic-cap",
         link: "/student-profile",
       },
-      {
-        id: "membership-application",
-        title: "Members Application",
-        type: "basic",
-        icon: "heroicons_outline:document-text",
-        link: "/membership-application",
-      },
+      // {
+      //   id: "membership-application",
+      //   title: "Members Application",
+      //   type: "basic",
+      //   icon: "heroicons_outline:document-text",
+      //   link: "/membership-application",
+      // },
       {
         id: "finance-management",
         title: "Finance Management",

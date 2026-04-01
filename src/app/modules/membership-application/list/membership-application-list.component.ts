@@ -130,13 +130,13 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
   selectedMembershipApplication: IMembershipApplication | null = null;
   drawerMode: 'new' | 'edit' = 'new';
 
-  
+
   readonly applicationStatusOptions = Object.keys(ApplicationStatus);
-  
+
 
   // --- Filter configuration ---
   filterFields: FilterField[] = [
-    
+
     {
       key: 'applicationDate',
       label: 'ApplicationDate',
@@ -144,7 +144,7 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
       operators: FILTER_OPERATOR_LIBRARY['date'],
       rawFieldType: 'Instant'
     },
-    
+
     {
       key: 'status',
       label: 'Status',
@@ -153,8 +153,8 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
       rawFieldType: 'ApplicationStatus',
       enumOptionsKey: 'applicationStatusOptions'
     },
-    
-    
+
+
   ];
 
   filtersForm: FormGroup = this.buildFiltersForm();
@@ -165,7 +165,7 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['id', 'applicationDate', 'status',  'actions'];
+  displayedColumns: string[] = ['id', 'applicationDate', 'status', 'actions'];
   dataSource = new MatTableDataSource<IMembershipApplication>();
 
   ngOnInit(): void {
@@ -175,6 +175,21 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
   }
 
   ngAfterViewInit(): void {
+    // Load initial data first (isLoading will become false, revealing the table with matSort)
+    this.loadData();
+
+    // Defer sort/paginator setup until after the table is rendered
+    // The table is hidden by *ngIf="!isLoading", so we need to wait for the initial data load
+    setTimeout(() => this.setupSortPaginatorTriggers(), 0);
+  }
+
+  private setupSortPaginatorTriggers(): void {
+    if (!this.sort || !this.paginator) {
+      // Still not available, try again on next tick
+      setTimeout(() => this.setupSortPaginatorTriggers(), 10);
+      return;
+    }
+
     const triggers$ = merge(this.sort.sortChange, this.paginator.page, this.refreshTrigger).pipe(startWith({}));
 
     if (this.dialogData?.parentFilters) {
@@ -194,8 +209,6 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
         )
         .subscribe(() => this.loadData());
     }
-
-    this.loadData();
   }
 
   loadData(): void {
@@ -390,7 +403,7 @@ export class MembershipApplicationListComponent implements AfterViewInit, OnInit
     return (this as any)[field.enumOptionsKey] ?? [];
   }
 
-  
+
 
   private buildFiltersForm(): FormGroup {
     const groupConfig = this.filterFields.reduce((acc, field) => {
