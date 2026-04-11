@@ -2,50 +2,50 @@
 <form class="flex h-full flex-col" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="flex items-center justify-between border-b pb-4">
     <h2 class="text-2xl font-bold">
-      {{ heading || (isEditMode ? 'Edit CourseCoordinator' : 'New CourseCoordinator') }}
+      {{ heading || (isEditMode ? 'Edit Course Coordinator' : 'New Course Coordinator') }}
     </h2>
     <mat-icon *ngIf="isSaving" class="animate-spin">autorenew</mat-icon>
   </div>
 
   <div class="flex-auto space-y-4 overflow-y-auto pt-6">
-    
-      
+
+
     <mat-form-field class="w-full">
       <mat-label>Full Name</mat-label>
       <input matInput formControlName="fullName" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Telephone Number</mat-label>
       <input matInput formControlName="teleNo" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>Email</mat-label>
       <input matInput formControlName="email" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <mat-form-field class="w-full">
       <mat-label>NIC</mat-label>
       <input matInput formControlName="nic" required>
     </mat-form-field>
-      
-    
-      
+
+
+
     <!-- <mat-checkbox class="w-full" formControlName="isActive">
       IsActive
     </mat-checkbox> -->
-      
-    
 
-    
-    
+
+
+
+
   </div>
 
   <div *ngIf="errorMessage" class="mt-2 rounded bg-warn-100 px-4 py-2 text-warn-900">

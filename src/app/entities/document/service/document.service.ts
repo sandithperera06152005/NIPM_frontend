@@ -35,9 +35,9 @@ export class DocumentService {
   // upload(formData: FormData): Observable<{ fileUrl: string }> {
   //   return this.http.post<{ fileUrl: string }>(this.fileUploadUrl, formData);
   // }
-  upload(formData: FormData): Observable<Document> {
-    return this.http.post<Document>(`${this.resourceUrl}/upload`, formData);
-}
+  upload(formData: FormData): Observable<IDocument> {
+    return this.http.post<IDocument>(`${this.resourceUrl}/upload`, formData);
+  }
 
   partialUpdate(document: PartialUpdateDocument): Observable<EntityResponseType> {
     return this.http.patch<IDocument>(`${this.resourceUrl}/${this.getDocumentIdentifier(document)}`, document, { observe: 'response' });
@@ -78,6 +78,12 @@ export class DocumentService {
 getDocumentsByInvoiceId(invoiceId: number): Observable<IDocument[]> {
   return this.http.get<IDocument[]>(`${this.resourceUrl}/invoice/${invoiceId}`);
 }
+
+  downloadDocument(id: number): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/download/${id}`, {
+      responseType: 'blob',
+    });
+  }
 
 
   addDocumentToCollectionIfMissing<Type extends Pick<IDocument, 'id'>>(

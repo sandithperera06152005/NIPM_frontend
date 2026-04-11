@@ -459,8 +459,11 @@ export class MembershipAdmissionListComponent implements AfterViewInit, OnInit {
 
   openVerifyDialog(id: number): void {
     const dialogRef = this.dialog.open(VerifyMemberComponent, {
-      width: '900px',
-      maxWidth: '95vw',
+      width: '1120px',
+      maxWidth: '96vw',
+      height: '91vh',
+      maxHeight: '91vh',
+      panelClass: 'verify-member-dialog-panel',
       data: { membershipAdmissionId: id } as VerifyMemberDialogData,
     });
 

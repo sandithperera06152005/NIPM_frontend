@@ -76,8 +76,12 @@ export class AccountService {
     // if login is successful, go to stored previousState and clear previousState
     const previousUrl = this.stateStorageService.getUrl();
     if (previousUrl) {
+      const account = this.userIdentity();
+      const isStudent = account?.authorities?.includes('ROLE_STUDENT') ?? false;
+      const targetUrl = isStudent && previousUrl === '/dashboard' ? '/student-dashboard' : previousUrl;
+
       this.stateStorageService.clearUrl();
-      this.router.navigateByUrl(previousUrl);
+      this.router.navigateByUrl(targetUrl);
     }
   }
 }

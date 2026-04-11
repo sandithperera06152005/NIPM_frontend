@@ -18,6 +18,8 @@ export type InvoiceFormGroup = FormGroup<{
   totalAmount: FormControl<IInvoice['totalAmount']>;
   
   paidAmount: FormControl<IInvoice['paidAmount']>;
+
+  document: FormControl<IInvoice['document'] | null>;
   
   
 }>;
@@ -41,6 +43,7 @@ export class InvoiceFormService {
       
       paidAmount: new FormControl(entity.paidAmount),
       
+      document: new FormControl(entity.document),
       
     });
     return form;

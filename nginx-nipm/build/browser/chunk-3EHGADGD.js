@@ -1,1 +1,0 @@
-import{a as t}from"./chunk-PWLQ2LSJ.js";import"./chunk-DUBHYZ76.js";import"./chunk-VUYFFG4O.js";import"./chunk-7UX4S6AL.js";import"./chunk-JPWF55VA.js";import"./chunk-LEVYQGH3.js";var o=[{path:"",loadComponent:()=>import("./chunk-YAE3ENMD.js").then(e=>e.StudentManagePaymentsComponent),canActivate:[t],data:{authorities:["ROLE_ADMIN","ROLE_STUDENT"]}}];export{o as default};

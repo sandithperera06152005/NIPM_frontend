@@ -45,6 +45,7 @@ export interface IInvoice {
   membershipAdmission?: IMembershipAdmission | null;
   documents?: IDocument[];
   registrationNumber?: string | null;
+  document?: Pick<IDocument, 'id' | 'fileName'> | null;
 }
 
 export type NewInvoice = Omit<IInvoice, 'id'> & { id: null };

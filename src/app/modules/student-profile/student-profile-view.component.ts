@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { forkJoin, map, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -55,6 +56,7 @@ export class StudentProfileViewComponent implements OnInit {
     private readonly diplomaQualificationService = inject(DiplomaQualificationService);
     private readonly industryExperienceService = inject(IndustryExperienceService);
     private readonly employmentService = inject(EmploymentService);
+    private readonly router = inject(Router);
 
     courseAdmission: ICourseAdmission | null = null;
     applicant: IApplicant | null = null;
@@ -145,6 +147,10 @@ export class StudentProfileViewComponent implements OnInit {
         if (this.courseAdmission) {
             this.isEditing = true;
         }
+    }
+
+    navigateToChangePassword(): void {
+        this.router.navigate(['/student-profile/change-password']);
     }
 
     cancelEdit(): void {

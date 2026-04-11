@@ -83,6 +83,13 @@ export class AuthService {
     return this._httpClient.post("api/auth/reset-password", password);
   }
 
+  changePassword(payload: {
+    currentPassword: string;
+    newPassword: string;
+  }): Observable<void> {
+    return this._httpClient.post<void>("api/account/change-password", payload);
+  }
+
   /**
    * Sign in
    *

@@ -1,77 +1,131 @@
-<div class="p-6">
+<div class="flex max-h-[88vh] flex-col bg-slate-50 text-slate-900">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-semibold">Verify Member Details</h2>
-        <button mat-icon-button (click)="onCancel()">
+    <div class="flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-6 py-5">
+        <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Membership Admission</p>
+            <h2 class="mt-1 text-2xl font-semibold tracking-tight text-slate-900">Verify Member Details</h2>
+            <p class="mt-2 text-sm text-slate-600">
+                Review the applicant profile, membership category, and referee information before proceeding.
+            </p>
+        </div>
+        <button mat-icon-button type="button" class="mt-1 shrink-0 !bg-slate-100 !text-slate-600 hover:!bg-slate-200" (click)="onCancel()">
             <mat-icon>close</mat-icon>
         </button>
     </div>
 
     <!-- Loading Spinner -->
-    <div *ngIf="isLoading" class="flex items-center justify-center py-12">
-        <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
+    <div *ngIf="isLoading" class="flex min-h-[420px] items-center justify-center px-6 py-12">
+        <div class="flex flex-col items-center gap-4 text-center">
+            <mat-progress-spinner [diameter]="42" [mode]="'indeterminate'"></mat-progress-spinner>
+            <div>
+                <p class="text-sm font-medium text-slate-700">Loading membership details</p>
+                <p class="text-xs text-slate-500">Please wait while the application data is retrieved.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Content -->
-    <div *ngIf="!isLoading && membershipAdmission" class="max-h-[60vh] overflow-y-auto">
+    <div *ngIf="!isLoading && membershipAdmission" class="flex-1 overflow-y-auto px-6 py-6">
+        <div class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <h3 class="text-xl font-semibold text-slate-900">
+                            {{ membershipAdmission.fullName || membershipAdmission.nameWithInitials || 'Applicant Name Unavailable' }}
+                        </h3>
+                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                            [class.bg-yellow-100]="membershipAdmission.status === applicationStatus.PENDING"
+                            [class.text-yellow-700]="membershipAdmission.status === applicationStatus.PENDING"
+                            [class.bg-green-100]="membershipAdmission.status === applicationStatus.APPROVED"
+                            [class.text-green-700]="membershipAdmission.status === applicationStatus.APPROVED"
+                            [class.bg-red-100]="membershipAdmission.status === applicationStatus.REJECTED"
+                            [class.text-red-700]="membershipAdmission.status === applicationStatus.REJECTED"
+                            [class.bg-blue-100]="membershipAdmission.status === applicationStatus.SUBMITTED"
+                            [class.text-blue-700]="membershipAdmission.status === applicationStatus.SUBMITTED"
+                            [class.bg-slate-100]="!membershipAdmission.status"
+                            [class.text-slate-700]="!membershipAdmission.status">
+                            {{ membershipAdmission.status || 'N/A' }}
+                        </span>
+                    </div>
+                    <p class="mt-2 text-sm text-slate-600">{{ membershipAdmission.email || 'No email address provided' }}</p>
+                </div>
+
+                <div class="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+                    <div class="rounded-xl bg-slate-50 px-4 py-3">
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Applied On</p>
+                        <p class="mt-2 text-sm font-semibold text-slate-800">{{ membershipAdmission.appliedDateTime | date: 'mediumDate' || '-' }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 px-4 py-3">
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Mobile</p>
+                        <p class="mt-2 text-sm font-semibold text-slate-800">{{ membershipAdmission.mobileNo || '-' }}</p>
+                    </div>
+                    <div class="rounded-xl bg-slate-50 px-4 py-3">
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-500">NIC</p>
+                        <p class="mt-2 text-sm font-semibold text-slate-800">{{ membershipAdmission.nic || '-' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pr-1">
         <!-- Member Details in 3 Columns -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
             <!-- Column 1: Personal Information -->
             <div class="col-span-1 space-y-4">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Personal Information</h3>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="mb-4 border-b border-slate-200 pb-3 text-lg font-semibold text-slate-900">Personal Information</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm text-gray-500">Full Name</label>
-                            <p class="font-medium">{{ membershipAdmission.fullName || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Full Name</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.fullName || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Name with Initials</label>
-                            <p class="font-medium">{{ membershipAdmission.nameWithInitials || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Name with Initials</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.nameWithInitials || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Date of Birth</label>
-                            <p class="font-medium">{{ membershipAdmission.dateOfBirth | date: 'mediumDate' || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Date of Birth</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.dateOfBirth | date: 'mediumDate' || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">NIC</label>
-                            <p class="font-medium">{{ membershipAdmission.nic || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">NIC</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.nic || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Email</label>
-                            <p class="font-medium">{{ membershipAdmission.email || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Email</label>
+                            <p class="mt-1 break-all font-medium text-slate-900">{{ membershipAdmission.email || '-' }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Contact Information</h3>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="mb-4 border-b border-slate-200 pb-3 text-lg font-semibold text-slate-900">Contact Information</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm text-gray-500">Permanent Address</label>
-                            <p class="font-medium">{{ membershipAdmission.permanentAddress || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Permanent Address</label>
+                            <p class="mt-1 font-medium leading-6 text-slate-900">{{ membershipAdmission.permanentAddress || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Telephone No</label>
-                            <p class="font-medium">{{ membershipAdmission.teleNo || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Telephone No</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.teleNo || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Mobile No</label>
-                            <p class="font-medium">{{ membershipAdmission.mobileNo || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Mobile No</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.mobileNo || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">WhatsApp No</label>
-                            <p class="font-medium">{{ membershipAdmission.whatsAppNo || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">WhatsApp No</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.whatsAppNo || '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -79,7 +133,7 @@
 
             <!-- Column 2: Eligibility Criteria -->
             <div class="col-span-1 space-y-4">
-                <div class="bg-gray-50 p-4 rounded-lg">
+                <!-- <div class="bg-gray-50 p-4 rounded-lg">
                     <h3 class="font-semibold text-lg mb-3 border-b pb-2">Eligibility Criteria</h3>
 
                     <div class="space-y-3">
@@ -115,19 +169,22 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Application Status</h3>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="mb-4 border-b border-slate-200 pb-3 text-lg font-semibold text-slate-900">Application Status</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm text-gray-500">Current Status</label>
-                            <p class="font-medium">
-                                <span class="px-2 py-1 rounded text-sm"
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Current Status</label>
+                            <p class="mt-2 font-medium">
+                                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
                                     [class.bg-yellow-100]="membershipAdmission.status === applicationStatus.PENDING"
+                                    [class.text-yellow-700]="membershipAdmission.status === applicationStatus.PENDING"
                                     [class.bg-green-100]="membershipAdmission.status === applicationStatus.APPROVED"
+                                    [class.text-green-700]="membershipAdmission.status === applicationStatus.APPROVED"
                                     [class.bg-red-100]="membershipAdmission.status === applicationStatus.REJECTED"
+                                    [class.text-red-700]="membershipAdmission.status === applicationStatus.REJECTED"
                                     [class.bg-blue-100]="membershipAdmission.status === applicationStatus.SUBMITTED">
                                     {{ membershipAdmission.status || 'N/A' }}
                                 </span>
@@ -135,39 +192,39 @@
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Applied Date</label>
-                            <p class="font-medium">{{ membershipAdmission.appliedDateTime | date: 'medium' || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Applied Date</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.appliedDateTime | date: 'medium' || '-' }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Membership Category Details</h3>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="mb-4 border-b border-slate-200 pb-3 text-lg font-semibold text-slate-900">Membership Category Details</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm text-gray-500">Membership Name</label>
-                            <p class="font-medium">{{ membershipCategory?.membershipName || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Membership Name</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipCategory?.membershipName || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Duration</label>
-                            <p class="font-medium">{{ membershipCategory?.duration ? (membershipCategory.duration + ' months') : '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Duration</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipCategory?.duration ? (membershipCategory.duration + ' months') : '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Price</label>
-                            <p class="font-medium">{{ membershipCategory?.price ? (membershipCategory.price | currency:'LKR') : '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Price</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipCategory?.price ? (membershipCategory.price | currency:'LKR') : '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Start Date</label>
-                            <p class="font-medium">{{ membershipCategory?.startDate | date:'mediumDate' || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Start Date</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipCategory?.startDate | date:'mediumDate' || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">End Date</label>
-                            <p class="font-medium">{{ membershipCategory?.endDate | date:'mediumDate' || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">End Date</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipCategory?.endDate | date:'mediumDate' || '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -175,69 +232,76 @@
 
             <!-- Column 3: Referees -->
             <div class="col-span-1 space-y-4">
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Referee 1</h3>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="mb-4 border-b border-slate-200 pb-3 text-lg font-semibold text-slate-900">Referee 1</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm text-gray-500">Name</label>
-                            <p class="font-medium">{{ membershipAdmission.referees1Name || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Name</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.referees1Name || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Designation</label>
-                            <p class="font-medium">{{ membershipAdmission.referees1Designation || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Designation</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.referees1Designation || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Address</label>
-                            <p class="font-medium">{{ membershipAdmission.referees1Address || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Address</label>
+                            <p class="mt-1 font-medium leading-6 text-slate-900">{{ membershipAdmission.referees1Address || '-' }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="font-semibold text-lg mb-3 border-b pb-2">Referee 2</h3>
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h3 class="mb-4 border-b border-slate-200 pb-3 text-lg font-semibold text-slate-900">Referee 2</h3>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm text-gray-500">Name</label>
-                            <p class="font-medium">{{ membershipAdmission.referees2Name || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Name</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.referees2Name || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Designation</label>
-                            <p class="font-medium">{{ membershipAdmission.referees2Designation || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Designation</label>
+                            <p class="mt-1 font-medium text-slate-900">{{ membershipAdmission.referees2Designation || '-' }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm text-gray-500">Address</label>
-                            <p class="font-medium">{{ membershipAdmission.referees2Address || '-' }}</p>
+                            <label class="text-xs font-medium uppercase tracking-wide text-slate-500">Address</label>
+                            <p class="mt-1 font-medium leading-6 text-slate-900">{{ membershipAdmission.referees2Address || '-' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        </div>
     </div>
 
     <!-- No Data Message -->
-    <div *ngIf="!isLoading && !membershipAdmission" class="text-center py-12 text-gray-500">
-        No membership admission data found.
+    <div *ngIf="!isLoading && !membershipAdmission" class="px-6 py-12">
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-slate-500">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+                <mat-icon>info</mat-icon>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900">No membership admission data found</h3>
+            <p class="mt-2 text-sm">The requested record could not be loaded for verification.</p>
+        </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
-        <button mat-button (click)="onCancel()">Cancel</button>
+    <div class="flex flex-col-reverse gap-3 border-t border-slate-200 bg-white px-6 py-4 sm:flex-row sm:items-center sm:justify-end">
+        <button mat-button type="button" class="sm:min-w-[110px]" (click)="onCancel()">Cancel</button>
 
         <!-- Send Payment Email Button (only shown when status is APPROVED) -->
-        <button *ngIf="canSendPaymentEmail" mat-flat-button color="accent" (click)="sendPaymentEmail()"
+        <button *ngIf="canSendPaymentEmail" mat-flat-button color="accent" type="button" class="sm:min-w-[190px]" (click)="sendPaymentEmail()"
             [disabled]="isLoading || isSendingEmail">
             <mat-icon>email</mat-icon>
             <span class="ml-2">{{ isSendingEmail ? 'Sending...' : 'Send Payment Email' }}</span>
         </button>
 
         <!-- Send for Approval Button (shown when status is PENDING or SUBMITTED) -->
-        <button *ngIf="!canSendPaymentEmail" mat-flat-button color="primary" (click)="sendForApproval()"
+        <button *ngIf="!canSendPaymentEmail" mat-flat-button color="primary" type="button" class="sm:min-w-[190px]" (click)="sendForApproval()"
             [disabled]="isLoading || !membershipAdmission">
             <mat-icon>send</mat-icon>
             <span class="ml-2">Send for Approval</span>

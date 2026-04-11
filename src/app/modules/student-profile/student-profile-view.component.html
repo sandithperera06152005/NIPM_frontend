@@ -54,12 +54,21 @@
 
             <!-- Action Button -->
             <div *ngIf="courseAdmission && !isEditing" class="shrink-0 pb-2 hidden md:block">
-                <button mat-flat-button
-                    class="!bg-white !text-slate-800 hover:!bg-slate-100 !rounded-full !px-6 !py-1 font-semibold shadow-lg"
-                    (click)="editProfile()">
-                    <mat-icon class="mr-2">edit_square</mat-icon>
-                    Update Details
-                </button>
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <button
+                        mat-stroked-button
+                        class="!border-white/60 !text-white hover:!bg-white/10 !rounded-full !px-6 !py-1 font-semibold"
+                        (click)="navigateToChangePassword()">
+                        <mat-icon class="mr-2">lock_reset</mat-icon>
+                        Change Password
+                    </button>
+                    <button mat-flat-button
+                        class="!bg-white !text-slate-800 hover:!bg-slate-100 !rounded-full !px-6 !py-1 font-semibold shadow-lg"
+                        (click)="editProfile()">
+                        <mat-icon class="mr-2">edit_square</mat-icon>
+                        Update Details
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -67,11 +76,20 @@
     <!-- Mobile Action Button (shows below banner on small screens) -->
     <div *ngIf="courseAdmission && !isEditing"
         class="md:hidden p-4 bg-white border-b border-lime-200 shadow-sm shrink-0">
-        <button mat-flat-button class="w-full !bg-lime-800 !text-white hover:!bg-lime-700 !rounded-full font-semibold"
-            (click)="editProfile()">
-            <mat-icon class="mr-2">edit_square</mat-icon>
-            Update Details
-        </button>
+        <div class="flex flex-col gap-3">
+            <button
+                mat-stroked-button
+                class="w-full !border-lime-300 !text-lime-800 !rounded-full font-semibold"
+                (click)="navigateToChangePassword()">
+                <mat-icon class="mr-2">lock_reset</mat-icon>
+                Change Password
+            </button>
+            <button mat-flat-button class="w-full !bg-lime-800 !text-white hover:!bg-lime-700 !rounded-full font-semibold"
+                (click)="editProfile()">
+                <mat-icon class="mr-2">edit_square</mat-icon>
+                Update Details
+            </button>
+        </div>
     </div>
 
     <!-- Content -->

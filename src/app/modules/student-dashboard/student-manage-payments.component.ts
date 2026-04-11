@@ -16,6 +16,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { catchError, of } from 'rxjs';
 import dayjs from 'dayjs/esm';
 
+import { IDocument } from 'app/entities/document/document.model';
 import { IInvoice } from '../invoice/invoice.model';
 import { InvoiceService } from '../invoice/service/invoice.service';
 import { AccountService } from 'app/core/auth/account.service';
@@ -157,16 +158,16 @@ export class StudentManagePaymentsComponent implements OnInit {
                 formData.append('paymentId', String(paymentId));
                 return this.documentService.upload(formData);
             }),
-            switchMap(() => this.documentService.getDocumentsByInvoiceId(invoiceId)),
+            switchMap(uploadedDocument => this.updateInvoiceDocument(invoiceId, uploadedDocument, file.name)),
             catchError(err => {
                 console.error('Failed to upload receipt', err);
                 alert('Failed to upload receipt.');
                 return of(null);
             })
-        ).subscribe(docs => {
+        ).subscribe(updatedInvoice => {
             this.uploadingReceiptInvoiceIds.delete(invoiceId);
-            if (docs) {
-                invoice.documents = docs;
+            if (updatedInvoice) {
+                invoice.document = updatedInvoice.document ?? invoice.document;
                 this.selectedReceiptFiles[invoiceId] = null;
                 this.dataSource._updateChangeSubscription();
                 alert('Receipt uploaded.');
@@ -279,11 +280,11 @@ export class StudentManagePaymentsComponent implements OnInit {
                         });
 
                         if (this.invoices.length > 0) {
-                            // Load documents for all invoices
+                            // Load invoice-linked document for all invoices
                             const docCalls = this.invoices.map(invoice =>
                                 invoice.id
-                                    ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
-                                        map(docs => { invoice.documents = docs; }),
+                                    ? this.documentService.getDocumentByInvoiceId(invoice.id).pipe(
+                                        map(doc => { invoice.document = doc ? { id: doc.id, fileName: doc.fileName ?? null } : null; }),
                                         catchError(() => of(null))
                                     )
                                     : of(null)
@@ -306,6 +307,24 @@ export class StudentManagePaymentsComponent implements OnInit {
                 this.isLoading = false;
             }
         });
+    }
+
+    private updateInvoiceDocument(invoiceId: number, document: IDocument, fallbackFileName: string) {
+        return this.invoiceService.find(invoiceId).pipe(
+            switchMap(res => {
+                const fullInvoice = res.body;
+                if (!fullInvoice) {
+                    throw new Error('Invoice not found');
+                }
+
+                fullInvoice.document = {
+                    id: document.id,
+                    fileName: document.fileName ?? fallbackFileName,
+                };
+
+                return this.invoiceService.update(fullInvoice).pipe(map(updateRes => updateRes.body));
+            })
+        );
     }
 
 }

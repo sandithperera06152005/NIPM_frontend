@@ -257,7 +257,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
         const invoices = res.body ?? [];
         this.totalItems = Number(res.headers.get('X-Total-Count') ?? invoices.length);
         this.markApprovedInvoices(invoices);
-        return this.loadDocumentsForInvoices(invoices).pipe(
+        return this.loadInvoiceDocuments(invoices).pipe(
           switchMap(enrichedInvoices => this.loadMembershipAdmissionsForInvoices(enrichedInvoices)),
           tap(enrichedInvoices => {
             this.allInvoices = this.sortInvoices(enrichedInvoices);
@@ -419,9 +419,9 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
               payments.length > 0
                 ? of(payments)
                 : this.paymentService.query({ 'membershipAdmissionId.equals': admission.id, page: 0, size: 500 }).pipe(
-                    map(fallbackRes => fallbackRes.body ?? []),
-                    catchError(() => of([] as IPayment[]))
-                  )
+                  map(fallbackRes => fallbackRes.body ?? []),
+                  catchError(() => of([] as IPayment[]))
+                )
             ),
             switchMap((payments: IPayment[]) => {
               const invoiceIds = [...new Set(payments.map(payment => payment.invoiceId).filter((id): id is number => typeof id === 'number'))];
@@ -474,7 +474,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
         });
         return Array.from(uniqueById.values());
       }),
-      switchMap(invoices => this.loadDocumentsForInvoices(invoices)),
+      switchMap(invoices => this.loadInvoiceDocuments(invoices)),
       switchMap(invoices => this.loadMembershipAdmissionsForInvoices(invoices)),
       tap(invoices => {
         this.allInvoices = this.sortInvoices(invoices);
@@ -657,6 +657,19 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     window.open(url, '_blank');
   }
 
+  downloadDocument(doc: { id: number; fileName?: string | null }): void {
+    this.documentService.downloadDocument(doc.id).subscribe({
+      next: blob => {
+        const fileName = doc.fileName?.trim() || `document-${doc.id}`;
+        this.downloadBlob(blob, fileName);
+      },
+      error: err => {
+        console.error('Failed to download document', err);
+        alert('Unable to download the document.');
+      },
+    });
+  }
+
 
   clearSearch(): void {
     this.searchNic = '';
@@ -740,6 +753,15 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       .trim()
       .replace(/\s+/g, '')
       .toLowerCase();
+  }
+
+  private downloadBlob(blob: Blob, fileName: string): void {
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(objectUrl);
   }
 
   private approveCourseInvoice(invoice: IInvoice, paidAmount: number, registrationNumber: string): void {
@@ -850,15 +872,15 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
     });
   }
 
-  private loadDocumentsForInvoices(invoices: IInvoice[]) {
+  private loadInvoiceDocuments(invoices: IInvoice[]) {
     const docCalls = invoices.map(invoice =>
       invoice.id
-        ? this.documentService.getDocumentsByInvoiceId(invoice.id).pipe(
-          tap(documents => {
-            invoice.documents = documents ?? [];
+        ? this.documentService.getDocumentByInvoiceId(invoice.id).pipe(
+          tap(document => {
+            invoice.document = document ? { id: document.id, fileName: document.fileName ?? null } : null;
           }),
           catchError(() => {
-            invoice.documents = [];
+            invoice.document = null;
             return of(invoice);
           }),
           switchMap(() => of(invoice))

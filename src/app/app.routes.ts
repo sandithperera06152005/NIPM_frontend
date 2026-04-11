@@ -1,6 +1,7 @@
 import { Route } from "@angular/router";
 import { initialDataResolver } from "app/app.resolvers";
 import { AuthGuard } from "app/core/auth/guards/auth.guard";
+import { DefaultDashboardGuard } from "app/core/auth/guards/default-dashboard.guard";
 import { NoAuthGuard } from "app/core/auth/guards/noAuth.guard";
 import { LayoutComponent } from "app/layout/layout.component";
 
@@ -9,14 +10,14 @@ import { LayoutComponent } from "app/layout/layout.component";
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 export const appRoutes: Route[] = [
   // Redirect empty path to '/example'
-  { path: "", pathMatch: "full", redirectTo: "dashboard" },
+  { path: "", pathMatch: "full", canActivate: [DefaultDashboardGuard], children: [] },
 
   // Redirect signed-in user to the '/example'
   //
   // After the user signs in, the sign-in page will redirect the user to the 'signed-in-redirect'
   // path. Below is another redirection for that path to redirect the user to the desired
   // location. This is a small convenience to keep all main routes together here on this file.
-  { path: "signed-in-redirect", pathMatch: "full", redirectTo: "student-dashboard" },
+  { path: "signed-in-redirect", pathMatch: "full", canActivate: [DefaultDashboardGuard], children: [] },
 
   // Auth routes for guests
   {
@@ -99,6 +100,13 @@ export const appRoutes: Route[] = [
         loadChildren: () =>
           import(
             "app/modules/landing/auth/unlock-session/unlock-session.routes"
+          ),
+      },
+      {
+        path: "student-profile/change-password",
+        loadChildren: () =>
+          import(
+            "app/modules/landing/auth/change-password/change-password.routes"
           ),
       },
     ],

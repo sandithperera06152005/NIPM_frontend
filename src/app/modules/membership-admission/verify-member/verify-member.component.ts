@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, inject } from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,6 +32,20 @@ export interface VerifyMemberDialogResult {
         MatSnackBarModule,
     ],
     templateUrl: './verify-member.component.html',
+    encapsulation: ViewEncapsulation.None,
+    styles: [
+        `
+            .verify-member-dialog-panel .mat-mdc-dialog-surface,
+            .verify-member-dialog-panel .mdc-dialog__surface {
+                overflow: hidden;
+            }
+
+            .verify-member-dialog-panel .mat-mdc-dialog-container,
+            .verify-member-dialog-panel .mat-mdc-dialog-container .mdc-dialog__container {
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class VerifyMemberComponent implements OnInit {
     private readonly membershipAdmissionService = inject(MembershipAdmissionService);
