@@ -554,6 +554,10 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
 
     this.filterFields.forEach(field => {
       const group = this.fieldGroup(field.key);
+      if (!group) {
+        return;
+      }
+
       const operator = group?.get('operator')?.value as string | undefined;
       if (!operator) {
         return;
@@ -877,7 +881,7 @@ export class InvoiceListComponent implements AfterViewInit, OnInit {
       invoice.id
         ? this.documentService.getDocumentByInvoiceId(invoice.id).pipe(
           tap(document => {
-            invoice.document = document ? { id: document.id, fileName: document.fileName ?? null } : null;
+            invoice.document = document?.id ? { id: document.id, fileName: document.fileName ?? null } : null;
           }),
           catchError(() => {
             invoice.document = null;

@@ -284,7 +284,9 @@ export class StudentManagePaymentsComponent implements OnInit {
                             const docCalls = this.invoices.map(invoice =>
                                 invoice.id
                                     ? this.documentService.getDocumentByInvoiceId(invoice.id).pipe(
-                                        map(doc => { invoice.document = doc ? { id: doc.id, fileName: doc.fileName ?? null } : null; }),
+                                        map(doc => {
+                                            invoice.document = doc?.id ? { id: doc.id, fileName: doc.fileName ?? null } : null;
+                                        }),
                                         catchError(() => of(null))
                                     )
                                     : of(null)

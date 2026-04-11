@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, asapScheduler, scheduled } from 'rxjs';
 
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 import { isPresent } from 'app/core/util/operators';
 import { ApplicationConfigService } from 'app/core/config/application-config.service';
@@ -71,13 +71,13 @@ export class DocumentService {
     return o1 && o2 ? this.getDocumentIdentifier(o1) === this.getDocumentIdentifier(o2) : o1 === o2;
   }
 
-  getDocumentByInvoiceId(invoiceId: number): Observable<IDocument> {
-  return this.http.get<IDocument>(`${this.resourceUrl}/invoice/${invoiceId}`);
-}
+  getDocumentByInvoiceId(invoiceId: number): Observable<IDocument | null> {
+    return this.http.get<IDocument[]>(`${this.resourceUrl}/invoice/${invoiceId}`).pipe(map(documents => documents?.[0] ?? null));
+  }
 
-getDocumentsByInvoiceId(invoiceId: number): Observable<IDocument[]> {
-  return this.http.get<IDocument[]>(`${this.resourceUrl}/invoice/${invoiceId}`);
-}
+  getDocumentsByInvoiceId(invoiceId: number): Observable<IDocument[]> {
+    return this.http.get<IDocument[]>(`${this.resourceUrl}/invoice/${invoiceId}`);
+  }
 
   downloadDocument(id: number): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/download/${id}`, {
